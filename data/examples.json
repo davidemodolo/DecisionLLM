@@ -1,0 +1,174 @@
+[
+ {
+  "icon": "lightbulb",
+  "name": "Segnalazione al Comune",
+  "state": "Buongiorno, vi scrivo perché da tre settimane il lampione davanti al civico 12 di via Roma è spento. La sera la strada è completamente buia e ieri una signora anziana è inciampata sul marciapiede rotto proprio lì davanti. Ho già chiamato il numero verde due volte senza risposta. Chiedo un intervento urgente. Mario Rossi",
+  "questions": [
+   {
+    "type": "choice",
+    "question": "Di quale ufficio è competenza la segnalazione?",
+    "options": [
+     "Lavori pubblici",
+     "Polizia locale",
+     "Servizi sociali",
+     "Tributi"
+    ],
+    "none": true
+   },
+   {
+    "type": "score",
+    "question": "Quanto è urgente?",
+    "options": [
+     "Bassa",
+     "Media",
+     "Alta"
+    ]
+   },
+   {
+    "type": "yesno",
+    "question": "Il cittadino segnala un pericolo per l'incolumità delle persone?"
+   },
+   {
+    "type": "score",
+    "question": "Che tono ha il messaggio?",
+    "options": [
+     "Molto cortese",
+     "Neutro",
+     "Irritato",
+     "Aggressivo"
+    ]
+   },
+   {
+    "type": "yesno",
+    "question": "Il cittadino dice di aver già contattato il Comune?"
+   }
+  ]
+ },
+ {
+  "icon": "mail",
+  "name": "Email all'ufficio tributi",
+  "state": "Oggetto: TARI 2026. Gentili, ho ricevuto l'avviso di pagamento della TARI ma l'importo è il doppio dell'anno scorso. Nel frattempo mio figlio è andato a vivere fuori casa e siamo rimasti in due. Vorrei sapere se posso chiedere la riduzione e se devo pagare comunque entro la scadenza del 16 dicembre. Allego la ricevuta del cambio di residenza. Cordiali saluti, Anna Bianchi",
+  "questions": [
+   {
+    "type": "choice",
+    "question": "Cosa chiede principalmente la cittadina?",
+    "options": [
+     "Rateizzare il pagamento",
+     "Ricalcolare l'importo",
+     "Annullare l'avviso",
+     "Sapere la scadenza"
+    ],
+    "none": true
+   },
+   {
+    "type": "yesno",
+    "question": "Il messaggio contiene un allegato?"
+   },
+   {
+    "type": "choice",
+    "question": "Quale documento ha già fornito?",
+    "options": [
+     "Certificato di residenza",
+     "ISEE",
+     "Planimetria dell'immobile",
+     "Contratto d'affitto"
+    ],
+    "none": true
+   },
+   {
+    "type": "score",
+    "question": "Quanto è soddisfatta la cittadina?",
+    "options": [
+     "Per niente",
+     "Poco",
+     "Abbastanza",
+     "Molto"
+    ]
+   }
+  ]
+ },
+ {
+  "icon": "restaurant",
+  "name": "Recensione",
+  "state": "Il risotto ai funghi era ottimo e il personale gentilissimo, ma abbiamo aspettato quasi un'ora per il secondo e il conto finale ci è sembrato davvero alto per quello che abbiamo mangiato. Non so se torneremo.",
+  "questions": [
+   {
+    "type": "choice",
+    "question": "Qual è l'aspetto più criticato?",
+    "options": [
+     "Qualità del cibo",
+     "Tempi di attesa",
+     "Prezzo",
+     "Personale"
+    ],
+    "none": false
+   },
+   {
+    "type": "score",
+    "question": "Quanto è soddisfatto il cliente?",
+    "options": [
+     "Per niente",
+     "Poco",
+     "Abbastanza",
+     "Molto"
+    ]
+   },
+   {
+    "type": "yesno",
+    "question": "Il cliente chiede un rimborso?"
+   },
+   {
+    "type": "yesno",
+    "question": "Il cliente parla bene del personale?"
+   }
+  ]
+ },
+ {
+  "icon": "quiz",
+  "name": "Quiz con risposte",
+  "state": "",
+  "questions": [
+   {
+    "type": "choice",
+    "question": "Qual è la capitale dell'Australia?",
+    "options": [
+     "Sydney",
+     "Canberra",
+     "Melbourne",
+     "Perth"
+    ],
+    "none": true,
+    "answer": "B"
+   },
+   {
+    "type": "choice",
+    "question": "Chi ha scritto I Promessi Sposi?",
+    "options": [
+     "Giovanni Verga",
+     "Ugo Foscolo",
+     "Giacomo Leopardi",
+     "Italo Calvino"
+    ],
+    "none": true,
+    "answer": "E"
+   },
+   {
+    "type": "choice",
+    "question": "Quanto fa 12 × 12?",
+    "options": [
+     "124",
+     "144",
+     "132",
+     "154"
+    ],
+    "none": true,
+    "answer": "B"
+   },
+   {
+    "type": "yesno",
+    "question": "La Luna è più grande della Terra?",
+    "answer": "B"
+   }
+  ]
+ }
+]

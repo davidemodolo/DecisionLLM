@@ -1,0 +1,1355 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DecisionLLM</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2218%22%20fill%3D%22%23415f91%22/%3E%3Cpath%20d%3D%22M32%2050V34M32%2034L19%2021M32%2034l13-13%22%20stroke%3D%22%23fff%22%20stroke-width%3D%226%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20fill%3D%22none%22/%3E%3Ccircle%20cx%3D%2245%22%20cy%3D%2221%22%20r%3D%226%22%20fill%3D%22%23d6e3ff%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..800&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&display=block" rel="stylesheet">
+<style>
+:root {
+  --primary: #415f91; --on-primary: #fff; --primary-container: #d6e3ff; --on-primary-container: #284777;
+  --secondary: #565f71; --secondary-container: #dae2f9; --on-secondary-container: #3e4759;
+  --tertiary: #705575; --tertiary-container: #fad8fd; --on-tertiary-container: #573e5c;
+  --error: #ba1a1a; --error-container: #ffdad6; --on-error-container: #93000a;
+  --good: #1f6b3a; --good-container: #c7efcf; --on-good-container: #0d4f26;
+  --surface: #f9f9ff; --surface-lowest: #fff; --surface-low: #f3f3fa; --surface-container: #ededf4;
+  --surface-high: #e7e8ee; --surface-highest: #e2e2e9; --on-surface: #191c20; --on-surface-variant: #44474e;
+  --outline: #74777f; --outline-variant: #c4c6d0; --inverse-surface: #2e3036; --inverse-on-surface: #f0f0f7;
+  --scrim: rgba(0,0,0,.32);
+  --spring-fast: linear(0, .25 6%, .7 15%, 1.02 26%, 1.07 33%, 1.04 44%, 1 60%, .995 75%, 1);
+  --spring: linear(0, .17 7%, .55 17%, .9 29%, 1.03 40%, 1.04 50%, 1.01 65%, 1);
+  --effects: cubic-bezier(.2, 0, 0, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --primary: #aac7ff; --on-primary: #0a305f; --primary-container: #284777; --on-primary-container: #d6e3ff;
+    --secondary: #bec6dc; --secondary-container: #3e4759; --on-secondary-container: #dae2f9;
+    --tertiary: #ddbce0; --tertiary-container: #573e5c; --on-tertiary-container: #fad8fd;
+    --error: #ffb4ab; --error-container: #93000a; --on-error-container: #ffdad6;
+    --good: #8fd6a2; --good-container: #10512a; --on-good-container: #c7efcf;
+    --surface: #111318; --surface-lowest: #0c0e13; --surface-low: #191c20; --surface-container: #1d2024;
+    --surface-high: #282a2f; --surface-highest: #33353a; --on-surface: #e2e2e9; --on-surface-variant: #c4c6d0;
+    --outline: #8e9099; --outline-variant: #44474e; --inverse-surface: #e2e2e9; --inverse-on-surface: #2e3036;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --primary: #aac7ff; --on-primary: #0a305f; --primary-container: #284777; --on-primary-container: #d6e3ff;
+  --secondary: #bec6dc; --secondary-container: #3e4759; --on-secondary-container: #dae2f9;
+  --tertiary: #ddbce0; --tertiary-container: #573e5c; --on-tertiary-container: #fad8fd;
+  --error: #ffb4ab; --error-container: #93000a; --on-error-container: #ffdad6;
+  --good: #8fd6a2; --good-container: #10512a; --on-good-container: #c7efcf;
+  --surface: #111318; --surface-lowest: #0c0e13; --surface-low: #191c20; --surface-container: #1d2024;
+  --surface-high: #282a2f; --surface-highest: #33353a; --on-surface: #e2e2e9; --on-surface-variant: #c4c6d0;
+  --outline: #8e9099; --outline-variant: #44474e; --inverse-surface: #e2e2e9; --inverse-on-surface: #2e3036;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--surface-container); color: var(--on-surface);
+  font: 400 15px/1.5 "Roboto Flex", system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+}
+.icon { font-family: "Material Symbols Rounded"; font-size: 24px; line-height: 1; font-weight: normal; font-style: normal;
+  display: inline-block; letter-spacing: normal; text-transform: none; white-space: nowrap; direction: ltr;
+  font-variation-settings: "FILL" 0; user-select: none; }
+.icon.fill { font-variation-settings: "FILL" 1; }
+.icon.sm { font-size: 20px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+h1, h2, h3, h4 { margin: 0; font-weight: 500; }
+.headline { font-size: 28px; line-height: 36px; font-weight: 500; }
+.title-lg { font-size: 22px; line-height: 28px; font-weight: 500; }
+.title-md { font-size: 16px; line-height: 24px; font-weight: 600; letter-spacing: .15px; }
+.label-lg { font-size: 14px; line-height: 20px; font-weight: 600; letter-spacing: .1px; }
+.label-md { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .5px; }
+.body-sm { font-size: 13px; line-height: 18px; }
+.muted { color: var(--on-surface-variant); }
+.mono { font-family: "Roboto Mono", ui-monospace, monospace; }
+
+/* layout */
+.app { display: grid; grid-template-columns: 96px 1fr; min-height: 100vh; }
+.rail { position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; align-items: center;
+  gap: 4px; padding: 20px 0; background: var(--surface-container); }
+.rail .brand { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 24px;
+  background: var(--primary-container); color: var(--on-primary-container); }
+.rail a { width: 88px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 0 8px;
+  text-decoration: none; color: var(--on-surface-variant); font-size: 12px; font-weight: 600; letter-spacing: .3px;
+  text-align: center; line-height: 16px; }
+.rail a .pill { width: 56px; height: 32px; border-radius: 16px; display: grid; place-items: center;
+  transition: background .2s var(--effects); }
+.rail a:hover .pill { background: color-mix(in srgb, var(--on-surface) 8%, transparent); }
+.rail a.active { color: var(--on-surface); }
+.rail a.active .pill { background: var(--secondary-container); color: var(--on-secondary-container); }
+.rail a.active .icon { font-variation-settings: "FILL" 1; }
+.rail .spacer { flex: 1; }
+.main { min-width: 0; background: var(--surface); border-radius: 28px 0 0 28px; padding: 0 32px 120px; }
+.topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px; padding: 16px 0;
+  background: var(--surface); flex-wrap: wrap; }
+.topbar .page-title { flex: 1; min-width: 200px; }
+.page { display: none; max-width: 1180px; }
+.page.active { display: block; animation: enter .45s var(--spring); }
+@keyframes enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.lead { max-width: 780px; margin: 0 0 24px; color: var(--on-surface-variant); font-size: 16px; line-height: 24px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.between { justify-content: space-between; }
+
+/* surfaces */
+.card { background: var(--surface-low); border-radius: 28px; padding: 24px; --fbg: var(--surface-low); }
+.card.outlined { background: var(--surface); border: 1px solid var(--outline-variant); }
+.card h3 { margin-bottom: 4px; }
+.card .sub { color: var(--on-surface-variant); margin: 0 0 16px; font-size: 14px; }
+
+/* buttons */
+.btn { --h: 40px; height: var(--h); padding: 0 20px; border-radius: calc(var(--h) / 2); border: 0; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 14px;
+  letter-spacing: .1px; white-space: nowrap; position: relative; overflow: hidden;
+  transition: border-radius .35s var(--spring-fast), background .2s var(--effects); }
+.btn::after { content: ""; position: absolute; inset: 0; background: currentColor; opacity: 0; transition: opacity .15s; }
+.btn:hover::after { opacity: .08; }
+.btn:active { border-radius: 12px; }
+.btn:active::after { opacity: .12; }
+.btn:disabled { opacity: .38; cursor: default; }
+.btn:disabled::after { display: none; }
+.btn .icon { font-size: 20px; }
+.btn.filled { background: var(--primary); color: var(--on-primary); }
+.btn.tonal { background: var(--secondary-container); color: var(--on-secondary-container); }
+.btn.outlined { background: transparent; border: 1px solid var(--outline-variant); color: var(--on-surface-variant); }
+.btn.text { background: transparent; color: var(--primary); padding: 0 12px; }
+.btn.lg { --h: 56px; padding: 0 28px; font-size: 16px; }
+.btn.lg .icon { font-size: 24px; }
+.icon-btn { width: 40px; height: 40px; border-radius: 20px; border: 0; background: transparent; cursor: pointer;
+  display: inline-grid; place-items: center; color: var(--on-surface-variant); position: relative; overflow: hidden;
+  transition: border-radius .35s var(--spring-fast); flex: none; }
+.icon-btn::after { content: ""; position: absolute; inset: 0; background: currentColor; opacity: 0; transition: opacity .15s; }
+.icon-btn:hover::after { opacity: .08; }
+.icon-btn:active { border-radius: 12px; }
+.icon-btn.tonal { background: var(--surface-highest); }
+.fab { position: fixed; right: 32px; bottom: 32px; z-index: 30; height: 72px; padding: 0 28px 0 24px; border-radius: 22px;
+  border: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 600;
+  background: var(--primary-container); color: var(--on-primary-container);
+  box-shadow: 0 3px 6px rgba(0,0,0,.15), 0 6px 18px rgba(0,0,0,.12);
+  transition: border-radius .35s var(--spring-fast), transform .35s var(--spring-fast); }
+.fab:hover { transform: translateY(-2px); }
+.fab:active { border-radius: 36px; transform: scale(.97); }
+.fab .icon { font-size: 28px; }
+.fab:disabled { opacity: .6; cursor: default; }
+.fab kbd { font: 500 12px "Roboto Mono", monospace; opacity: .7; }
+.page:not(.active) .fab { display: none; }
+
+/* connected button group (M3 expressive) */
+.group { display: inline-flex; gap: 2px; flex-wrap: wrap; }
+.group button { height: 40px; padding: 0 16px; border: 0; cursor: pointer; background: var(--surface-highest);
+  color: var(--on-surface-variant); font-weight: 600; font-size: 14px; border-radius: 8px;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: border-radius .4s var(--spring-fast), background .2s var(--effects), color .2s; }
+.group button:first-child { border-radius: 20px 8px 8px 20px; }
+.group button:last-child { border-radius: 8px 20px 20px 8px; }
+.group button.on { background: var(--primary); color: var(--on-primary); border-radius: 20px; }
+.group button .icon { font-size: 18px; }
+.group.sm button { height: 32px; padding: 0 12px; font-size: 13px; }
+.group.sm button:first-child { border-radius: 16px 6px 6px 16px; }
+.group.sm button:last-child { border-radius: 6px 16px 16px 6px; }
+.group.sm button.on { border-radius: 16px; }
+
+/* chips and badges */
+.chip { height: 32px; padding: 0 16px 0 8px; border-radius: 8px; border: 1px solid var(--outline-variant);
+  background: transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 14px;
+  font-weight: 500; color: var(--on-surface-variant); transition: background .2s, border-radius .35s var(--spring-fast); }
+.chip:hover { background: color-mix(in srgb, var(--on-surface) 8%, transparent); }
+.chip:active { border-radius: 16px; }
+.chip .icon { font-size: 18px; color: var(--primary); }
+.badge { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 2px 12px 2px 8px; border-radius: 14px;
+  font-size: 13px; font-weight: 600; }
+.badge .icon { font-size: 18px; }
+.badge.good { background: var(--good-container); color: var(--on-good-container); }
+.badge.warn { background: var(--tertiary-container); color: var(--on-tertiary-container); }
+.badge.bad { background: var(--error-container); color: var(--on-error-container); }
+.badge.neutral { background: var(--surface-highest); color: var(--on-surface-variant); }
+
+/* text fields */
+.field { position: relative; display: block; }
+.field input, .field textarea, .field select { width: 100%; border: 1px solid var(--outline); border-radius: 12px;
+  background: transparent; padding: 14px 16px; font-size: 16px; outline: none; transition: border-color .15s; }
+.field textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+.field select { appearance: none; padding-right: 40px; cursor: pointer; }
+.field select option { background: var(--surface-low); color: var(--on-surface); }
+.field.select::after { content: "arrow_drop_down"; font-family: "Material Symbols Rounded"; font-size: 24px;
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--on-surface-variant); }
+.field input:focus, .field textarea:focus, .field select:focus { border: 2px solid var(--primary); padding: 13px 15px; }
+.field .fl { position: absolute; left: 12px; top: -9px; padding: 0 4px; font-size: 12px; font-weight: 500; line-height: 16px;
+  color: var(--on-surface-variant); background: var(--fbg, var(--surface)); z-index: 1; }
+.field:focus-within .fl { color: var(--primary); }
+.field.dense input, .field.dense select { padding: 10px 14px; font-size: 15px; }
+.field.dense input:focus, .field.dense select:focus { padding: 9px 13px; }
+.field.dense select { padding-right: 36px; }
+.field.dense.select::after { right: 8px; }
+
+/* switch */
+.switch { position: relative; width: 52px; height: 32px; flex: none; display: inline-block; }
+.switch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; z-index: 1; }
+.switch span { position: absolute; inset: 0; border-radius: 16px; background: var(--surface-highest);
+  border: 2px solid var(--outline); transition: background .2s; }
+.switch span::before { content: ""; position: absolute; width: 16px; height: 16px; left: 6px; top: 6px; border-radius: 50%;
+  background: var(--outline); transition: all .35s var(--spring-fast); }
+.switch input:checked + span { background: var(--primary); border-color: var(--primary); }
+.switch input:checked + span::before { width: 24px; height: 24px; left: 22px; top: 2px; background: var(--on-primary); }
+.switch input:active + span::before { width: 28px; height: 28px; top: 0; }
+.switch input:disabled { cursor: default; }
+.switch input:disabled + span { opacity: .38; }
+.setting { display: flex; align-items: center; gap: 16px; padding: 12px 0; }
+.setting .txt { flex: 1; min-width: 0; }
+.setting .txt b { display: block; font-weight: 500; font-size: 16px; }
+.setting .txt small { display: block; color: var(--on-surface-variant); font-size: 13px; line-height: 18px; }
+.inline-switch { display: inline-flex; align-items: center; gap: 12px; font-size: 14px; color: var(--on-surface-variant); }
+
+/* slider */
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 44px; background: transparent; cursor: pointer; margin: 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 16px; border-radius: 8px;
+  background: linear-gradient(to right, var(--primary) var(--fill, 50%), var(--secondary-container) var(--fill, 50%)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 4px; height: 44px; margin-top: -14px;
+  border-radius: 2px; background: var(--primary); box-shadow: 0 0 0 6px var(--fbg, var(--surface-low)); }
+input[type=range]::-moz-range-track { height: 16px; border-radius: 8px; background: var(--secondary-container); }
+input[type=range]::-moz-range-progress { height: 16px; border-radius: 8px; background: var(--primary); }
+input[type=range]::-moz-range-thumb { width: 4px; height: 44px; border: 0; border-radius: 2px; background: var(--primary); }
+
+/* side sheet */
+.scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 40; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.scrim.open { opacity: 1; pointer-events: auto; }
+.sheet { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100vw); z-index: 41; background: var(--surface-low);
+  border-radius: 28px 0 0 28px; padding: 24px; overflow-y: auto; transform: translateX(105%);
+  transition: transform .5s var(--spring); --fbg: var(--surface-low); }
+.sheet.open { transform: none; }
+.sheet section { padding: 8px 0 16px; }
+.sheet section + section { border-top: 1px solid var(--outline-variant); padding-top: 16px; }
+.sheet .label-md { color: var(--primary); text-transform: uppercase; display: block; margin-bottom: 4px; }
+
+/* question editor */
+.q-card { background: var(--surface-low); border-radius: 28px; padding: 20px 24px 24px; --fbg: var(--surface-low); }
+.q-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+.q-num { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; font-weight: 700;
+  background: var(--primary-container); color: var(--on-primary-container); flex: none; }
+.q-head .grow { flex: 1; }
+.opt-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0 4px; }
+.opt-row { display: flex; align-items: center; gap: 10px; }
+.letter { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: var(--surface-highest); color: var(--on-surface-variant); font-weight: 700; font-size: 14px; }
+.opt-row .field { flex: 1; }
+.q-foot { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 12px; }
+.q-foot .field { width: 280px; max-width: 100%; }
+.hint { font-size: 13px; color: var(--on-surface-variant); margin-top: 12px; }
+.fixed-opts { display: flex; gap: 8px; margin: 14px 0 4px; }
+
+/* answer */
+.answer { margin-top: 20px; padding: 20px; border-radius: 20px; background: var(--surface-container); animation: enter .5s var(--spring); }
+.answer-top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.answer-main { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 240px; }
+.big-letter { min-width: 48px; height: 48px; padding: 0 8px; border-radius: 16px; display: grid; place-items: center;
+  font-size: 20px; font-weight: 700; background: var(--primary); color: var(--on-primary); flex: none; }
+.answer-main .what { font-size: 20px; font-weight: 600; line-height: 26px; }
+.answer-main .pct { font-size: 13px; color: var(--on-surface-variant); }
+.bars { display: flex; flex-direction: column; gap: 6px; }
+.bar-row { display: grid; grid-template-columns: 26px minmax(80px, 240px) 1fr 52px; align-items: center; gap: 10px; font-size: 14px; }
+.bar-row .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track { height: 12px; border-radius: 6px; background: var(--surface-highest); position: relative; }
+.bar-fill { display: block; height: 100%; border-radius: 6px; background: var(--outline); }
+.bar-row.top .bar-fill { background: var(--primary); }
+.bar-row.top .name { font-weight: 700; }
+.bar-row .val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.bar-row .letter { width: 26px; height: 26px; font-size: 12px; }
+.bar-row.top .letter { background: var(--primary); color: var(--on-primary); }
+.bar-row .ok { color: var(--good); font-size: 18px; vertical-align: -4px; margin-left: 4px; }
+.facts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.fact { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--on-surface-variant);
+  background: var(--surface-low); border-radius: 10px; padding: 6px 10px; }
+.fact .icon { font-size: 18px; }
+.fact b { color: var(--on-surface); font-weight: 600; }
+.scale { position: relative; margin: 8px 0 22px; }
+.scale-track { display: flex; gap: 4px; }
+.scale-track div { flex: 1; height: 16px; border-radius: 4px; background: var(--primary); }
+.scale-track div:first-child { border-radius: 8px 4px 4px 8px; }
+.scale-track div:last-child { border-radius: 4px 8px 8px 4px; }
+.scale-marker { position: absolute; top: -6px; width: 4px; height: 28px; border-radius: 2px; background: var(--on-surface); transform: translateX(-2px); }
+.scale-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--on-surface-variant); margin-top: 6px; }
+details.under { margin-top: 14px; }
+details.under summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 6px;
+  color: var(--primary); font-weight: 600; font-size: 14px; }
+details.under summary::-webkit-details-marker { display: none; }
+details.under summary .icon { transition: transform .35s var(--spring-fast); }
+details.under[open] summary .icon { transform: rotate(180deg); }
+
+/* heatmap */
+.heat { border-collapse: separate; border-spacing: 3px; font-size: 13px; margin-top: 12px; }
+.heat th { font-weight: 600; color: var(--on-surface-variant); padding: 2px 6px; text-align: center; max-width: 130px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.heat th.rowh { text-align: left; font-weight: 500; }
+.heat td { min-width: 72px; height: 38px; border-radius: 8px; text-align: center; font-variant-numeric: tabular-nums; font-weight: 600; }
+.heat td.meta { min-width: 0; background: none; font-weight: 400; color: var(--on-surface-variant); text-align: left; padding: 0 8px; white-space: nowrap; }
+.heat td .pos { display: block; font-size: 10px; font-weight: 500; opacity: .8; }
+
+/* stats */
+.kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.kpi { background: var(--surface-low); border-radius: 20px; padding: 16px 18px; }
+.kpi .k { font-size: 13px; color: var(--on-surface-variant); display: flex; align-items: center; gap: 6px; }
+.kpi .k .icon { font-size: 18px; }
+.kpi .v { font-size: 30px; line-height: 38px; font-weight: 600; letter-spacing: -.3px; font-variant-numeric: tabular-nums; }
+.kpi .d { font-size: 12px; color: var(--on-surface-variant); }
+.summary-strip { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 12px 16px;
+  border-radius: 20px; background: var(--primary-container); color: var(--on-primary-container); animation: enter .4s var(--spring); }
+.summary-strip .fact { background: color-mix(in srgb, var(--surface-lowest) 55%, transparent); color: var(--on-primary-container); }
+.summary-strip .fact b { color: inherit; }
+
+/* charts */
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { fill: var(--on-surface-variant); font-size: 11px; font-family: "Roboto Flex", system-ui, sans-serif; }
+.chart .grid line { stroke: var(--outline-variant); stroke-width: 1; }
+.chart .lbl { fill: var(--on-surface); font-size: 12px; font-weight: 600; }
+.chart [data-tip] { cursor: default; }
+.chart.hbar { max-width: 640px; }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--on-surface-variant); margin: 4px 0 8px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; margin-right: 6px; vertical-align: -1px; }
+.tip { position: fixed; z-index: 60; pointer-events: none; background: var(--inverse-surface); color: var(--inverse-on-surface);
+  padding: 8px 12px; border-radius: 8px; font-size: 13px; line-height: 18px; max-width: 280px; opacity: 0; transition: opacity .12s; }
+.tip.show { opacity: 1; }
+
+/* tables */
+.table-wrap { overflow-x: auto; }
+table.data { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.data th { text-align: left; font-weight: 600; font-size: 12px; color: var(--on-surface-variant); padding: 10px 12px;
+  border-bottom: 1px solid var(--outline-variant); white-space: nowrap; }
+table.data td { padding: 10px 12px; border-bottom: 1px solid var(--outline-variant); vertical-align: middle; }
+table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.data tr:last-child td { border-bottom: 0; }
+
+/* loading indicator (shape morph) */
+.loader { width: 48px; height: 48px; display: grid; place-items: center; flex: none; }
+.loader div { width: 38px; height: 38px; background: var(--primary); animation: morph 1.6s var(--spring) infinite; }
+@keyframes morph {
+  0% { border-radius: 50%; transform: rotate(0) scale(1); }
+  25% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; transform: rotate(90deg) scale(.9); }
+  50% { border-radius: 12px; transform: rotate(180deg) scale(.85); }
+  75% { border-radius: 50% 20% 50% 20%; transform: rotate(270deg) scale(.95); }
+  100% { border-radius: 50%; transform: rotate(360deg) scale(1); }
+}
+.loading-card { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 20px; background: var(--surface-low); }
+.empty { text-align: center; padding: 40px 24px; color: var(--on-surface-variant); }
+.empty .icon { font-size: 48px; color: var(--outline); display: block; margin-bottom: 8px; }
+
+.demo-banner { display: flex; gap: 12px; align-items: flex-start; padding: 14px 18px; margin: 0 0 20px; max-width: 1180px;
+  border-radius: 20px; background: var(--tertiary-container); color: var(--on-tertiary-container); font-size: 14px; line-height: 20px; }
+.demo-banner a { color: inherit; font-weight: 600; }
+.demo-banner[hidden] { display: none; }
+
+/* top bar status */
+.status { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 12px; border-radius: 20px;
+  background: var(--surface-container); font-size: 14px; color: var(--on-surface-variant); }
+.status .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--outline); }
+.status.ready .dot { background: var(--good); }
+.status.busy .dot { background: var(--primary); animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+.model-pick { width: 290px; --fbg: var(--surface); }
+
+/* snackbar */
+.snack { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 140px); z-index: 70; background: var(--inverse-surface);
+  color: var(--inverse-on-surface); padding: 14px 20px; border-radius: 12px; font-size: 14px; max-width: min(560px, 90vw);
+  transition: transform .45s var(--spring), visibility 0s .45s; box-shadow: 0 4px 12px rgba(0,0,0,.2); visibility: hidden; }
+.snack.show { transform: translate(-50%, 0); visibility: visible; transition: transform .45s var(--spring); }
+
+/* how it works */
+.steps { counter-reset: step; display: flex; flex-direction: column; gap: 16px; }
+.step { background: var(--surface-low); border-radius: 28px; padding: 24px 24px 24px 80px; position: relative; }
+.step::before { counter-increment: step; content: counter(step); position: absolute; left: 24px; top: 22px; width: 36px; height: 36px;
+  border-radius: 12px; display: grid; place-items: center; font-weight: 700; background: var(--tertiary-container); color: var(--on-tertiary-container); }
+.step h3 { margin-bottom: 4px; }
+.step p { margin: 0 0 12px; color: var(--on-surface-variant); }
+.step .answer { margin-top: 0; }
+pre.prompt { white-space: pre-wrap; word-break: break-word; background: var(--surface-container); border-radius: 16px; padding: 16px;
+  font: 13px/1.55 "Roboto Mono", monospace; margin: 0; max-height: 360px; overflow: auto; }
+pre.prompt mark { background: var(--primary-container); color: var(--on-primary-container); border-radius: 4px; padding: 0 2px; }
+.token-cloud { display: flex; gap: 8px; flex-wrap: wrap; }
+.token { font: 500 14px "Roboto Mono", monospace; padding: 6px 10px; border-radius: 10px; background: var(--surface-container); }
+.token b { font-family: "Roboto Flex", sans-serif; margin-left: 6px; color: var(--on-surface-variant); font-weight: 500; }
+
+@media (max-width: 1000px) {
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .app { grid-template-columns: 1fr; }
+  .rail { position: fixed; top: auto; bottom: 0; left: 0; right: 0; height: 80px; flex-direction: row; justify-content: space-around;
+    padding: 12px 0 16px; z-index: 35; }
+  .rail .brand, .rail .spacer, .rail .theme { display: none; }
+  .rail a { width: auto; flex: 1; font-size: 11px; }
+  .main { border-radius: 0; padding: 0 16px 180px; }
+  .fab { bottom: 100px; right: 16px; height: 56px; border-radius: 16px; font-size: 16px; }
+  .fab kbd { display: none; }
+  .model-pick { width: 100%; }
+  .topbar { position: static; }
+  .step { padding: 72px 20px 20px; }
+  .bar-row { grid-template-columns: 26px minmax(60px, 1fr) 1fr 46px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Sezioni">
+    <div class="brand" title="DecisionLLM"><svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 50V34M32 34L19 21M32 34l13-13" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="45" cy="21" r="6" fill="var(--primary)"/></svg></div>
+    <a href="#decidi" data-page="decidi"><span class="pill"><span class="icon">bolt</span></span>Decidi</a>
+    <a href="#valuta" data-page="valuta"><span class="pill"><span class="icon">fact_check</span></span>Valuta</a>
+    <a href="#modelli" data-page="modelli"><span class="pill"><span class="icon">leaderboard</span></span>Modelli</a>
+    <a href="#come" data-page="come"><span class="pill"><span class="icon">manufacturing</span></span>Come funziona</a>
+    <div class="spacer"></div>
+    <button class="icon-btn theme" id="themeBtn" title="Tema chiaro o scuro"><span class="icon">dark_mode</span></button>
+  </nav>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="page-title"><h1 class="headline" id="pageTitle">Decidi</h1></div>
+      <label class="field select dense model-pick"><span class="fl">Modello</span><select id="model"></select></label>
+      <div class="status" id="status"><span class="dot"></span><span id="statusText">Non caricato</span></div>
+      <button class="btn tonal" id="loadBtn"><span class="icon">download</span>Carica</button>
+      <button class="icon-btn tonal" id="settingsBtn" title="Impostazioni"><span class="icon">tune</span></button>
+    </header>
+
+    <div class="demo-banner" id="demoBanner" hidden><span class="icon">info</span><div><b>Demo statica.</b>
+      Per Qwen3.5 0.8B, LFM2.5 1.2B e Qwen3.5 2B le risposte a esempi, domande di test e "Come funziona" sono state
+      calcolate in anticipo dai modelli veri, con i tempi misurati su una GPU da 8 GB. Gli altri modelli e le domande
+      nuove ricevono probabilità casuali, segnate come <i>simulate</i>.
+      I benchmark nella pagina Modelli sono reali. Per usare i modelli dal vivo:
+      <a href="https://github.com/davidemodolo/DecisionLLM">github.com/davidemodolo/DecisionLLM</a>.</div></div>
+
+    <!-- DECIDI -->
+    <section class="page" id="page-decidi">
+      <p class="lead">Scrivi un contesto e una o più domande. Per ogni domanda il modello sceglie una delle risposte che
+        indichi e dice quanto è sicuro. Ogni risposta richiede un solo passaggio del modello e nessun testo generato.</p>
+      <div class="row" style="margin-bottom:20px">
+        <span class="label-lg muted" style="margin-right:4px">Esempi</span>
+        <span id="examples" class="row"></span>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <div class="row between" style="margin-bottom:12px;align-items:flex-start">
+            <div><h2 class="title-lg">1. Contesto</h2>
+              <div class="muted body-sm">Il testo su cui decidere: una segnalazione, una mail, un documento. Vale per tutte le domande. Facoltativo.</div></div>
+            <button class="btn text" id="clearState"><span class="icon">backspace</span>Svuota</button>
+          </div>
+          <label class="field"><textarea id="state" rows="5" placeholder="Es. Buongiorno, da tre settimane il lampione davanti al civico 12 è spento..."></textarea></label>
+        </div>
+        <div class="row between" style="margin-top:8px">
+          <div><h2 class="title-lg">2. Domande <span class="muted" id="qCount"></span></h2>
+            <div class="muted body-sm">Tre tipi: <b>scelta</b> tra opzioni, <b>punteggio</b> su una scala ordinata, <b>sì / no</b>.</div></div>
+          <div class="row">
+            <button class="btn text" id="importBtn"><span class="icon">upload</span>Importa</button>
+            <button class="btn text" id="exportBtn"><span class="icon">download</span>Esporta</button>
+            <button class="btn text" id="clearQs"><span class="icon">delete_sweep</span>Svuota</button>
+          </div>
+        </div>
+        <div id="questions" class="stack"></div>
+        <div class="row">
+          <span class="muted label-lg">Aggiungi</span>
+          <button class="btn tonal" data-add="choice"><span class="icon">list</span>Scelta</button>
+          <button class="btn tonal" data-add="score"><span class="icon">linear_scale</span>Punteggio</button>
+          <button class="btn tonal" data-add="yesno"><span class="icon">rule</span>Sì / No</button>
+        </div>
+        <h2 class="title-lg" style="margin-top:8px">3. Risultato</h2>
+        <div id="summaryDecide"><div class="muted body-sm">Premi <b>Decidi</b>: la risposta compare sotto ogni domanda.</div></div>
+      </div>
+      <button class="fab" id="runBtn"><span class="icon">bolt</span>Decidi <kbd>Ctrl+Invio</kbd></button>
+    </section>
+
+    <!-- VALUTA -->
+    <section class="page" id="page-valuta">
+      <p class="lead">Misura quanto il modello è affidabile su domande con risposta nota: accuratezza, calibrazione
+        (la sicurezza dichiarata corrisponde a quella reale?) e preferenza per certe lettere. Ogni esecuzione finisce nello
+        storico in fondo, così puoi confrontare impostazioni e modelli.</p>
+      <div class="grid2">
+        <div class="card">
+          <h2 class="title-lg">Domande</h2>
+          <p class="sub">Su cosa misurare</p>
+          <div class="group" id="evalSource">
+            <button data-v="test" class="on"><span class="icon">quiz</span>Domande di test</button>
+            <button data-v="mine"><span class="icon">edit_note</span>Le mie domande</button>
+          </div>
+          <div id="evalTestOpts" style="margin-top:16px">
+            <div class="row between"><span>Quante domande</span><b id="evalNLabel">64</b></div>
+            <input type="range" id="evalN" min="16" max="256" step="16" value="64">
+            <div class="muted body-sm">256 domande italiane semplici (aritmetica, capitali, contrari, sinonimi...), ognuna con 4 opzioni più "Nessuna delle altre".</div>
+          </div>
+          <div id="evalMineOpts" class="muted body-sm" style="margin-top:16px;display:none">Usa le domande della pagina Decidi che hanno una risposta attesa.</div>
+          <div class="row" style="margin-top:20px">
+            <button class="btn filled lg" id="evalBtn"><span class="icon">play_arrow</span>Esegui</button>
+            <button class="btn outlined lg" id="evalCompareBtn" title="Esegue due volte: con una passata e con le permutazioni"><span class="icon">compare_arrows</span>Con e senza scramble</button>
+          </div>
+        </div>
+        <div class="card">
+          <h2 class="title-lg">Quando decidere da solo</h2>
+          <p class="sub">Conformal prediction: su domande con risposta nota si fissa una soglia di probabilità. Le opzioni sopra soglia formano il <i>prediction set</i>, che contiene la risposta giusta con probabilità almeno 1−ε. Con una sola opzione nel set il modello decide, altrimenti chiede aiuto a una persona.</p>
+          <div class="row between"><span>ε, errore tollerato</span><b id="epsLabel">10%</b></div>
+          <input type="range" id="epsilon" min="0.02" max="0.3" step="0.01" value="0.1">
+          <div class="row" style="margin-top:8px">
+            <button class="btn tonal" id="calMine"><span class="icon">tune</span>Calibra sulle domande scelte</button>
+            <button class="btn outlined" id="calMmlu"><span class="icon">school</span>Calibra su Global-MMLU</button>
+          </div>
+          <div id="calInfo" class="body-sm muted" style="margin-top:12px"></div>
+        </div>
+      </div>
+      <div id="evalOut" style="margin-top:24px"></div>
+      <div class="card" style="margin-top:24px">
+        <div class="row between"><h2 class="title-lg">Storico esecuzioni</h2><button class="btn text" id="clearHistory"><span class="icon">delete</span>Svuota</button></div>
+        <div class="table-wrap" id="history"></div>
+      </div>
+    </section>
+
+    <!-- MODELLI -->
+    <section class="page" id="page-modelli">
+      <p class="lead">Risultati del benchmark su <b>Global-MMLU-Lite in italiano</b>: 400 domande di cultura generale con
+        4 opzioni più "Nessuna delle altre". Nel 20% dei casi la risposta corretta è stata tolta, così la risposta giusta
+        diventa "Nessuna delle altre". Rispondendo a caso si ottiene circa il 21%. I dati vengono da
+        <span class="mono">bench/results</span>; passa il mouse sui grafici per i dettagli.</p>
+      <div id="benchOut"></div>
+    </section>
+
+    <!-- COME FUNZIONA -->
+    <section class="page" id="page-come">
+      <p class="lead">Una domanda, passo per passo: cosa vede il modello, cosa risponde e come la risposta diventa una decisione con probabilità.</p>
+      <div class="card" style="margin-bottom:16px">
+        <div class="grid2">
+          <label class="field"><span class="fl">Domanda</span><input id="xq" value="Qual è la capitale dell'Australia?"></label>
+          <label class="field"><span class="fl">Opzioni, separate da virgola</span><input id="xo" value="Sydney, Canberra, Melbourne, Perth"></label>
+        </div>
+        <div class="row" style="margin-top:16px">
+          <span class="inline-switch"><span class="switch"><input type="checkbox" id="xnone" checked><span></span></span>Aggiungi "Nessuna delle altre"</span>
+          <span style="flex:1"></span>
+          <span class="muted body-sm">Permutazioni</span>
+          <div class="group sm" id="xk"><button data-v="1">1</button><button data-v="3">3</button><button data-v="5" class="on">5</button></div>
+          <button class="btn filled" id="xBtn"><span class="icon">play_arrow</span>Analizza</button>
+        </div>
+      </div>
+      <div id="xOut"></div>
+    </section>
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="sheet" id="sheet" aria-label="Impostazioni">
+  <div class="row between" style="margin-bottom:8px"><h2 class="headline">Impostazioni</h2>
+    <button class="icon-btn" id="sheetClose" title="Chiudi"><span class="icon">close</span></button></div>
+  <section>
+    <span class="label-md">Scramble</span>
+    <div class="setting"><div class="txt"><b>Permuta le opzioni</b><small>Pone ogni domanda più volte con le opzioni in ordine diverso e unisce le risposte. Toglie la preferenza del modello per certe posizioni e migliora la calibrazione, al costo di più passaggi.</small></div>
+      <label class="switch"><input type="checkbox" id="scrambleOn"><span></span></label></div>
+    <div id="scrambleOpts">
+      <div class="row between"><span>Permutazioni per domanda</span><b id="kLabel">5</b></div>
+      <input type="range" id="k" min="2" max="10" step="1" value="5">
+      <div style="margin:8px 0 6px" class="body-sm muted">Come unire le risposte</div>
+      <div class="group sm" id="aggregation"></div>
+      <div class="body-sm muted" id="aggHelp" style="margin-top:8px"></div>
+    </div>
+  </section>
+  <section>
+    <span class="label-md">Velocità</span>
+    <div class="setting"><div class="txt"><b>Cache del prefisso</b><small>Il testo comune (contesto e domanda) viene elaborato una volta sola e riusato per tutte le permutazioni e le domande. Stesse probabilità, meno calcolo.</small></div>
+      <label class="switch"><input type="checkbox" id="prefixCache"><span></span></label></div>
+    <div class="setting"><div class="txt"><b>Set-based attention</b><small>Le opzioni non si vedono tra loro e partono dalla stessa posizione: l'ordine non conta e basta un passaggio. Disponibile solo per i modelli con soli layer di attention (Granite). Riduce l'accuratezza.</small></div>
+      <label class="switch"><input type="checkbox" id="setAttention"><span></span></label></div>
+  </section>
+  <section>
+    <span class="label-md">Avanzate</span>
+    <label class="field select dense" style="margin:14px 0 16px"><span class="fl">Stile del prompt</span><select id="promptStyle"></select></label>
+    <div class="grid2" style="gap:12px">
+      <label class="field dense"><span class="fl">Token per batch</span><input type="number" id="batchTokens" min="64" step="256"></label>
+      <label class="field dense"><span class="fl">Righe max per batch</span><input type="number" id="batchRows" min="1"></label>
+    </div>
+    <div class="body-sm muted" style="margin-top:8px">Il batch si riempie fino al budget di token (righe × lunghezza del prompt più lungo). Un budget più alto è più veloce finché la memoria della GPU basta.</div>
+  </section>
+  <section>
+    <span class="label-md">Dispositivo</span>
+    <div id="deviceInfo" class="body-sm muted" style="margin-top:6px"></div>
+  </section>
+</aside>
+<div class="tip" id="tip"></div>
+<div class="snack" id="snack" role="status"></div>
+<input type="file" id="importFile" accept="application/json" hidden>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const LETTERS = "ABCDEFGHIJ";
+const pct = (x, d = 0) => x == null ? "–" : `${(100 * x).toFixed(d)}%`;
+const fmt = (x, d = 2) => x == null ? "–" : Number(x).toFixed(d);
+const ms = s => s == null ? "–" : s < 1 ? `${Math.round(1000 * s)} ms` : `${s.toFixed(1)} s`;
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("dllm." + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("dllm." + k, JSON.stringify(v)); } catch {} },
+};
+let CFG = null, busy = false;
+
+const AGG_HELP = {
+  geomean: "Media geometrica: un'opzione scartata con decisione anche da una sola permutazione resta bassa. Di solito la più accurata.",
+  mean: "Media aritmetica delle probabilità.",
+  weighted: "Media pesata con la probabilità che ogni permutazione mette sulle lettere.",
+  vote: "Voto di maggioranza sulle scelte di ogni permutazione; la media decide i pareggi.",
+};
+const AGG_LABEL = {geomean: "Geometrica", mean: "Media", weighted: "Pesata", vote: "Voto"};
+
+let EXAMPLES = [];
+
+/* ---------- api ---------- */
+async function serverApi(path, body) {
+  const r = await fetch(path, body ? {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)} : {});
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const d = data.detail;
+    throw new Error(Array.isArray(d) ? d.map(e => `${e.loc?.slice(-2).join(".")}: ${e.msg}`).join("; ") : d || r.statusText);
+  }
+  return data;
+}
+const api = window.demoApi || serverApi;
+function snack(msg) {
+  const s = $("#snack"); s.textContent = msg; s.classList.add("show");
+  clearTimeout(snack.t); snack.t = setTimeout(() => s.classList.remove("show"), 5000);
+}
+function setBusy(on, label) {
+  busy = on;
+  $$("#runBtn, #evalBtn, #evalCompareBtn, #calMine, #calMmlu, #xBtn, #loadBtn").forEach(b => b.disabled = on);
+  $("#status").classList.toggle("busy", on);
+  if (on) $("#statusText").textContent = label;
+  else renderStatus();
+}
+function loadingCard(text) {
+  const cold = CFG.engine?.loaded !== S.model;
+  return `<div class="loading-card"><div class="loader"><div></div></div><div><div class="title-md">${esc(text)}</div>
+    <div class="body-sm muted">${cold ? "Prima il modello viene caricato in memoria: qualche secondo, di più se va scaricato." : CFG.gpu ? "Sulla GPU il primo passaggio di una nuova forma compila i kernel." : "Su CPU servono alcuni secondi per domanda."}</div></div></div>`;
+}
+
+/* ---------- settings ---------- */
+const S = Object.assign({model: null, scramble: true, k: 5, aggregation: "geomean", prefix: true, set: false,
+  prompt: null, batchTokens: null, batchRows: null, epsilon: 0.1}, store.get("settings", {}));
+const saveSettings = () => store.set("settings", S);
+const spec = () => CFG.models.find(m => m.key === S.model);
+function runParams() {
+  return {model: S.model, scramble: S.scramble ? S.k : 1, aggregation: S.aggregation, batch_size: S.batchRows,
+    batch_tokens: S.batchTokens, prompt_style: S.prompt, prefix_cache: S.prefix, set_attention: !!(S.set && spec().set_attention)};
+}
+function setRangeFill(el) { el.style.setProperty("--fill", `${100 * (el.value - el.min) / (el.max - el.min)}%`); }
+function bindGroup(el, onPick) {
+  el.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b || b.disabled) return;
+    el.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+    onPick(b.dataset.v);
+  });
+}
+function renderSettings() {
+  $("#scrambleOn").checked = S.scramble;
+  $("#scrambleOpts").style.opacity = S.scramble ? 1 : .4;
+  $("#scrambleOpts").style.pointerEvents = S.scramble ? "" : "none";
+  $("#k").value = S.k; $("#kLabel").textContent = S.k; setRangeFill($("#k"));
+  $$("#aggregation button").forEach(b => b.classList.toggle("on", b.dataset.v === S.aggregation));
+  $("#aggHelp").textContent = AGG_HELP[S.aggregation];
+  $("#prefixCache").checked = S.prefix;
+  const canSet = !!spec()?.set_attention;
+  $("#setAttention").disabled = !canSet;
+  $("#setAttention").checked = S.set && canSet;
+  $("#promptStyle").value = S.prompt;
+  $("#batchTokens").value = S.batchTokens; $("#batchRows").value = S.batchRows;
+  $("#epsilon").value = S.epsilon; $("#epsLabel").textContent = pct(S.epsilon); setRangeFill($("#epsilon"));
+  renderCalInfo();
+}
+function renderStatus() {
+  const e = CFG.engine, loaded = e?.loaded === S.model;
+  $("#status").classList.toggle("ready", loaded);
+  const where = e?.device === "cuda" ? `GPU, ${fmt(e.vram_gb, 1)} GB` : e?.device === "demo" ? "demo" : "CPU";
+  $("#statusText").textContent = loaded ? `Pronto · ${where}` : "Non caricato";
+  $("#loadBtn").style.display = loaded ? "none" : "";
+}
+function openSheet(on) { $("#sheet").classList.toggle("open", on); $("#scrim").classList.toggle("open", on); }
+
+/* ---------- navigation ---------- */
+const TITLES = {decidi: "Decidi", valuta: "Valuta l'affidabilità", modelli: "Confronto tra modelli", come: "Come funziona"};
+const currentPage = () => { const p = location.hash.slice(1); return TITLES[p] ? p : "decidi"; };
+function route() {
+  const name = currentPage();
+  $$(".page").forEach(p => p.classList.toggle("active", p.id === `page-${name}`));
+  $$(".rail a").forEach(a => a.classList.toggle("active", a.dataset.page === name));
+  $("#pageTitle").textContent = TITLES[name];
+  if (name === "modelli") loadBench();
+}
+
+/* ---------- questions ---------- */
+let QS = store.get("questions", null);
+let STATE_TEXT = store.get("state", "");
+let lastReport = null;
+const blankQ = type => ({type, question: "", options: type === "yesno" ? [] : type === "score" ? ["Bassa", "Media", "Alta"] : ["", "", ""], none: type === "choice", answer: ""});
+const fromExample = q => ({...blankQ(q.type), ...structuredClone(q)});
+const saveQs = () => { store.set("questions", QS); store.set("state", STATE_TEXT); };
+
+// Editor letters follow the option rows; empty rows are dropped before sending, so the answer letter is remapped.
+function answerChoices(q) {
+  if (q.type === "yesno") return [["A", "Sì"], ["B", "No"]];
+  const out = q.options.map((o, j) => [LETTERS[j], o.trim()]).filter(([, o]) => o);
+  if (q.type === "choice" && q.none) out.push([LETTERS[q.options.length], CFG.none_option]);
+  return out;
+}
+function payloadQuestion(q, i) {
+  const kept = q.options.map((o, j) => [o.trim(), j]).filter(([o]) => o);
+  let answer = q.answer || null;
+  if (answer && q.type !== "yesno") {
+    const j = LETTERS.indexOf(answer);
+    if (j === q.options.length) answer = q.type === "choice" && q.none ? LETTERS[kept.length] : null;
+    else { const at = kept.findIndex(([, idx]) => idx === j); answer = at >= 0 ? LETTERS[at] : null; }
+  }
+  return {id: String(i), type: q.type, question: q.question.trim(), options: q.type === "yesno" ? [] : kept.map(([o]) => o),
+    none_option: q.type === "choice" && q.none, answer};
+}
+
+function renderQuestions() {
+  const box = $("#questions");
+  $("#qCount").textContent = QS.length ? `(${QS.length})` : "";
+  if (!QS.length) {
+    box.innerHTML = `<div class="card outlined empty"><span class="icon">help</span><div class="title-md">Nessuna domanda</div>
+      <div class="body-sm">Aggiungine una con i pulsanti qui sotto o scegli un esempio.</div></div>`;
+    return;
+  }
+  box.innerHTML = QS.map(questionCard).join("");
+  if (lastReport) QS.forEach((_, i) => renderAnswer(i));
+}
+function answerSelect(q, i) {
+  return `<select data-q="${i}" data-f="answer"><option value="">Nessuna</option>${answerChoices(q).map(([l, o]) =>
+    `<option value="${l}" ${q.answer === l ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>`;
+}
+function questionCard(q, i) {
+  const types = [["choice", "list", "Scelta"], ["score", "linear_scale", "Punteggio"], ["yesno", "rule", "Sì / No"]];
+  const what = q.type === "score" ? "Livello" : "Opzione";
+  const maxOpts = q.type === "choice" && q.none ? 9 : 10;
+  const body = q.type === "yesno"
+    ? `<div class="fixed-opts"><span class="badge neutral">A · Sì</span><span class="badge neutral">B · No</span></div>
+       <div class="hint">Il risultato è la probabilità del Sì.</div>`
+    : `${q.type === "score" ? `<div class="hint">Livelli in ordine, dal più basso al più alto. Il risultato è un punteggio medio su questa scala.</div>` : ""}
+       <div class="opt-list">${q.options.map((o, j) => `<div class="opt-row"><span class="letter">${LETTERS[j]}</span>
+         <label class="field dense"><input data-q="${i}" data-opt="${j}" value="${esc(o)}" placeholder="${what} ${LETTERS[j]}" aria-label="${what} ${LETTERS[j]}"></label>
+         <button class="icon-btn" data-q="${i}" data-delopt="${j}" title="Rimuovi"><span class="icon sm">close</span></button></div>`).join("")}</div>
+       ${q.options.length < maxOpts ? `<button class="btn text" data-q="${i}" data-addopt><span class="icon">add</span>${what}</button>` : ""}`;
+  return `<div class="q-card" id="q${i}">
+    <div class="q-head"><span class="q-num">${i + 1}</span>
+      <div class="group sm" data-q="${i}" data-type>${types.map(([t, ic, l]) => `<button data-v="${t}" class="${q.type === t ? "on" : ""}"><span class="icon">${ic}</span>${l}</button>`).join("")}</div>
+      <span class="grow"></span>
+      <button class="icon-btn" data-q="${i}" data-dup title="Duplica"><span class="icon">content_copy</span></button>
+      <button class="icon-btn" data-q="${i}" data-del title="Elimina"><span class="icon">delete</span></button>
+    </div>
+    <label class="field"><span class="fl">Domanda</span><input data-q="${i}" data-f="question" value="${esc(q.question)}" placeholder="${q.type === "yesno" ? "Es. Il cittadino chiede un rimborso?" : q.type === "score" ? "Es. Quanto è urgente?" : "Es. Di quale ufficio è competenza?"}"></label>
+    ${body}
+    <div class="q-foot">
+      ${q.type === "choice" ? `<span class="inline-switch"><span class="switch"><input type="checkbox" data-q="${i}" data-f="none" ${q.none ? "checked" : ""}><span></span></span>Aggiungi "${esc(CFG.none_option)}"</span>` : ""}
+      <span style="flex:1"></span>
+      <label class="field select dense"><span class="fl">Risposta attesa (facoltativa)</span>${answerSelect(q, i)}</label>
+    </div>
+    <div id="ans${i}"></div>
+  </div>`;
+}
+function questionsChanged() {
+  saveQs();
+  lastReport = null;
+  $("#summaryDecide").innerHTML = `<div class="muted body-sm">Premi <b>Decidi</b>: la risposta compare sotto ogni domanda.</div>`;
+  renderQuestions();
+}
+function bindQuestions() {
+  const box = $("#questions");
+  box.addEventListener("input", e => {
+    const t = e.target, i = +t.dataset.q;
+    if (Number.isNaN(i)) return;
+    if (t.dataset.opt != null) {
+      QS[i].options[+t.dataset.opt] = t.value;
+      const sel = $(`#q${i} [data-f=answer]`);
+      if (sel) sel.outerHTML = answerSelect(QS[i], i);
+    } else if (t.dataset.f === "question") QS[i].question = t.value;
+    saveQs();
+  });
+  box.addEventListener("change", e => {
+    const t = e.target, i = +t.dataset.q;
+    if (t.dataset.f === "none") {
+      QS[i].none = t.checked;
+      if (!t.checked && QS[i].answer === LETTERS[QS[i].options.length]) QS[i].answer = "";
+      questionsChanged();
+    } else if (t.dataset.f === "answer") { QS[i].answer = t.value; saveQs(); }
+  });
+  box.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const i = +b.dataset.q;
+    if (Number.isNaN(i)) {
+      const grp = b.closest("[data-type]");
+      if (!grp) return;
+      const qi = +grp.dataset.q, type = b.dataset.v;
+      if (QS[qi].type === type) return;
+      const keep = QS[qi].type !== "yesno" && type !== "yesno" ? QS[qi].options : blankQ(type).options;
+      QS[qi] = {...blankQ(type), question: QS[qi].question, options: keep};
+      return questionsChanged();
+    }
+    if ("addopt" in b.dataset) {
+      QS[i].options.push(""); questionsChanged();
+      $(`#q${i} [data-opt="${QS[i].options.length - 1}"]`)?.focus();
+    } else if (b.dataset.delopt != null) { QS[i].options.splice(+b.dataset.delopt, 1); QS[i].answer = ""; questionsChanged(); }
+    else if ("del" in b.dataset) { QS.splice(i, 1); questionsChanged(); }
+    else if ("dup" in b.dataset) { QS.splice(i + 1, 0, structuredClone(QS[i])); questionsChanged(); }
+  });
+}
+
+/* ---------- answers ---------- */
+function confidenceBadge(r) {
+  if (r.prediction_set) {
+    return r.decided ? `<span class="badge good" title="Prediction set con una sola opzione"><span class="icon">verified</span>Decide da solo</span>` :
+      `<span class="badge warn" title="Più opzioni sopra la soglia di calibrazione"><span class="icon">front_hand</span>Chiede aiuto: ${r.prediction_set.join(", ")}</span>`;
+  }
+  const c = r.confidence;
+  return c >= .8 ? `<span class="badge good"><span class="icon">check_circle</span>Molto sicuro</span>` :
+    c >= .55 ? `<span class="badge neutral"><span class="icon">radio_button_partial</span>Abbastanza sicuro</span>` :
+    `<span class="badge warn"><span class="icon">help</span>Incerto</span>`;
+}
+function answerHtml(r) {
+  const opts = r.options, top = LETTERS.indexOf(r.argmax);
+  let headline;
+  if (r.type === "yesno") {
+    const yes = r.p_yes >= .5;
+    headline = `<div class="answer-main"><span class="big-letter">${yes ? "Sì" : "No"}</span><div><div class="what">${yes ? "Sì" : "No"}</div><div class="pct">probabilità del Sì: ${pct(r.p_yes, 1)}</div></div></div>`;
+  } else {
+    headline = `<div class="answer-main"><span class="big-letter">${r.argmax}</span><div><div class="what">${esc(opts[top])}</div>
+      <div class="pct">${pct(r.confidence, 1)} di probabilità${r.type === "score" ? ` · punteggio medio ${fmt(r.score, 2)} su ${opts.length}` : ""}</div></div></div>`;
+  }
+  const maxP = Math.max(...r.probs);
+  const scale = r.type === "score" ? `<div class="scale"><div class="scale-track">${opts.map((_, j) => `<div style="opacity:${.12 + .88 * r.probs[j] / maxP}"></div>`).join("")}</div>
+      <div class="scale-marker" style="left:${100 * r.score_norm}%" title="Punteggio medio"></div>
+      <div class="scale-labels">${opts.map(o => `<span>${esc(o)}</span>`).join("")}</div></div>` : "";
+  const bars = `<div class="bars">${opts.map((o, j) => {
+    return `<div class="bar-row ${j === top ? "top" : ""}"><span class="letter">${LETTERS[j]}</span>
+      <span class="name" title="${esc(o)}">${esc(o)}${r.answer === LETTERS[j] ? `<span class="icon ok fill" title="Risposta attesa">check_circle</span>` : ""}</span>
+      <span class="bar-track"><span class="bar-fill" style="width:${100 * r.probs[j]}%"></span></span>
+      <span class="val">${pct(r.probs[j])}</span></div>`;
+  }).join("")}</div>`;
+  const k = r.variants.length;
+  const facts = [
+    r.correct != null ? `<span class="badge ${r.correct ? "good" : "bad"}"><span class="icon">${r.correct ? "task_alt" : "cancel"}</span>${r.correct ? "Corretta" : `Sbagliata, attesa: ${esc(opts[LETTERS.indexOf(r.answer)])}`}</span>` : "",
+    k > 1 ? `<span class="fact" title="Permutazioni che hanno scelto la stessa risposta finale"><span class="icon">shuffle</span>Coerenza <b>${Math.round(r.consistency * k)}/${k}</b></span>` : "",
+    `<span class="fact" title="Probabilità che il modello mette sulle lettere rispetto a tutto il vocabolario"><span class="icon">percent</span>Probabilità sulle lettere <b>${pct(r.letter_mass)}</b></span>`,
+    `<span class="fact" title="0 = certezza assoluta; il massimo corrisponde a una risposta a caso"><span class="icon">blur_on</span>Entropia <b>${fmt(r.entropy)}</b> su ${fmt(Math.log(opts.length))}</span>`,
+  ].join("");
+  const sim = r.simulated ? `<span class="badge neutral" title="Domanda non registrata nella demo: probabilità casuali"><span class="icon">casino</span>Simulata</span>` : "";
+  return `<div class="answer"><div class="answer-top">${headline}${sim}${confidenceBadge(r)}</div>${scale}${bars}<div class="facts">${facts}</div>
+    <details class="under"><summary><span class="icon">expand_more</span>${k > 1 ? `Cosa ha risposto ognuna delle ${k} permutazioni` : "Dettaglio del passaggio"}</summary>${heatmap(r)}</details></div>`;
+}
+function heatColor(p) {
+  return `background:color-mix(in srgb, var(--primary) ${Math.round(100 * p)}%, var(--surface-low));color:${p > .5 ? "var(--on-primary)" : "var(--on-surface)"}`;
+}
+function heatmap(r) {
+  const opts = r.options;
+  const head = `<tr><th></th>${opts.map((o, j) => `<th title="${esc(o)}">${LETTERS[j]} · ${esc(o)}</th>`).join("")}<th>Sulle lettere</th><th>Avrebbe scritto</th></tr>`;
+  const rows = r.variants.map((v, vi) => `<tr><th class="rowh">${r.variants.length > 1 ? `Perm. ${vi + 1}` : "Passaggio"}</th>${opts.map((_, j) =>
+    `<td style="${heatColor(v.probs[j])}">${pct(v.probs[j])}<span class="pos">mostrata come ${LETTERS[v.order.indexOf(j)]}</span></td>`).join("")}
+    <td class="meta">${pct(v.letter_mass)}</td><td class="meta mono">${esc(JSON.stringify(v.unconstrained_top))}</td></tr>`).join("");
+  return `<div class="body-sm muted" style="margin-top:10px">Ogni riga è un passaggio del modello. Le colonne sono le opzioni nell'ordine originale; sotto la percentuale la lettera con cui l'opzione è stata presentata in quel passaggio. "Avrebbe scritto" è il token più probabile senza vincoli.</div>
+    <div class="table-wrap"><table class="heat">${head}${rows}</table></div>`;
+}
+function renderAnswer(i) {
+  const r = lastReport?.byId[String(i)], el = $(`#ans${i}`);
+  if (r && el) el.innerHTML = answerHtml(r);
+}
+function timingFacts(s) {
+  return [
+    `<span class="fact"><span class="icon">timer</span>Totale <b>${ms(s.total_s)}</b></span>`,
+    `<span class="fact"><span class="icon">speed</span><b>${ms(s.forward_s / s.questions)}</b> per domanda</span>`,
+    `<span class="fact" title="Domande × permutazioni"><span class="icon">stacks</span><b>${s.prompts}</b> passaggi del modello</span>`,
+    s.tokens_saved ? `<span class="fact" title="Token del testo comune calcolati una volta sola"><span class="icon">cached</span>Cache: <b>${s.tokens_saved}</b> token risparmiati</span>` : "",
+    s.peak_vram_gb ? `<span class="fact"><span class="icon">memory</span>Memoria GPU <b>${fmt(s.peak_vram_gb, 1)} GB</b></span>` : "",
+  ].join("");
+}
+async function runDecide() {
+  if (busy) return;
+  const qs = QS.map(payloadQuestion).filter(q => q.question);
+  if (!qs.length) return snack("Scrivi il testo di almeno una domanda");
+  const bad = qs.find(q => q.type !== "yesno" && q.options.length + (q.none_option ? 1 : 0) < 2);
+  if (bad) return snack(`"${bad.question}" ha bisogno di almeno due opzioni`);
+  $("#summaryDecide").innerHTML = loadingCard(`Il modello sta valutando ${qs.length} ${qs.length === 1 ? "domanda" : "domande"}...`);
+  setBusy(true, "Elaborazione...");
+  try {
+    const rep = await api("/api/score", {...runParams(), state: STATE_TEXT.trim() || null, questions: qs});
+    CFG.engine = rep.model;
+    lastReport = {byId: Object.fromEntries(rep.results.map(r => [r.id, r])), summary: rep.summary};
+    const s = rep.summary;
+    const graded = s.graded ? `<span class="fact"><span class="icon">task_alt</span>Corrette <b>${Math.round(s.accuracy * s.graded)} su ${s.graded}</b></span>` : "";
+    $("#summaryDecide").innerHTML = `<div class="summary-strip"><span class="icon fill">bolt</span><b style="margin-right:8px">Fatto, risposte sotto ogni domanda</b>${graded}${timingFacts(s)}</div>`;
+    QS.forEach((_, i) => renderAnswer(i));
+    $("#ans0")?.scrollIntoView({behavior: "smooth", block: "center"});
+  } catch (e) {
+    $("#summaryDecide").innerHTML = "";
+    snack(e.message);
+  } finally { setBusy(false); }
+}
+
+/* ---------- charts (SVG) ---------- */
+function tipOn(el) {
+  const tip = $("#tip");
+  el.addEventListener("mousemove", e => {
+    const t = e.target.closest("[data-tip]");
+    if (!t) return tip.classList.remove("show");
+    tip.innerHTML = t.dataset.tip; tip.classList.add("show");
+    tip.style.left = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8) + "px";
+    tip.style.top = (e.clientY + 14) + "px";
+  });
+  el.addEventListener("mouseleave", () => tip.classList.remove("show"));
+}
+function reliabilityChart(rel) {
+  const W = 340, H = 300, m = {l: 44, r: 12, t: 12, b: 40}, w = W - m.l - m.r, h = H - m.t - m.b;
+  const X = v => m.l + v * w, Y = v => m.t + (1 - v) * h;
+  const ticks = [0, .25, .5, .75, 1];
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Diagramma di affidabilità">`;
+  s += `<g class="grid">${ticks.map(t => `<line x1="${X(0)}" x2="${X(1)}" y1="${Y(t)}" y2="${Y(t)}"/>`).join("")}</g>`;
+  s += ticks.map(t => `<text x="${m.l - 8}" y="${Y(t) + 4}" text-anchor="end">${pct(t)}</text><text x="${X(t)}" y="${H - m.b + 18}" text-anchor="middle">${pct(t)}</text>`).join("");
+  s += `<line x1="${X(0)}" y1="${Y(0)}" x2="${X(1)}" y2="${Y(1)}" stroke="var(--outline)" stroke-dasharray="4 4"/>`;
+  const maxN = Math.max(1, ...rel.map(b => b.n));
+  rel.forEach(b => {
+    const bw = (b.hi - b.lo) * w - 4;
+    s += `<rect x="${X(b.lo) + 2}" y="${Y(b.accuracy)}" width="${bw}" height="${Math.max(1, Y(0) - Y(b.accuracy))}" rx="4" fill="var(--primary)" opacity="${.35 + .65 * b.n / maxN}"
+      data-tip="Confidenza ${pct(b.lo)}–${pct(b.hi)}<br>${b.n} domande<br>confidenza media ${pct(b.confidence, 1)}<br>accuratezza ${pct(b.accuracy, 1)}"/>`;
+  });
+  s += `<text x="${m.l + w / 2}" y="${H - 4}" text-anchor="middle">confidenza dichiarata</text>`;
+  s += `<text transform="translate(12 ${m.t + h / 2}) rotate(-90)" text-anchor="middle">accuratezza reale</text></svg>`;
+  return s;
+}
+function barChart(items, {max = 1, ref = null, refLabel = "", fmtV = v => pct(v), height = 24, W = 520, labelW = 170} = {}) {
+  const valW = 56, H = items.length * (height + 8) + 16, w = W - labelW - valW;
+  let s = `<svg class="chart hbar" viewBox="0 0 ${W} ${H}">`;
+  items.forEach((it, i) => {
+    const y = 4 + i * (height + 8), bw = Math.max(4, w * Math.min(it.v, max) / max);
+    s += `<text x="${labelW - 10}" y="${y + height / 2 + 4}" text-anchor="end" class="${it.strong ? "lbl" : ""}">${esc(it.label)}</text>`;
+    s += `<rect x="${labelW}" y="${y}" width="${w}" height="${height}" rx="6" fill="var(--surface-highest)"/>`;
+    s += `<rect x="${labelW}" y="${y}" width="${bw}" height="${height}" rx="6" fill="${it.color || "var(--primary)"}" data-tip="${esc(it.tip || `${it.label}: ${fmtV(it.v)}`)}"/>`;
+    s += `<text x="${W - 4}" y="${y + height / 2 + 4}" text-anchor="end" class="lbl">${fmtV(it.v)}</text>`;
+  });
+  if (ref != null) {
+    const x = labelW + w * ref / max;
+    s += `<line x1="${x}" x2="${x}" y1="0" y2="${H - 12}" stroke="var(--on-surface)" stroke-dasharray="3 3" opacity=".6"/>`;
+    s += `<text x="${x}" y="${H - 1}" text-anchor="middle" font-size="10">${esc(refLabel)}</text>`;
+  }
+  return s + "</svg>";
+}
+function confidenceHist(results) {
+  const bins = 10, ok = Array(bins).fill(0), ko = Array(bins).fill(0);
+  results.filter(r => r.answer).forEach(r => { const b = Math.min(bins - 1, Math.floor(r.confidence * bins)); (r.correct ? ok : ko)[b]++; });
+  const W = 340, H = 300, m = {l: 36, r: 8, t: 12, b: 40}, w = W - m.l - m.r, h = H - m.t - m.b;
+  const max = Math.max(1, ...ok.map((v, i) => v + ko[i])), bw = w / bins;
+  const Y = v => m.t + h - h * v / max;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Distribuzione della confidenza">`;
+  const yt = [...new Set([0, Math.round(max / 2), max])];
+  s += `<g class="grid">${yt.map(t => `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(t)}" y2="${Y(t)}"/>`).join("")}</g>`;
+  s += yt.map(t => `<text x="${m.l - 6}" y="${Y(t) + 4}" text-anchor="end">${t}</text>`).join("");
+  for (let b = 0; b < bins; b++) {
+    const x = m.l + b * bw + 2, hOk = h * ok[b] / max, hKo = h * ko[b] / max;
+    const tip = `Confidenza ${b * 10}–${b * 10 + 10}%<br>corrette ${ok[b]}, sbagliate ${ko[b]}`;
+    if (ok[b]) s += `<rect x="${x}" y="${m.t + h - hOk}" width="${bw - 4}" height="${hOk}" rx="3" fill="var(--primary)" data-tip="${tip}"/>`;
+    if (ko[b]) s += `<rect x="${x}" y="${m.t + h - hOk - hKo - (ok[b] ? 2 : 0)}" width="${bw - 4}" height="${hKo}" rx="3" fill="var(--error)" data-tip="${tip}"/>`;
+  }
+  s += [0, .5, 1].map(t => `<text x="${m.l + t * w}" y="${H - m.b + 18}" text-anchor="middle">${pct(t)}</text>`).join("");
+  s += `<text x="${m.l + w / 2}" y="${H - 4}" text-anchor="middle">confidenza della risposta</text></svg>`;
+  return s;
+}
+
+/* ---------- valuta ---------- */
+let TEST_QS = null, evalSource = "test", lastEval = null;
+let HISTORY = store.get("history", []);
+async function evalQuestions() {
+  if (evalSource === "mine") {
+    const qs = QS.map(payloadQuestion).filter(q => q.question && q.answer);
+    return {qs, cats: qs.map(() => "mie domande")};
+  }
+  TEST_QS ||= await api("/api/test-questions");
+  const n = +$("#evalN").value, step = TEST_QS.length / n;
+  const picked = Array.from({length: n}, (_, i) => TEST_QS[Math.floor(i * step)]);
+  return {qs: picked.map((q, i) => ({id: String(i), type: "choice", question: q.question, options: q.options, none_option: true, answer: q.answer})),
+    cats: picked.map(q => q.category)};
+}
+async function runEval(compare) {
+  if (busy) return;
+  const {qs, cats} = await evalQuestions();
+  if (qs.length < 2) return snack("Servono almeno 2 domande con risposta attesa nella pagina Decidi");
+  const configs = compare ? [{...runParams(), scramble: 1}, {...runParams(), scramble: Math.max(S.k, 2)}] : [runParams()];
+  $("#evalOut").innerHTML = loadingCard(`Valutazione su ${qs.length} domande${compare ? ", due configurazioni" : ""}...`);
+  setBusy(true, "Valutazione...");
+  try {
+    const reps = [];
+    for (const p of configs) {
+      const rep = await api("/api/score", {...p, questions: qs});
+      CFG.engine = rep.model;
+      reps.push({rep, params: p});
+      addHistory(rep, p, evalSource === "test" ? `test (${qs.length})` : `mie (${qs.length})`);
+    }
+    lastEval = {cats, reps};
+    renderEval();
+  } catch (e) { $("#evalOut").innerHTML = ""; snack(e.message); }
+  finally { setBusy(false); }
+}
+const configName = p => p.scramble > 1 ? `${p.scramble} permutazioni, ${AGG_LABEL[p.aggregation].toLowerCase()}` : "1 passata";
+function evalBlock({rep, params}, cats, narrow) {
+  const s = rep.summary, res = rep.results, c = s.conformal;
+  const kpi = (icon, k, v, d = "") => `<div class="kpi"><div class="k"><span class="icon">${icon}</span>${k}</div><div class="v">${v}</div><div class="d">${d}</div></div>`;
+  const byCat = {};
+  res.forEach((r, i) => (byCat[cats[i]] ||= []).push(r.correct));
+  const catItems = Object.entries(byCat).map(([k, v]) => {
+    const ok = v.filter(Boolean).length;
+    return {label: k, v: ok / v.length, tip: `${k}: ${ok} su ${v.length}`};
+  }).sort((a, b) => b.v - a.v);
+  const n = Math.max(...res.map(r => r.options.length));
+  const chance = res.reduce((a, r) => a + 1 / r.options.length, 0) / res.length;
+  const bias = (s.position_bias || []).slice(0, n).map((v, i) => ({label: `Lettera ${LETTERS[i]}`, v}));
+  const grid = narrow ? "stack" : "grid3";
+  return `<div class="stack">
+    <div class="row"><span class="badge neutral"><span class="icon">smart_toy</span>${esc(rep.model.label)}</span>
+      <span class="badge neutral"><span class="icon">shuffle</span>${esc(configName(params))}</span>
+      ${params.prefix_cache ? `<span class="badge neutral"><span class="icon">cached</span>cache</span>` : ""}
+      ${params.set_attention ? `<span class="badge neutral"><span class="icon">join</span>set-attention</span>` : ""}</div>
+    <div class="kpis">
+      ${kpi("task_alt", "Accuratezza", pct(s.accuracy, 1), `a caso: ${pct(chance)}`)}
+      ${kpi("tune", "ECE", fmt(s.ece, 3), "errore di calibrazione, 0 = perfetta")}
+      ${kpi("functions", "Brier", fmt(s.brier, 3), "errore quadratico, più basso è meglio")}
+      ${kpi("speed", "Per domanda", ms(s.forward_s / s.questions), `${fmt(s.prompts_per_s, 0)} passaggi al secondo`)}
+      ${c ? kpi("verified", "Decide da solo", pct(c.decided_rate), `accurato al ${pct(c.accuracy_when_decided)} quando decide`) : ""}
+      ${c ? kpi("shield", "Copertura", pct(c.coverage, 1), `obiettivo almeno ${pct(1 - c.epsilon)}`) : ""}
+    </div>
+    <div class="${grid}">
+      <div class="card"><h3 class="title-md">La sicurezza è affidabile?</h3><p class="sub">Accuratezza reale per fascia di confidenza. Sulla diagonale il modello è calibrato; sotto, è troppo sicuro di sé.</p>${reliabilityChart(s.reliability || [])}</div>
+      <div class="card"><h3 class="title-md">Confidenza delle risposte</h3><p class="sub">Un modello utile è sicuro quando ha ragione e incerto quando sbaglia.</p>
+        <div class="legend"><span><i style="background:var(--primary)"></i>corrette</span><span><i style="background:var(--error)"></i>sbagliate</span></div>
+        ${confidenceHist(res)}</div>
+      <div class="card"><h3 class="title-md">Preferenza per le lettere</h3><p class="sub">Probabilità media data a ogni posizione. Senza bias, tutte vicine alla linea tratteggiata.</p>
+        ${bias.length ? barChart(bias.map(b => ({...b, label: b.label.replace("Lettera ", "")})), {max: Math.max(.5, ...bias.map(b => b.v)), ref: 1 / n, refLabel: "uniforme", W: 300, labelW: 30, height: 28}) : ""}</div>
+    </div>
+    ${catItems.length > 1 ? `<div class="card"><h3 class="title-md">Accuratezza per categoria</h3>${barChart(catItems, {ref: chance, refLabel: "a caso"})}</div>` : ""}
+  </div>`;
+}
+function renderEval() {
+  const {reps, cats} = lastEval;
+  let html = reps.length > 1
+    ? `<div class="grid2" style="align-items:start">${reps.map(r => `<div>${evalBlock(r, cats, true)}</div>`).join("")}</div>`
+    : evalBlock(reps[0], cats, false);
+  const last = reps[reps.length - 1].rep;
+  html += `<div class="card" style="margin-top:16px"><div class="row between"><h3 class="title-md">Domande${reps.length > 1 ? " (con le permutazioni)" : ""}</h3>
+    <div class="group sm" id="errFilter"><button data-v="all" class="on">Tutte</button><button data-v="wrong">Sbagliate</button><button data-v="unsure">Incerte</button></div></div>
+    <div class="table-wrap" id="errTable"></div></div>`;
+  $("#evalOut").innerHTML = html;
+  $$("#evalOut .chart").forEach(tipOn);
+  bindGroup($("#errFilter"), v => renderErrTable(last, v));
+  renderErrTable(last, "all");
+}
+function renderErrTable(rep, filter) {
+  let rows = rep.results;
+  if (filter === "wrong") rows = rows.filter(r => r.correct === false);
+  if (filter === "unsure") rows = rows.filter(r => r.confidence < .55);
+  $("#errTable").innerHTML = rows.length ? `<table class="data"><thead><tr><th>Domanda</th><th>Risposta del modello</th><th>Attesa</th><th class="num">Confidenza</th><th class="num">Coerenza</th></tr></thead><tbody>
+    ${rows.map(r => {
+      const o = r.options;
+      return `<tr><td>${esc(r.question)}</td><td><span class="badge ${r.correct ? "good" : r.correct === false ? "bad" : "neutral"}">${r.argmax} · ${esc(o[LETTERS.indexOf(r.argmax)])}</span></td>
+        <td>${r.answer ? `${r.answer} · ${esc(o[LETTERS.indexOf(r.answer)])}` : "–"}</td><td class="num">${pct(r.confidence)}</td><td class="num">${pct(r.consistency)}</td></tr>`;
+    }).join("")}</tbody></table>` : `<div class="empty body-sm">Nessuna domanda</div>`;
+}
+function addHistory(rep, p, source) {
+  const s = rep.summary;
+  HISTORY.unshift({t: new Date().toLocaleTimeString("it-IT", {hour: "2-digit", minute: "2-digit"}), model: rep.model.label, source,
+    config: configName(p), cache: p.prefix_cache, set: p.set_attention, acc: s.accuracy, ece: s.ece, brier: s.brier,
+    perQ: s.forward_s / s.questions, decided: s.conformal?.decided_rate ?? null});
+  HISTORY = HISTORY.slice(0, 40);
+  store.set("history", HISTORY);
+  renderHistory();
+}
+function renderHistory() {
+  $("#history").innerHTML = HISTORY.length ? `<table class="data"><thead><tr><th>Ora</th><th>Modello</th><th>Domande</th><th>Configurazione</th>
+    <th class="num">Accuratezza</th><th class="num">ECE</th><th class="num">Brier</th><th class="num">Decide da solo</th><th class="num">Per domanda</th></tr></thead><tbody>
+    ${HISTORY.map(h => `<tr><td>${h.t}</td><td>${esc(h.model)}</td><td>${esc(h.source)}</td><td>${esc(h.config)}${h.cache ? ", cache" : ""}${h.set ? ", set-attention" : ""}</td>
+      <td class="num"><b>${pct(h.acc, 1)}</b></td><td class="num">${fmt(h.ece, 3)}</td><td class="num">${fmt(h.brier, 3)}</td>
+      <td class="num">${h.decided == null ? "–" : pct(h.decided)}</td><td class="num">${ms(h.perQ)}</td></tr>`).join("")}</tbody></table>` :
+    `<div class="empty body-sm">Le valutazioni eseguite compaiono qui.</div>`;
+}
+function renderCalInfo() {
+  if (!CFG) return;
+  const p = runParams();
+  const key = `${p.model}|${p.prompt_style}|s${p.scramble}|${p.scramble > 1 ? p.aggregation : "single"}${p.set_attention ? "|set" : ""}`;
+  const c = CFG.calibrations[key];
+  $("#calInfo").innerHTML = c
+    ? `<span class="badge good"><span class="icon">verified</span>Calibrato</span> su ${c.n} domande con ε ${pct(c.epsilon)}: un'opzione entra nel set se ha almeno il ${pct(c.threshold, 1)} di probabilità. Vale per questo modello e queste impostazioni, anche nella pagina Decidi.`
+    : `<span class="badge neutral"><span class="icon">info</span>Non calibrato</span> per questo modello e queste impostazioni. Senza calibrazione la sicurezza si basa solo sulla probabilità.`;
+}
+async function runCalibrate(source) {
+  if (busy) return;
+  const body = {...runParams(), epsilon: S.epsilon, source};
+  if (source === "questions") body.questions = (await evalQuestions()).qs;
+  $("#calInfo").innerHTML = loadingCard(source === "global-mmlu-dev" ? "Calibrazione su 215 domande di Global-MMLU..." : "Calibrazione...");
+  setBusy(true, "Calibrazione...");
+  try {
+    const r = await api("/api/calibrate", body);
+    CFG.calibrations[r.calibration.key] = r.calibration;
+    snack(`Calibrato: soglia ${pct(r.calibration.threshold, 1)}, copertura ${pct(r.summary.conformal.coverage)} sul set di calibrazione`);
+  } catch (e) { snack(e.message); }
+  finally { setBusy(false); renderCalInfo(); }
+}
+
+/* ---------- modelli (benchmark) ---------- */
+let BENCH = null;
+async function loadBench() {
+  if (BENCH) return;
+  $("#benchOut").innerHTML = `<div class="loading-card"><div class="loader"><div></div></div><div class="title-md">Lettura dei risultati...</div></div>`;
+  try { BENCH = await api("/api/bench"); renderBench(); }
+  catch (e) { $("#benchOut").innerHTML = `<div class="card empty">${esc(e.message)}</div>`; }
+}
+function dumbbell(rows, {title, yLabel, fmtV = v => pct(v), chance = null}) {
+  const W = 560, H = 320, m = {l: 52, r: 96, t: 16, b: 44}, w = W - m.l - m.r, h = H - m.t - m.b;
+  const vals = rows.flatMap(r => [r.a, r.b]).filter(v => v != null);
+  let lo = Math.min(...vals, chance ?? Infinity), hi = Math.max(...vals);
+  const pad = (hi - lo) * .12 || .05; lo = Math.max(0, lo - pad); hi += pad;
+  const x0 = Math.log2(.7), x1 = Math.log2(12);
+  const X = p => m.l + (Math.log2(p) - x0) / (x1 - x0) * w, Y = v => m.t + (1 - (v - lo) / (hi - lo)) * h;
+  const yt = Array.from({length: 5}, (_, i) => lo + (hi - lo) * i / 4);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">`;
+  s += `<g class="grid">${yt.map(t => `<line x1="${m.l}" x2="${m.l + w}" y1="${Y(t)}" y2="${Y(t)}"/>`).join("")}</g>`;
+  s += yt.map(t => `<text x="${m.l - 8}" y="${Y(t) + 4}" text-anchor="end">${fmtV(t)}</text>`).join("");
+  s += [1, 2, 4, 8].map(p => `<text x="${X(p)}" y="${H - m.b + 18}" text-anchor="middle">${p}B</text>`).join("");
+  s += `<text x="${m.l + w / 2}" y="${H - 6}" text-anchor="middle">parametri (scala logaritmica)</text>`;
+  s += `<text transform="translate(12 ${m.t + h / 2}) rotate(-90)" text-anchor="middle">${esc(yLabel)}</text>`;
+  if (chance != null) s += `<line x1="${m.l}" x2="${m.l + w}" y1="${Y(chance)}" y2="${Y(chance)}" stroke="var(--error)" stroke-dasharray="4 4"/><text x="${m.l + w + 6}" y="${Y(chance) + 4}" style="fill:var(--error)">a caso</text>`;
+  const placed = [];
+  const labelPos = (x, y, text) => {
+    const tw = text.length * 6.6;
+    for (const [dx, dy, anchor] of [[11, 4, "start"], [0, -12, "middle"], [0, 20, "middle"], [-11, 4, "end"]]) {
+      const left = anchor === "start" ? x + dx : anchor === "end" ? x + dx - tw : x - tw / 2;
+      const box = [left, y + dy - 11, left + tw, y + dy + 3];
+      if (!placed.some(b => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1])) {
+        placed.push(box);
+        return `x="${x + dx}" y="${y + dy}" text-anchor="${anchor}"`;
+      }
+    }
+    return `x="${x + 11}" y="${y + 4}"`;
+  };
+  rows.forEach(r => {
+    const x = X(r.params);
+    placed.push([x - 8, Y(r.a ?? r.b) - 8, x + 8, Y(r.a ?? r.b) + 8], [x - 8, Y(r.b ?? r.a) - 8, x + 8, Y(r.b ?? r.a) + 8]);
+  });
+  rows.forEach(r => {
+    const x = X(r.params);
+    const tip = `<b>${esc(r.label)}</b><br>1 passata: ${fmtV(r.a)}<br>5 permutazioni: ${fmtV(r.b)}`;
+    if (r.a != null && r.b != null) s += `<line x1="${x}" x2="${x}" y1="${Y(r.a)}" y2="${Y(r.b)}" stroke="var(--outline)" stroke-width="2"/>`;
+    if (r.a != null) s += `<circle cx="${x}" cy="${Y(r.a)}" r="6" fill="var(--surface)" stroke="var(--outline)" stroke-width="2" data-tip="${tip}"/>`;
+    if (r.b != null) s += `<circle cx="${x}" cy="${Y(r.b)}" r="7" fill="var(--primary)" stroke="var(--surface)" stroke-width="2" data-tip="${tip}"/>`;
+    s += `<text ${labelPos(x, Y(r.b ?? r.a), r.short)} class="lbl">${esc(r.short)}</text>`;
+  });
+  return s + "</svg>";
+}
+function renderBench() {
+  const ev = BENCH.eval, st = BENCH.stress;
+  const models = CFG.models.filter(m => ev[m.key]);
+  if (!models.length) {
+    $("#benchOut").innerHTML = `<div class="card empty"><span class="icon">bar_chart</span>Nessun risultato in bench/results. Esegui <span class="mono">uv run python bench/run_bench.py eval</span>.</div>`;
+    return;
+  }
+  const short = m => m.label.replace(" (4-bit)", "").replace("Qwen3.5", "Qwen").replace("Granite 4.2", "Granite").replace("LFM2.5", "LFM");
+  const cfg = (k, c) => ev[k].data.configs[c];
+  const rows = f => models.map(m => ({label: m.label, short: short(m), params: m.params_b, a: f(cfg(m.key, "s1-single")), b: f(cfg(m.key, "s5-geomean"))}));
+  const legend = `<div class="legend"><span><i style="background:var(--surface);border:2px solid var(--outline)"></i>1 passata</span><span><i style="background:var(--primary)"></i>5 permutazioni (media geometrica)</span></div>`;
+  let html = `<div class="grid2">
+    <div class="card"><h3 class="title-md">Accuratezza</h3><p class="sub">Più parametri, più accuratezza. Le permutazioni aiutano soprattutto i modelli piccoli.</p>${legend}${dumbbell(rows(c => c.accuracy), {title: "Accuratezza", yLabel: "accuratezza", chance: .21})}</div>
+    <div class="card"><h3 class="title-md">Calibrazione (ECE, più basso è meglio)</h3><p class="sub">Scarto medio tra la probabilità dichiarata e l'accuratezza reale.</p>${legend}${dumbbell(rows(c => c.ece), {title: "ECE", yLabel: "ECE", fmtV: v => fmt(v, 2)})}</div>
+    <div class="card"><h3 class="title-md">Quante volte decide da solo</h3><p class="sub">Conformal prediction con ε 10% e 5 permutazioni: domande con una sola opzione nel prediction set.</p>
+      ${barChart(models.map(m => ({label: short(m), v: cfg(m.key, "s5-geomean").conformal?.decided_rate ?? 0})))}</div>
+    <div class="card"><h3 class="title-md">Accuratezza quando decide da solo</h3><p class="sub">Solo sulle domande in cui il modello non chiede aiuto.</p>
+      ${barChart(models.map(m => ({label: short(m), v: cfg(m.key, "s5-geomean").conformal?.accuracy_when_decided ?? 0})), {ref: .9, refLabel: "1 − ε"})}</div>
+  </div>`;
+  const setModels = models.filter(m => cfg(m.key, "s1-single-set"));
+  if (setModels.length) {
+    const setBias = m => cfg(m.key, "s1-single-set").position_bias.map((v, i) => ({label: `Lettera ${LETTERS[i]}`, v}));
+    html += `<div class="grid2" style="margin-top:16px">${setModels.map(m => `
+      <div class="card"><h3 class="title-md">${esc(short(m))}: set-based attention contro scramble</h3><p class="sub">Accuratezza dello stesso modello. Con la set-attention le opzioni sono lette in parallelo, una sola passata.</p>
+      ${barChart([
+        {label: "1 passata", v: cfg(m.key, "s1-single").accuracy},
+        {label: "set-attention", v: cfg(m.key, "s1-single-set").accuracy},
+        {label: "set-attention, 5 perm.", v: cfg(m.key, "s5-geomean-set").accuracy},
+        {label: "5 permutazioni", v: cfg(m.key, "s5-geomean").accuracy, strong: true}], {max: .6, ref: .21, refLabel: "a caso"})}</div>
+      <div class="card"><h3 class="title-md">Perché la set-attention perde</h3><p class="sub">Probabilità media per lettera con la set-attention, una passata. Il modello privilegia A e C e quasi ignora l'ultima opzione, "Nessuna delle altre": senza un ordine nessuna opzione è più l'ultima.</p>
+      ${barChart(setBias(m), {max: .5, ref: .2, refLabel: "uniforme"})}</div>`).join("")}</div>`;
+  }
+  const sm = models.filter(m => st[m.key]?.data?.prefix_cache?.prompts_per_s);
+  if (sm.length) {
+    const sd = k => st[k].data, perQ = (k, mode) => 1000 * sd(k).state[mode].forward_s / sd(k).state[mode].prompts * 5;
+    html += `<div class="grid2" style="margin-top:16px">
+      <div class="card"><h3 class="title-md">Velocità a caldo</h3><p class="sub">Passaggi del modello al secondo su 128 domande × 5 permutazioni, con la cache del prefisso.</p>
+        ${barChart(sm.map(m => ({label: short(m), v: sd(m.key).prefix_cache.prompts_per_s})), {max: Math.max(...sm.map(m => sd(m.key).prefix_cache.prompts_per_s)) * 1.05, fmtV: v => fmt(v, 0)})}</div>
+      <div class="card"><h3 class="title-md">Contesto lungo: tempo per domanda</h3><p class="sub">Un testo di circa 250 parole e 20 domande da 5 permutazioni. Grigio senza cache, blu con la cache del prefisso.</p>
+        <div class="legend"><span><i style="background:var(--outline)"></i>senza cache</span><span><i style="background:var(--primary)"></i>con cache</span></div>
+        ${barChart(sm.flatMap(m => [
+          {label: short(m), v: perQ(m.key, "plain"), color: "var(--outline)"},
+          {label: `${short(m)}, cache`, v: perQ(m.key, "prefix_cache"), strong: true}]),
+          {max: Math.max(...sm.map(m => perQ(m.key, "plain"))) * 1.05, fmtV: v => `${Math.round(v)} ms`, height: 18})}</div>
+    </div>`;
+  }
+  html += `<div class="card" style="margin-top:16px"><h3 class="title-md">Tutti i numeri</h3><div class="table-wrap"><table class="data"><thead><tr><th>Modello</th><th class="num">Parametri</th><th>Precisione</th>
+    <th class="num">Acc. 1 passata</th><th class="num">Acc. 5 perm.</th><th class="num">ECE 1</th><th class="num">ECE 5</th><th class="num">Decide da solo</th><th class="num">Acc. quando decide</th><th class="num">Prob. sulle lettere</th></tr></thead><tbody>
+    ${models.map(m => {
+      const a = cfg(m.key, "s1-single"), b = cfg(m.key, "s5-geomean");
+      return `<tr><td><b>${esc(m.label)}</b></td><td class="num">${m.params_b}B</td><td>${m.quant ? "4-bit NF4" : "bf16"}</td><td class="num">${pct(a.accuracy, 1)}</td><td class="num"><b>${pct(b.accuracy, 1)}</b></td>
+        <td class="num">${fmt(a.ece, 3)}</td><td class="num">${fmt(b.ece, 3)}</td><td class="num">${pct(b.conformal?.decided_rate)}</td><td class="num">${pct(b.conformal?.accuracy_when_decided)}</td><td class="num">${pct(b.letter_mass, 1)}</td></tr>`;
+    }).join("")}</tbody></table></div></div>`;
+  $("#benchOut").innerHTML = html;
+  $$("#benchOut .chart").forEach(tipOn);
+}
+
+/* ---------- come funziona ---------- */
+let XK = 5;
+async function runExplain() {
+  if (busy) return;
+  const options = $("#xo").value.split(",").map(s => s.trim()).filter(Boolean);
+  const question = $("#xq").value.trim();
+  if (!question || options.length < 2) return snack("Servono una domanda e almeno due opzioni");
+  $("#xOut").innerHTML = loadingCard("Analisi...");
+  setBusy(true, "Analisi...");
+  try {
+    const rep = await api("/api/score", {...runParams(), scramble: XK, questions: [{type: "choice", question, options, none_option: $("#xnone").checked}]});
+    CFG.engine = rep.model;
+    renderExplain(rep);
+  } catch (e) { $("#xOut").innerHTML = ""; snack(e.message); }
+  finally { setBusy(false); }
+}
+function renderExplain(rep) {
+  const r = rep.results[0], opts = r.options, v0 = r.variants[0], k = r.variants.length;
+  const marked = esc(rep.sample_prompt).replace(/(\S+:)\s*$/, "<mark>$1</mark>");
+  const meaning = (v, tok) => { const i = LETTERS.indexOf(tok.trim()); return i >= 0 && i < v.order.length ? opts[v.order[i]] : null; };
+  const best = v0.position_probs.indexOf(Math.max(...v0.position_probs));
+  const posItems = v0.position_probs.map((p, i) => ({label: `${LETTERS[i]} · ${opts[v0.order[i]]}`, v: p, strong: i === best}));
+  $("#xOut").innerHTML = `<div class="steps">
+    <div class="step"><h3 class="title-lg">Il prompt</h3><p>Le opzioni vengono elencate con una lettera e il prompt termina con l'inizio della risposta (evidenziato). Il modello deve solo prevedere il token successivo.</p>
+      <pre class="prompt">${marked}</pre></div>
+    <div class="step"><h3 class="title-lg">Un passaggio, un token</h3><p>Il modello calcola la probabilità di ogni token del vocabolario come continuazione. Ecco il token più probabile, senza vincoli, ${k > 1 ? "in ognuno dei passaggi (le opzioni cambiano ordine, quindi la stessa risposta può avere lettere diverse)" : "nel passaggio"}:</p>
+      <div class="token-cloud">${r.variants.map((v, i) => { const m = meaning(v, v.unconstrained_top);
+        return `<span class="token">${k > 1 ? `<b style="margin:0 6px 0 0">${i + 1}.</b>` : ""}${esc(JSON.stringify(v.unconstrained_top))}<b>${m ? `= ${esc(m)}` : ""}</b></span>`; }).join("")}</div>
+      <p style="margin-top:12px">Il ${pct(r.letter_mass, 1)} della probabilità totale cade sulle lettere ${LETTERS.slice(0, opts.length).split("").join(", ")}: il modello ha capito che deve rispondere con una lettera.</p></div>
+    <div class="step"><h3 class="title-lg">Probabilità sulle lettere</h3><p>Si tengono solo i token delle lettere e si rinormalizza in modo che sommino a 100%. Ecco il primo passaggio.</p>
+      ${barChart(posItems, {ref: 1 / opts.length, refLabel: "a caso"})}</div>
+    ${k > 1 ? `<div class="step"><h3 class="title-lg">Scramble: stesse opzioni, ordine diverso</h3><p>La stessa domanda viene posta ${k} volte ruotando le opzioni, così ogni opzione passa per lettere diverse. Se la risposta cambia con la posizione, il modello si fa guidare dalla lettera e non dal contenuto.</p>${heatmap(r)}</div>` : ""}
+    <div class="step"><h3 class="title-lg">La decisione</h3><p>${k > 1 ? `Le ${k} distribuzioni, riportate all'ordine originale, vengono unite (${AGG_LABEL[S.aggregation].toLowerCase()}). ` : ""}L'opzione più probabile è la risposta e la sua probabilità è la confidenza.</p>
+      ${answerHtml(r)}</div>
+  </div>`;
+  $$("#xOut .chart").forEach(tipOn);
+}
+
+/* ---------- init ---------- */
+async function init() {
+  [CFG, EXAMPLES] = await Promise.all([api("/api/config"), api("/api/examples")]);
+  if (window.demoApi) $("#demoBanner").hidden = false;
+  const m = $("#model");
+  m.innerHTML = CFG.models.map(x => `<option value="${x.key}">${esc(x.label)} · ${x.params_b}B</option>`).join("");
+  if (!CFG.models.some(x => x.key === S.model)) S.model = CFG.engine?.loaded || CFG.models[0].key;
+  m.value = S.model;
+  $("#promptStyle").innerHTML = CFG.prompt_styles.map(p => `<option value="${p.key}">${esc(p.label)}</option>`).join("");
+  if (!CFG.prompt_styles.some(p => p.key === S.prompt)) S.prompt = CFG.default_prompt;
+  S.batchTokens ||= CFG.default_batch_tokens;
+  S.batchRows ||= CFG.default_batch_rows;
+  $("#aggregation").innerHTML = CFG.aggregations.map(a => `<button data-v="${a}">${AGG_LABEL[a] || a}</button>`).join("");
+  $("#deviceInfo").textContent = window.demoApi ? "Demo statica: risposte registrate su una RTX PRO 1000 Laptop (8 GB)." : CFG.gpu ? `${CFG.gpu.name}, ${fmt(CFG.gpu.total_gb, 1)} GB di memoria` : "Nessuna GPU: il modello gira su CPU, più lentamente. Usa i modelli piccoli.";
+  $("#examples").innerHTML = EXAMPLES.map((e, i) => `<button class="chip" data-ex="${i}"><span class="icon">${e.icon}</span>${esc(e.name)}</button>`).join("");
+  if (!QS) {
+    QS = EXAMPLES[0].questions.map(fromExample);
+    STATE_TEXT = EXAMPLES[0].state;
+  }
+  $("#state").value = STATE_TEXT;
+  renderSettings(); renderStatus(); renderQuestions(); renderHistory(); route();
+
+  m.addEventListener("change", () => { S.model = m.value; saveSettings(); renderSettings(); renderStatus(); });
+  $("#loadBtn").addEventListener("click", async () => {
+    setBusy(true, "Caricamento...");
+    try { const r = await api("/api/load", {model: S.model}); CFG.engine = r; snack(`${r.label} caricato in ${fmt(r.load_seconds, 1)} s`); }
+    catch (e) { snack(e.message); } finally { setBusy(false); }
+  });
+  $("#settingsBtn").addEventListener("click", () => openSheet(true));
+  $("#sheetClose").addEventListener("click", () => openSheet(false));
+  $("#scrim").addEventListener("click", () => openSheet(false));
+  const onSetting = () => { saveSettings(); renderSettings(); };
+  $("#scrambleOn").addEventListener("change", e => { S.scramble = e.target.checked; onSetting(); });
+  $("#k").addEventListener("input", e => { S.k = +e.target.value; onSetting(); });
+  bindGroup($("#aggregation"), v => { S.aggregation = v; onSetting(); });
+  $("#prefixCache").addEventListener("change", e => { S.prefix = e.target.checked; onSetting(); });
+  $("#setAttention").addEventListener("change", e => { S.set = e.target.checked; onSetting(); });
+  $("#promptStyle").addEventListener("change", e => { S.prompt = e.target.value; onSetting(); });
+  $("#batchTokens").addEventListener("change", e => { S.batchTokens = Math.max(64, +e.target.value || CFG.default_batch_tokens); onSetting(); });
+  $("#batchRows").addEventListener("change", e => { S.batchRows = Math.max(1, +e.target.value || CFG.default_batch_rows); onSetting(); });
+  $("#epsilon").addEventListener("input", e => { S.epsilon = +e.target.value; onSetting(); });
+
+  $("#examples").addEventListener("click", e => {
+    const b = e.target.closest("[data-ex]"); if (!b) return;
+    const ex = EXAMPLES[+b.dataset.ex];
+    QS = ex.questions.map(fromExample);
+    STATE_TEXT = ex.state; $("#state").value = STATE_TEXT;
+    questionsChanged();
+  });
+  $("#state").addEventListener("input", e => { STATE_TEXT = e.target.value; saveQs(); });
+  $("#clearState").addEventListener("click", () => { STATE_TEXT = ""; $("#state").value = ""; saveQs(); });
+  $("#clearQs").addEventListener("click", () => { QS = []; questionsChanged(); });
+  $$("[data-add]").forEach(b => b.addEventListener("click", () => {
+    QS.push(blankQ(b.dataset.add)); questionsChanged();
+    const card = $(`#q${QS.length - 1}`);
+    card?.scrollIntoView({behavior: "smooth", block: "center"});
+    card?.querySelector("[data-f=question]")?.focus({preventScroll: true});
+  }));
+  bindQuestions();
+  $("#runBtn").addEventListener("click", runDecide);
+  document.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      const page = currentPage();
+      if (page === "valuta") runEval(false); else if (page === "come") runExplain(); else if (page === "decidi") runDecide();
+    }
+    if (e.key === "Escape") openSheet(false);
+  });
+  $("#exportBtn").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify({state: STATE_TEXT, questions: QS}, null, 1)], {type: "application/json"});
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "domande.json"; a.click();
+  });
+  $("#importBtn").addEventListener("click", () => $("#importFile").click());
+  $("#importFile").addEventListener("change", async e => {
+    try {
+      const data = JSON.parse(await e.target.files[0].text());
+      const list = Array.isArray(data) ? data : data.questions;
+      QS = list.map(q => ({...blankQ(q.type || "choice"), ...q, none: q.none ?? q.none_option ?? (q.type || "choice") === "choice", answer: q.answer || ""}));
+      if (!Array.isArray(data) && data.state != null) { STATE_TEXT = data.state; $("#state").value = STATE_TEXT; }
+      questionsChanged(); snack(`${QS.length} domande importate`);
+    } catch (err) { snack(`JSON non valido: ${err.message}`); }
+    e.target.value = "";
+  });
+
+  bindGroup($("#evalSource"), v => {
+    evalSource = v;
+    $("#evalTestOpts").style.display = v === "test" ? "" : "none";
+    $("#evalMineOpts").style.display = v === "mine" ? "" : "none";
+  });
+  $("#evalN").addEventListener("input", e => { $("#evalNLabel").textContent = e.target.value; setRangeFill(e.target); });
+  setRangeFill($("#evalN"));
+  $("#evalBtn").addEventListener("click", () => runEval(false));
+  $("#evalCompareBtn").addEventListener("click", () => runEval(true));
+  $("#calMine").addEventListener("click", () => runCalibrate("questions"));
+  $("#calMmlu").addEventListener("click", () => runCalibrate("global-mmlu-dev"));
+  $("#clearHistory").addEventListener("click", () => { HISTORY = []; store.set("history", HISTORY); renderHistory(); });
+
+  bindGroup($("#xk"), v => XK = +v);
+  $("#xBtn").addEventListener("click", runExplain);
+  window.addEventListener("hashchange", route);
+
+  const theme = store.get("theme", null);
+  if (theme) document.documentElement.dataset.theme = theme;
+  $("#themeBtn").addEventListener("click", () => {
+    const cur = document.documentElement.dataset.theme;
+    const dark = cur ? cur === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.dataset.theme = dark ? "light" : "dark";
+    store.set("theme", document.documentElement.dataset.theme);
+  });
+}
+init().catch(e => snack(`Errore di avvio: ${e.message}`));
+</script>
+</body>
+</html>
