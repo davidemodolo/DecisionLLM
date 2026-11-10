@@ -1,0 +1,24 @@
+services:
+  decisionllm:
+    build: .
+    image: decisionllm:0.1.0
+    ports:
+      - "8000:8000"
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - model-cache:/cache
+      - ./data:/app/data
+      - ./bench/results:/app/bench/results
+      - ./bench/data:/app/bench/data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+volumes:
+  model-cache:

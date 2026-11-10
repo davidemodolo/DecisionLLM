@@ -1,0 +1,13 @@
+.venv
+__pycache__
+**/__pycache__
+.pytest_cache
+.ipynb_checkpoints
+bench/results
+data/calibrations.json
+bench/data
+.git
+_site
+pages
+.github
+.ruff_cache
