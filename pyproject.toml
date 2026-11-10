@@ -1,0 +1,27 @@
+[project]
+name = "decisionllm"
+version = "0.1.0"
+description = "Classificazione a scelta multipla con logits vincolati su LLM locali"
+authors = [{ name = "Davide Modolo", email = "davide.modolo98@gmail.com" }]
+requires-python = "==3.13.*"
+dependencies = [
+    "torch==2.15.0",
+    "transformers==5.22.2",
+    "accelerate==1.15.0",
+    "flash-linear-attention==0.6.0",
+    "bitsandbytes==0.50.2",
+    "fastapi==0.162.2",
+    "uvicorn==0.54.0",
+    "jupyterlab==4.6.6",
+    "ipykernel==7.4.0",
+    "matplotlib==3.11.2",
+    "pandas==3.1.1",
+    "pyarrow==26.0.1",
+]
+
+[dependency-groups]
+dev = ["pytest==9.2.0"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

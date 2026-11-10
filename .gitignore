@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+_site/
+bench/data/
+data/calibrations.json
+bench/results/*.log
+bench/results/prompt-round1/
