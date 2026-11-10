@@ -1,0 +1,2818 @@
+[
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 9 + 4?",
+  "options": [
+   "3",
+   "13",
+   "12",
+   "15"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 6 × 22?",
+  "options": [
+   "134",
+   "142",
+   "132",
+   "133"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"pieno\"?",
+  "options": [
+   "lento",
+   "vecchio",
+   "vuoto",
+   "freddo"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 4 + 27?",
+  "options": [
+   "31",
+   "21",
+   "29",
+   "30"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 20 + 17?",
+  "options": [
+   "38",
+   "27",
+   "39",
+   "37"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"veloce\"?",
+  "options": [
+   "debole",
+   "anziano",
+   "lento",
+   "povero"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 9 × 2?",
+  "options": [
+   "28",
+   "18",
+   "17",
+   "36"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 20 + 13?",
+  "options": [
+   "35",
+   "33",
+   "43",
+   "66"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"ricordare\"?",
+  "options": [
+   "dimenticare",
+   "povero",
+   "lento",
+   "piccolo"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Iodio?",
+  "options": [
+   "Zn",
+   "F",
+   "I",
+   "O"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 4 - 13?",
+  "options": [
+   "-18",
+   "1",
+   "-10",
+   "-9"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 11 + 6?",
+  "options": [
+   "18",
+   "17",
+   "16",
+   "7"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Slovacchia?",
+  "options": [
+   "Città del Messico",
+   "Madrid",
+   "Bratislava",
+   "Vienna"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 22 × 27?",
+  "options": [
+   "596",
+   "594",
+   "604",
+   "584"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Argentina?",
+  "options": [
+   "Bangkok",
+   "Varsavia",
+   "Lisbona",
+   "Buenos Aires"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Spagna?",
+  "options": [
+   "Madrid",
+   "Canberra",
+   "Buenos Aires",
+   "Vienna"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 24 + 17?",
+  "options": [
+   "43",
+   "40",
+   "41",
+   "42"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Rame?",
+  "options": [
+   "N",
+   "Ag",
+   "I",
+   "O"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 15 + 15?",
+  "options": [
+   "29",
+   "28",
+   "30",
+   "60"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"sopra\"?",
+  "options": [
+   "corto",
+   "lento",
+   "sotto",
+   "scuro"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 28 + 9?",
+  "options": [
+   "38",
+   "47",
+   "74",
+   "39"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Calabria?",
+  "options": [
+   "Catanzaro",
+   "Firenze",
+   "Bari",
+   "Genova"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Germania?",
+  "options": [
+   "Berna",
+   "Washington",
+   "Amsterdam",
+   "Ankara"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 17 - 19?",
+  "options": [
+   "-2",
+   "-1",
+   "-12",
+   "-4"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 22 × 7?",
+  "options": [
+   "154",
+   "153",
+   "164",
+   "155"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "cultura generale",
+  "question": "In che anno è avvenuta l'unità d'Italia?",
+  "options": [
+   "1870",
+   "1915",
+   "1861",
+   "1946"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 25 + 14?",
+  "options": [
+   "39",
+   "37",
+   "29",
+   "40"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Finlandia?",
+  "options": [
+   "Ankara",
+   "Bruxelles",
+   "Città del Messico",
+   "Helsinki"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Stagno?",
+  "options": [
+   "Sn",
+   "I",
+   "He",
+   "Cl"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Cina?",
+  "options": [
+   "Pechino",
+   "Varsavia",
+   "Il Cairo",
+   "Budapest"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 23 × 11?",
+  "options": [
+   "252",
+   "253",
+   "255",
+   "243"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 8 × 2?",
+  "options": [
+   "26",
+   "6",
+   "16",
+   "18"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"pesante\"?",
+  "options": [
+   "difficile",
+   "leggero",
+   "debole",
+   "uscire"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Svezia?",
+  "options": [
+   "Città del Messico",
+   "Praga",
+   "Brasilia",
+   "Stoccolma"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è il colore che si ottiene mescolando blu e giallo?",
+  "options": [
+   "Viola",
+   "Arancione",
+   "Rosa",
+   "Verde"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Se questo è un uomo?",
+  "options": [
+   "Primo Levi",
+   "Carlo Collodi",
+   "Niccolò Machiavelli",
+   "Lev Tolstoj"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Marocco?",
+  "options": [
+   "Rabat",
+   "Zagabria",
+   "Ankara",
+   "Mosca"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"ricco\"?",
+  "options": [
+   "tardi",
+   "fuori",
+   "debole",
+   "povero"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è l'oceano più grande?",
+  "options": [
+   "Atlantico",
+   "Pacifico",
+   "Indiano",
+   "Antartico"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 18 + 7?",
+  "options": [
+   "26",
+   "35",
+   "15",
+   "25"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è il pianeta più grande del sistema solare?",
+  "options": [
+   "Terra",
+   "Venere",
+   "Nettuno",
+   "Marte"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Ucraina?",
+  "options": [
+   "Seul",
+   "Bangkok",
+   "Kiev",
+   "Buenos Aires"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 10 - 9?",
+  "options": [
+   "0",
+   "1",
+   "11",
+   "-9"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quale strumento misura la pressione atmosferica?",
+  "options": [
+   "Anemometro",
+   "Sismografo",
+   "Barometro",
+   "Igrometro"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Don Chisciotte?",
+  "options": [
+   "Umberto Eco",
+   "Giuseppe Tomasi di Lampedusa",
+   "Italo Svevo",
+   "George Orwell"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quanti sono i continenti tradizionalmente riconosciuti in Italia?",
+  "options": [
+   "6",
+   "4",
+   "5",
+   "3"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"nuovo\"?",
+  "options": [
+   "anziano",
+   "piccolo",
+   "vecchio",
+   "dimenticare"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Chi ha formulato la teoria della relatività?",
+  "options": [
+   "Isaac Newton",
+   "Albert Einstein",
+   "Galileo Galilei",
+   "Niels Bohr"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 7 + 15?",
+  "options": [
+   "22",
+   "21",
+   "12",
+   "24"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 2 × 8?",
+  "options": [
+   "32",
+   "17",
+   "16",
+   "26"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Alluminio?",
+  "options": [
+   "Cl",
+   "Al",
+   "C",
+   "Ni"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di 1984?",
+  "options": [
+   "Ludovico Ariosto",
+   "Niccolò Machiavelli",
+   "Alessandro Manzoni",
+   "Giovanni Boccaccio"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 12 - 13?",
+  "options": [
+   "-11",
+   "0",
+   "9",
+   "-1"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Calcio?",
+  "options": [
+   "Au",
+   "Cl",
+   "O",
+   "Ca"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Lazio?",
+  "options": [
+   "Palermo",
+   "Torino",
+   "Catanzaro",
+   "Perugia"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Danimarca?",
+  "options": [
+   "Dublino",
+   "Copenaghen",
+   "Brasilia",
+   "Lisbona"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Toscana?",
+  "options": [
+   "Venezia",
+   "Milano",
+   "Trento",
+   "Firenze"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 10 - 12?",
+  "options": [
+   "-1",
+   "8",
+   "-2",
+   "-4"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Guerra e pace?",
+  "options": [
+   "Lev Tolstoj",
+   "Giacomo Leopardi",
+   "Italo Calvino",
+   "Primo Levi"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Potassio?",
+  "options": [
+   "Co",
+   "Pb",
+   "Zn",
+   "U"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 7 × 17?",
+  "options": [
+   "119",
+   "238",
+   "129",
+   "118"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è la lingua ufficiale del Brasile?",
+  "options": [
+   "Portoghese",
+   "Italiano",
+   "Inglese",
+   "Spagnolo"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 16 + 9?",
+  "options": [
+   "25",
+   "50",
+   "23",
+   "35"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 26 - 26?",
+  "options": [
+   "-10",
+   "10",
+   "-1",
+   "2"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Thailandia?",
+  "options": [
+   "Rabat",
+   "Città del Messico",
+   "Sofia",
+   "Bangkok"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 14 + 3?",
+  "options": [
+   "17",
+   "19",
+   "15",
+   "7"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Portogallo?",
+  "options": [
+   "Madrid",
+   "Bruxelles",
+   "Tokyo",
+   "Nairobi"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 5 - 8?",
+  "options": [
+   "-13",
+   "-1",
+   "-5",
+   "-2"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quante ossa ha circa il corpo umano adulto?",
+  "options": [
+   "150",
+   "206",
+   "256",
+   "106"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 30 + 11?",
+  "options": [
+   "82",
+   "31",
+   "39",
+   "41"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 5 × 28?",
+  "options": [
+   "150",
+   "140",
+   "139",
+   "130"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Fluoro?",
+  "options": [
+   "F",
+   "Ag",
+   "Ne",
+   "N"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"vicino\"?",
+  "options": [
+   "spegnere",
+   "vuoto",
+   "vendere",
+   "lontano"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 25 + 5?",
+  "options": [
+   "60",
+   "30",
+   "29",
+   "28"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è il vulcano attivo più alto d'Europa?",
+  "options": [
+   "Stromboli",
+   "Vesuvio",
+   "Vulcano",
+   "Monte Amiata"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Basilicata?",
+  "options": [
+   "Roma",
+   "Palermo",
+   "Potenza",
+   "Torino"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 10 - 9?",
+  "options": [
+   "0",
+   "2",
+   "1",
+   "-1"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Trentino-Alto Adige?",
+  "options": [
+   "Cagliari",
+   "Venezia",
+   "Trieste",
+   "Trento"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Emilia-Romagna?",
+  "options": [
+   "Bari",
+   "Potenza",
+   "Bologna",
+   "Palermo"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Fosforo?",
+  "options": [
+   "I",
+   "Na",
+   "O",
+   "H"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Silicio?",
+  "options": [
+   "Si",
+   "Ca",
+   "Cu",
+   "I"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Cobalto?",
+  "options": [
+   "H",
+   "I",
+   "Pt",
+   "O"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 5 × 4?",
+  "options": [
+   "22",
+   "20",
+   "40",
+   "18"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Oro?",
+  "options": [
+   "Au",
+   "P",
+   "Mg",
+   "Zn"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di L'infinito?",
+  "options": [
+   "Giacomo Leopardi",
+   "Luigi Pirandello",
+   "Giovanni Boccaccio",
+   "Dante Alighieri"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Puglia?",
+  "options": [
+   "Bologna",
+   "Genova",
+   "Catanzaro",
+   "Bari"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 17 × 8?",
+  "options": [
+   "136",
+   "272",
+   "134",
+   "146"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Valle d'Aosta?",
+  "options": [
+   "Genova",
+   "Bologna",
+   "Bari",
+   "Aosta"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Mercurio?",
+  "options": [
+   "Hg",
+   "S",
+   "Au",
+   "Pt"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è la montagna più alta d'Europa occidentale?",
+  "options": [
+   "Gran Sasso",
+   "Cervino",
+   "Monte Rosa",
+   "Etna"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 14 × 10?",
+  "options": [
+   "280",
+   "141",
+   "140",
+   "130"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 2 + 17?",
+  "options": [
+   "19",
+   "18",
+   "38",
+   "20"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"aperto\"?",
+  "options": [
+   "chiuso",
+   "perdere",
+   "anziano",
+   "tardi"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Chi ha affrescato la volta della Cappella Sistina?",
+  "options": [
+   "Leonardo da Vinci",
+   "Botticelli",
+   "Tiziano",
+   "Raffaello"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è la valuta ufficiale dell'Italia?",
+  "options": [
+   "Lira",
+   "Franco",
+   "Euro",
+   "Sterlina"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è l'organo che pompa il sangue?",
+  "options": [
+   "Fegato",
+   "Rene",
+   "Polmone",
+   "Stomaco"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 13 - 10?",
+  "options": [
+   "1",
+   "3",
+   "4",
+   "2"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 7 - 2?",
+  "options": [
+   "3",
+   "5",
+   "10",
+   "4"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"grande\"?",
+  "options": [
+   "vecchio",
+   "tardi",
+   "piccolo",
+   "vuoto"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quale animale è il più grande mammifero vivente?",
+  "options": [
+   "Orca",
+   "Squalo balena",
+   "Elefante africano",
+   "Giraffa"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "cultura generale",
+  "question": "A quale temperatura bolle l'acqua al livello del mare?",
+  "options": [
+   "100 °C",
+   "50 °C",
+   "90 °C",
+   "120 °C"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Argento?",
+  "options": [
+   "Li",
+   "Mg",
+   "H",
+   "Si"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Australia?",
+  "options": [
+   "Canberra",
+   "Dublino",
+   "Atene",
+   "Ankara"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 13 × 4?",
+  "options": [
+   "52",
+   "53",
+   "54",
+   "42"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Canada?",
+  "options": [
+   "Atene",
+   "Dublino",
+   "Oslo",
+   "Ottawa"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Corea del Sud?",
+  "options": [
+   "Seul",
+   "Stoccolma",
+   "Tokyo",
+   "Berna"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 22 + 27?",
+  "options": [
+   "39",
+   "49",
+   "59",
+   "50"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 4 + 22?",
+  "options": [
+   "26",
+   "27",
+   "36",
+   "28"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 5 + 28?",
+  "options": [
+   "33",
+   "35",
+   "34",
+   "32"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Chi ha dipinto la Gioconda?",
+  "options": [
+   "Michelangelo",
+   "Caravaggio",
+   "Raffaello",
+   "Leonardo da Vinci"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 11 + 25?",
+  "options": [
+   "37",
+   "35",
+   "72",
+   "46"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"caldo\"?",
+  "options": [
+   "corto",
+   "uscire",
+   "tardi",
+   "fuori"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "cultura generale",
+  "question": "In che anno è stata proclamata la Repubblica Italiana?",
+  "options": [
+   "1948",
+   "1861",
+   "1918",
+   "1956"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Giappone?",
+  "options": [
+   "Tokyo",
+   "Lisbona",
+   "Bangkok",
+   "Copenaghen"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Romania?",
+  "options": [
+   "Oslo",
+   "Budapest",
+   "Berna",
+   "Bucarest"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 12 × 4?",
+  "options": [
+   "48",
+   "46",
+   "50",
+   "47"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 3 - 28?",
+  "options": [
+   "-23",
+   "-35",
+   "-27",
+   "-25"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 28 - 25?",
+  "options": [
+   "6",
+   "3",
+   "-7",
+   "4"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Chi ha composto Le quattro stagioni?",
+  "options": [
+   "Johann Sebastian Bach",
+   "Gioachino Rossini",
+   "Giuseppe Verdi",
+   "Antonio Vivaldi"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quanti minuti ci sono in un'ora?",
+  "options": [
+   "100",
+   "30",
+   "45",
+   "60"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 10 + 11?",
+  "options": [
+   "23",
+   "31",
+   "11",
+   "21"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Friuli-Venezia Giulia?",
+  "options": [
+   "Venezia",
+   "Perugia",
+   "Trieste",
+   "L'Aquila"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Repubblica Ceca?",
+  "options": [
+   "Atene",
+   "Mosca",
+   "Praga",
+   "Bangkok"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 8 × 5?",
+  "options": [
+   "40",
+   "80",
+   "50",
+   "41"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di I miserabili?",
+  "options": [
+   "Dante Alighieri",
+   "Victor Hugo",
+   "Giovanni Boccaccio",
+   "Giacomo Leopardi"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"lungo\"?",
+  "options": [
+   "uscire",
+   "anziano",
+   "amaro",
+   "lento"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"facile\"?",
+  "options": [
+   "difficile",
+   "vecchio",
+   "debole",
+   "tardi"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Idrogeno?",
+  "options": [
+   "Al",
+   "H",
+   "Cl",
+   "Zn"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Egitto?",
+  "options": [
+   "Lisbona",
+   "Lubiana",
+   "Brasilia",
+   "Pechino"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Sicilia?",
+  "options": [
+   "Napoli",
+   "Roma",
+   "Catanzaro",
+   "Milano"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 3 + 24?",
+  "options": [
+   "25",
+   "28",
+   "37",
+   "26"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Le avventure di Pinocchio?",
+  "options": [
+   "Luigi Pirandello",
+   "Francesco Petrarca",
+   "Niccolò Machiavelli",
+   "Carlo Collodi"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 4 + 20?",
+  "options": [
+   "34",
+   "22",
+   "24",
+   "26"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Gerusalemme liberata?",
+  "options": [
+   "Torquato Tasso",
+   "Francesco Petrarca",
+   "William Shakespeare",
+   "Giuseppe Tomasi di Lampedusa"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Turchia?",
+  "options": [
+   "Berna",
+   "Sofia",
+   "Nuova Delhi",
+   "Vienna"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Belgio?",
+  "options": [
+   "Bruxelles",
+   "Buenos Aires",
+   "Budapest",
+   "Lisbona"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 4 - 30?",
+  "options": [
+   "-25",
+   "-24",
+   "-36",
+   "-16"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di India?",
+  "options": [
+   "Varsavia",
+   "Nuova Delhi",
+   "Città del Messico",
+   "Sofia"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Lombardia?",
+  "options": [
+   "Venezia",
+   "Roma",
+   "Aosta",
+   "Milano"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 25 + 4?",
+  "options": [
+   "29",
+   "58",
+   "39",
+   "30"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quante zampe ha un insetto?",
+  "options": [
+   "10",
+   "4",
+   "12",
+   "8"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quale gas assorbono le piante durante la fotosintesi?",
+  "options": [
+   "Anidride carbonica",
+   "Ossigeno",
+   "Metano",
+   "Elio"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 28 × 13?",
+  "options": [
+   "354",
+   "365",
+   "364",
+   "362"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Svizzera?",
+  "options": [
+   "Brasilia",
+   "Berna",
+   "Lisbona",
+   "Tokyo"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Platino?",
+  "options": [
+   "O",
+   "Zn",
+   "H",
+   "Li"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 10 - 15?",
+  "options": [
+   "-5",
+   "-10",
+   "5",
+   "-7"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 22 × 29?",
+  "options": [
+   "628",
+   "638",
+   "640",
+   "639"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Il fu Mattia Pascal?",
+  "options": [
+   "Italo Svevo",
+   "Niccolò Machiavelli",
+   "Umberto Eco",
+   "Luigi Pirandello"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 14 + 2?",
+  "options": [
+   "17",
+   "26",
+   "16",
+   "6"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Piemonte?",
+  "options": [
+   "Campobasso",
+   "Milano",
+   "Torino",
+   "Bologna"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 16 × 12?",
+  "options": [
+   "190",
+   "193",
+   "194",
+   "192"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 5 × 27?",
+  "options": [
+   "145",
+   "135",
+   "137",
+   "133"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 15 × 26?",
+  "options": [
+   "389",
+   "780",
+   "380",
+   "390"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Piombo?",
+  "options": [
+   "Co",
+   "Ag",
+   "Ca",
+   "Pb"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di I promessi sposi?",
+  "options": [
+   "Ludovico Ariosto",
+   "Niccolò Machiavelli",
+   "Luigi Pirandello",
+   "Alessandro Manzoni"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Paesi Bassi?",
+  "options": [
+   "Buenos Aires",
+   "Rabat",
+   "Lisbona",
+   "Budapest"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 30 × 9?",
+  "options": [
+   "280",
+   "271",
+   "270",
+   "260"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Ossigeno?",
+  "options": [
+   "Ni",
+   "N",
+   "Ca",
+   "O"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 22 - 18?",
+  "options": [
+   "3",
+   "4",
+   "-6",
+   "5"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"vincere\"?",
+  "options": [
+   "corto",
+   "freddo",
+   "scuro",
+   "perdere"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 3 × 13?",
+  "options": [
+   "29",
+   "37",
+   "39",
+   "78"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Russia?",
+  "options": [
+   "Praga",
+   "Bratislava",
+   "Kiev",
+   "Mosca"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 30 - 2?",
+  "options": [
+   "28",
+   "30",
+   "38",
+   "29"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Bulgaria?",
+  "options": [
+   "Praga",
+   "Sofia",
+   "Bangkok",
+   "Ottawa"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Nichel?",
+  "options": [
+   "Fe",
+   "I",
+   "Na",
+   "Hg"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 3 × 24?",
+  "options": [
+   "82",
+   "71",
+   "72",
+   "73"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "cultura generale",
+  "question": "In che anno è caduto il muro di Berlino?",
+  "options": [
+   "1991",
+   "2001",
+   "1961",
+   "1975"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Chi ha composto Il barbiere di Siviglia?",
+  "options": [
+   "Giuseppe Verdi",
+   "Gioachino Rossini",
+   "Giacomo Puccini",
+   "Antonio Vivaldi"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è il fiume più lungo d'Italia?",
+  "options": [
+   "Po",
+   "Piave",
+   "Tevere",
+   "Adige"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Uranio?",
+  "options": [
+   "U",
+   "Au",
+   "Fe",
+   "Sn"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di il Canzoniere?",
+  "options": [
+   "Giovanni Boccaccio",
+   "Torquato Tasso",
+   "Umberto Eco",
+   "Francesco Petrarca"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Norvegia?",
+  "options": [
+   "Bruxelles",
+   "Buenos Aires",
+   "Brasilia",
+   "Copenaghen"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Il nome della rosa?",
+  "options": [
+   "Umberto Eco",
+   "William Shakespeare",
+   "Dante Alighieri",
+   "Primo Levi"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Elio?",
+  "options": [
+   "F",
+   "Pb",
+   "Co",
+   "H"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 26 + 7?",
+  "options": [
+   "66",
+   "35",
+   "23",
+   "33"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 27 × 10?",
+  "options": [
+   "268",
+   "271",
+   "270",
+   "540"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 30 - 5?",
+  "options": [
+   "23",
+   "25",
+   "24",
+   "26"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Kenya?",
+  "options": [
+   "Mosca",
+   "Stoccolma",
+   "Nairobi",
+   "Seul"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quante zampe ha un ragno?",
+  "options": [
+   "12",
+   "10",
+   "8",
+   "4"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è la formula chimica dell'acqua?",
+  "options": [
+   "CO2",
+   "H2O2",
+   "H2O",
+   "O2"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 18 × 8?",
+  "options": [
+   "288",
+   "142",
+   "154",
+   "144"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"forte\"?",
+  "options": [
+   "amaro",
+   "vecchio",
+   "vuoto",
+   "debole"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Il Gattopardo?",
+  "options": [
+   "Giacomo Leopardi",
+   "Luigi Pirandello",
+   "Alessandro Manzoni",
+   "Giuseppe Tomasi di Lampedusa"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 4 + 10?",
+  "options": [
+   "15",
+   "4",
+   "13",
+   "14"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è il pianeta più vicino al Sole?",
+  "options": [
+   "Mercurio",
+   "Terra",
+   "Venere",
+   "Marte"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"presto\"?",
+  "options": [
+   "lontano",
+   "tardi",
+   "spegnere",
+   "chiuso"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Marche?",
+  "options": [
+   "Genova",
+   "L'Aquila",
+   "Ancona",
+   "Catanzaro"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Zinco?",
+  "options": [
+   "Ca",
+   "Li",
+   "Mg",
+   "Co"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 13 × 10?",
+  "options": [
+   "132",
+   "120",
+   "129",
+   "260"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 12 × 29?",
+  "options": [
+   "349",
+   "347",
+   "350",
+   "338"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quanti lati ha un esagono?",
+  "options": [
+   "7",
+   "8",
+   "6",
+   "5"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"dentro\"?",
+  "options": [
+   "scuro",
+   "lontano",
+   "fuori",
+   "leggero"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Carbonio?",
+  "options": [
+   "Sn",
+   "K",
+   "C",
+   "Zn"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Perù?",
+  "options": [
+   "Il Cairo",
+   "Lima",
+   "Bruxelles",
+   "Washington"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Sardegna?",
+  "options": [
+   "Bologna",
+   "Trento",
+   "Palermo",
+   "Bari"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 15 × 23?",
+  "options": [
+   "347",
+   "343",
+   "344",
+   "345"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Slovenia?",
+  "options": [
+   "Amsterdam",
+   "Lubiana",
+   "Canberra",
+   "Nairobi"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Veneto?",
+  "options": [
+   "Torino",
+   "Milano",
+   "Bologna",
+   "Campobasso"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 7 + 4?",
+  "options": [
+   "13",
+   "12",
+   "22",
+   "9"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Ferro?",
+  "options": [
+   "H",
+   "I",
+   "Fe",
+   "Ni"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 7 + 9?",
+  "options": [
+   "18",
+   "15",
+   "14",
+   "16"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Orlando furioso?",
+  "options": [
+   "Ludovico Ariosto",
+   "Umberto Eco",
+   "Lev Tolstoj",
+   "Dante Alighieri"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Stati Uniti?",
+  "options": [
+   "Nuova Delhi",
+   "Buenos Aires",
+   "Oslo",
+   "Bucarest"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quanti giorni ha un anno bisestile?",
+  "options": [
+   "360",
+   "364",
+   "366",
+   "367"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 27 × 22?",
+  "options": [
+   "595",
+   "594",
+   "1188",
+   "584"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"dolce\"?",
+  "options": [
+   "corto",
+   "vuoto",
+   "povero",
+   "vecchio"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di la Divina Commedia?",
+  "options": [
+   "Umberto Eco",
+   "Niccolò Machiavelli",
+   "Dante Alighieri",
+   "Luigi Pirandello"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 9 × 13?",
+  "options": [
+   "234",
+   "119",
+   "115",
+   "107"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Neon?",
+  "options": [
+   "Ca",
+   "Zn",
+   "F",
+   "Ne"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Francia?",
+  "options": [
+   "Parigi",
+   "Stoccolma",
+   "Bratislava",
+   "Rabat"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"felice\"?",
+  "options": [
+   "triste",
+   "vecchio",
+   "chiuso",
+   "uscire"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Brasile?",
+  "options": [
+   "Città del Messico",
+   "Ottawa",
+   "Brasilia",
+   "Kiev"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Molise?",
+  "options": [
+   "Campobasso",
+   "Trieste",
+   "Bologna",
+   "Roma"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Sodio?",
+  "options": [
+   "Pt",
+   "Na",
+   "Al",
+   "Zn"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Qual è la radice quadrata di 81?",
+  "options": [
+   "9",
+   "8",
+   "7",
+   "18"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"chiaro\"?",
+  "options": [
+   "scuro",
+   "lontano",
+   "corto",
+   "vecchio"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Amleto?",
+  "options": [
+   "Miguel de Cervantes",
+   "Italo Calvino",
+   "William Shakespeare",
+   "Victor Hugo"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"alto\"?",
+  "options": [
+   "triste",
+   "basso",
+   "fuori",
+   "vuoto"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Ungheria?",
+  "options": [
+   "Buenos Aires",
+   "Seul",
+   "Ankara",
+   "Praga"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 25 × 29?",
+  "options": [
+   "726",
+   "1450",
+   "727",
+   "723"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 3 - 21?",
+  "options": [
+   "-16",
+   "-28",
+   "-36",
+   "-20"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Polonia?",
+  "options": [
+   "Varsavia",
+   "Atene",
+   "Madrid",
+   "Città del Messico"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Campania?",
+  "options": [
+   "Bologna",
+   "Genova",
+   "Cagliari",
+   "L'Aquila"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 11 + 29?",
+  "options": [
+   "30",
+   "38",
+   "41",
+   "40"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Liguria?",
+  "options": [
+   "Genova",
+   "Palermo",
+   "Trento",
+   "Potenza"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 9 × 6?",
+  "options": [
+   "54",
+   "55",
+   "52",
+   "56"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"comprare\"?",
+  "options": [
+   "spegnere",
+   "freddo",
+   "amaro",
+   "vendere"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Austria?",
+  "options": [
+   "Berna",
+   "Vienna",
+   "Bucarest",
+   "Bruxelles"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Umbria?",
+  "options": [
+   "Potenza",
+   "Trieste",
+   "Perugia",
+   "Firenze"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "cultura generale",
+  "question": "Quale organo del corpo umano produce l'insulina?",
+  "options": [
+   "Tiroide",
+   "Milza",
+   "Pancreas",
+   "Fegato"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Grecia?",
+  "options": [
+   "Washington",
+   "Stoccolma",
+   "Atene",
+   "Nairobi"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 8 × 3?",
+  "options": [
+   "24",
+   "25",
+   "26",
+   "14"
+  ],
+  "answer": "A"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 14 × 13?",
+  "options": [
+   "172",
+   "182",
+   "183",
+   "364"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Cloro?",
+  "options": [
+   "Ni",
+   "O",
+   "Cl",
+   "Sn"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Messico?",
+  "options": [
+   "Parigi",
+   "Atene",
+   "Zagabria",
+   "Città del Messico"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Croazia?",
+  "options": [
+   "Lubiana",
+   "Pechino",
+   "Lima",
+   "Zagabria"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "capitali",
+  "question": "Qual è la capitale di Irlanda?",
+  "options": [
+   "Tokyo",
+   "Dublino",
+   "Bratislava",
+   "Washington"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "regioni",
+  "question": "Qual è il capoluogo della regione Abruzzo?",
+  "options": [
+   "Milano",
+   "Firenze",
+   "Catanzaro",
+   "Roma"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di La coscienza di Zeno?",
+  "options": [
+   "Lev Tolstoj",
+   "Italo Svevo",
+   "Umberto Eco",
+   "Luigi Pirandello"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 2 + 27?",
+  "options": [
+   "19",
+   "27",
+   "29",
+   "31"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 13 - 6?",
+  "options": [
+   "9",
+   "17",
+   "7",
+   "14"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 25 + 18?",
+  "options": [
+   "42",
+   "53",
+   "41",
+   "43"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Le città invisibili?",
+  "options": [
+   "Dante Alighieri",
+   "Carlo Collodi",
+   "Alessandro Manzoni",
+   "George Orwell"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 26 × 28?",
+  "options": [
+   "1456",
+   "727",
+   "728",
+   "730"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Litio?",
+  "options": [
+   "Cu",
+   "Na",
+   "Li",
+   "O"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"giovane\"?",
+  "options": [
+   "povero",
+   "anziano",
+   "tardi",
+   "triste"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 9 × 10?",
+  "options": [
+   "91",
+   "80",
+   "90",
+   "92"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di Il principe?",
+  "options": [
+   "Carlo Collodi",
+   "Giovanni Boccaccio",
+   "Luigi Pirandello",
+   "Francesco Petrarca"
+  ],
+  "answer": "E"
+ },
+ {
+  "category": "letteratura",
+  "question": "Chi è l'autore di il Decameron?",
+  "options": [
+   "Luigi Pirandello",
+   "Primo Levi",
+   "Giovanni Boccaccio",
+   "Francesco Petrarca"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Zolfo?",
+  "options": [
+   "O",
+   "Hg",
+   "S",
+   "F"
+  ],
+  "answer": "C"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 4 + 10?",
+  "options": [
+   "24",
+   "14",
+   "28",
+   "15"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Azoto?",
+  "options": [
+   "Sn",
+   "N",
+   "C",
+   "Co"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "aritmetica",
+  "question": "Quanto fa 25 - 25?",
+  "options": [
+   "-1",
+   "-2",
+   "1",
+   "0"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"accendere\"?",
+  "options": [
+   "triste",
+   "spegnere",
+   "piccolo",
+   "lento"
+  ],
+  "answer": "B"
+ },
+ {
+  "category": "chimica",
+  "question": "Qual è il simbolo chimico dell'elemento Magnesio?",
+  "options": [
+   "Ni",
+   "Na",
+   "Fe",
+   "Mg"
+  ],
+  "answer": "D"
+ },
+ {
+  "category": "contrari",
+  "question": "Qual è il contrario di \"entrare\"?",
+  "options": [
+   "uscire",
+   "scuro",
+   "sotto",
+   "triste"
+  ],
+  "answer": "A"
+ }
+]

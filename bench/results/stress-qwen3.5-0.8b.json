@@ -1,0 +1,96 @@
+{
+ "model": {
+  "loaded": "qwen3.5-0.8b",
+  "label": "Qwen3.5 0.8B",
+  "repo": "Qwen/Qwen3.5-0.8B",
+  "load_seconds": 6.27,
+  "vram_gb": 1.4,
+  "device": "cuda"
+ },
+ "elapsed_s": 86.95793288200002,
+ "data": {
+  "budgets": {
+   "2048": {
+    "prompts": 640,
+    "forward_s": 7.505364298009226,
+    "prompts_per_s": 85.27234316524222,
+    "tokens": 56445,
+    "tokens_per_s": 7520.620953065776,
+    "peak_vram_gb": 1.543532371520996,
+    "max_batch_rows": 21,
+    "oom_retries": 0,
+    "padding_ratio": 0.09589633521271146,
+    "prefix_mode": "off",
+    "tokens_saved": 0
+   },
+   "4096": {
+    "prompts": 640,
+    "forward_s": 8.21565086199189,
+    "prompts_per_s": 77.900097113527,
+    "tokens": 56445,
+    "tokens_per_s": 6870.423408707862,
+    "peak_vram_gb": 1.6867599487304688,
+    "max_batch_rows": 42,
+    "oom_retries": 0,
+    "padding_ratio": 0.10552421399594325,
+    "prefix_mode": "off",
+    "tokens_saved": 0
+   },
+   "8192": {
+    "prompts": 640,
+    "forward_s": 8.848405717999412,
+    "prompts_per_s": 72.32941395285629,
+    "tokens": 56445,
+    "tokens_per_s": 6379.11526651402,
+    "peak_vram_gb": 1.974074363708496,
+    "max_batch_rows": 85,
+    "oom_retries": 0,
+    "padding_ratio": 0.10233778625954193,
+    "prefix_mode": "off",
+    "tokens_saved": 0
+   }
+  },
+  "prefix_cache": {
+   "prompts": 640,
+   "forward_s": 8.9177554249909,
+   "prompts_per_s": 71.76693792324463,
+   "tokens": 48157,
+   "tokens_per_s": 5400.125671202643,
+   "peak_vram_gb": 1.951655387878418,
+   "max_batch_rows": 20,
+   "oom_retries": 0,
+   "padding_ratio": 0.2651824951171875,
+   "prefix_mode": "per-question",
+   "tokens_saved": 8288
+  },
+  "state": {
+   "plain": {
+    "prompts": 73,
+    "forward_s": 2.838472716997785,
+    "prompts_per_s": 25.718055897754457,
+    "tokens": 22106,
+    "tokens_per_s": 7787.991009256986,
+    "peak_vram_gb": 1.5323033332824707,
+    "max_batch_rows": 6,
+    "oom_retries": 0,
+    "padding_ratio": 0.05368150684931505,
+    "prefix_mode": "off",
+    "tokens_saved": 0
+   },
+   "prefix_cache": {
+    "prompts": 73,
+    "forward_s": 1.127923006995843,
+    "prompts_per_s": 64.72072964841034,
+    "tokens": 5186,
+    "tokens_per_s": 4597.831561050082,
+    "peak_vram_gb": 3.6332216262817383,
+    "max_batch_rows": 73,
+    "oom_retries": 0,
+    "padding_ratio": 0.286068281938326,
+    "prefix_mode": "shared",
+    "tokens_saved": 16920
+   }
+  },
+  "best_budget": 2048
+ }
+}

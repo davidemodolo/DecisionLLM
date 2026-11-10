@@ -1,0 +1,109 @@
+{
+ "model": {
+  "loaded": "granite-4.2-3b",
+  "label": "Granite 4.2 3B (4-bit)",
+  "repo": "ibm-granite/granite-4.2-3b",
+  "load_seconds": 8.42,
+  "vram_gb": 2.61,
+  "device": "cuda"
+ },
+ "elapsed_s": 392.6756120809987,
+ "data": {
+  "budgets": {
+   "2048": {
+    "prompts": 640,
+    "forward_s": 33.32627147599851,
+    "prompts_per_s": 19.204068491758107,
+    "tokens": 62475,
+    "tokens_per_s": 1874.6471547227936,
+    "peak_vram_gb": 2.778414726257324,
+    "max_batch_rows": 21,
+    "oom_retries": 0,
+    "padding_ratio": 0.11458333333333337,
+    "prefix_mode": "off",
+    "tokens_saved": 0
+   },
+   "4096": {
+    "prompts": 640,
+    "forward_s": 34.345105364005576,
+    "prompts_per_s": 18.634387439403056,
+    "tokens": 62475,
+    "tokens_per_s": 1819.0364926198529,
+    "peak_vram_gb": 2.880420684814453,
+    "max_batch_rows": 42,
+    "oom_retries": 0,
+    "padding_ratio": 0.12214759442446044,
+    "prefix_mode": "off",
+    "tokens_saved": 0
+   },
+   "8192": {
+    "prompts": 640,
+    "forward_s": 38.94718373399883,
+    "prompts_per_s": 16.432510354819673,
+    "tokens": 62475,
+    "tokens_per_s": 1604.0954444021233,
+    "peak_vram_gb": 3.138613700866699,
+    "max_batch_rows": 85,
+    "oom_retries": 0,
+    "padding_ratio": 0.1205658783783784,
+    "prefix_mode": "off",
+    "tokens_saved": 0
+   }
+  },
+  "prefix_cache": {
+   "prompts": 640,
+   "forward_s": 32.59035018700524,
+   "prompts_per_s": 19.637714732356184,
+   "tokens": 50887,
+   "tokens_per_s": 1561.413108727202,
+   "peak_vram_gb": 2.9705333709716797,
+   "max_batch_rows": 20,
+   "oom_retries": 0,
+   "padding_ratio": 0.2235260009765625,
+   "prefix_mode": "per-question",
+   "tokens_saved": 11588
+  },
+  "state": {
+   "plain": {
+    "prompts": 73,
+    "forward_s": 14.56009319399891,
+    "prompts_per_s": 5.013704172586457,
+    "tokens": 28532,
+    "tokens_per_s": 1959.6028418114627,
+    "peak_vram_gb": 2.7725706100463867,
+    "max_batch_rows": 5,
+    "oom_retries": 0,
+    "padding_ratio": 0.040231431646932214,
+    "prefix_mode": "off",
+    "tokens_saved": 0
+   },
+   "prefix_cache": {
+    "prompts": 73,
+    "forward_s": 4.435203252996871,
+    "prompts_per_s": 16.45922313722011,
+    "tokens": 5924,
+    "tokens_per_s": 1335.6772310259169,
+    "peak_vram_gb": 5.413238048553467,
+    "max_batch_rows": 73,
+    "oom_retries": 0,
+    "padding_ratio": 0.1915938864628821,
+    "prefix_mode": "shared",
+    "tokens_saved": 22608
+   }
+  },
+  "best_budget": 2048,
+  "set_attention": {
+   "prompts": 640,
+   "forward_s": 33.011726310975064,
+   "prompts_per_s": 19.38705034602283,
+   "tokens": 61835,
+   "tokens_per_s": 1873.1222783536275,
+   "peak_vram_gb": 2.778871536254883,
+   "max_batch_rows": 21,
+   "oom_retries": 0,
+   "padding_ratio": 0.09703563084112155,
+   "prefix_mode": "set-attention",
+   "tokens_saved": 0
+  }
+ }
+}
