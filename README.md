@@ -282,13 +282,12 @@ nuove ricevono probabilità casuali e sono segnate come simulate. La pagina Mode
 
 ### Modello nel browser
 
-La voce "Qwen3.5 0.8B nel browser" del menu Modello fa girare un modello vero nella pagina, senza server.
-`pages/browser.js` carica [`onnx-community/Qwen3.5-0.8B-Text-ONNX`](https://huggingface.co/onnx-community/Qwen3.5-0.8B-Text-ONNX)
+La voce "LFM2.5 1.2B nel browser" del menu Modello fa girare un modello vero nella pagina, senza server.
+`pages/browser.js` carica [`LiquidAI/LFM2.5-1.2B-Instruct-ONNX`](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Instruct-ONNX) (q8, circa 1.7 GB)
 con [Transformers.js](https://huggingface.co/docs/transformers.js) 4.3.2 e applica lo stesso metodo di `core.py`:
-lo stesso prompt, un passaggio per permutazione con i soli logit dell'ultima posizione e la softmax sui token
-delle lettere. Usa la versione int8 (circa 0.9 GB), che dà la stessa risposta del modello bf16 del server sul
-97% delle domande di test, su WebGPU quando c'è un adapter hardware e altrimenti su CPU (WASM, con i thread
-abilitati da `pages/coi-serviceworker.js`). I pesi restano nella Cache API del browser (`transformers-cache`) e il pulsante "Elimina dal browser"
+lo stesso prompt, un passaggio per permutazione, i logit dell'ultima posizione e la softmax sui token
+delle lettere. Gira sulla CPU (WASM); `pages/coi-serviceworker.js` attiva la cross-origin isolation, così ONNX
+Runtime usa più thread. I pesi restano nella Cache API del browser (`transformers-cache`) e il pulsante "Elimina dal browser"
 li cancella.
 
 ```bash

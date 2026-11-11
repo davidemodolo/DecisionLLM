@@ -454,7 +454,7 @@ pre.prompt mark { background: var(--primary-container); color: var(--on-primary-
       <span class="icon">memory</span>
       <div>
         <div class="t">Prova un modello vero, nel tuo browser</div>
-        <p>Qwen3.5 0.8B gira sul tuo computer: le risposte sono calcolate qui, con lo stesso metodo del server. Il modello si
+        <p>LFM2.5 1.2B gira sul tuo computer: le risposte sono calcolate qui, con lo stesso metodo del server. Il modello si
           scarica una volta e resta nel browser finché non lo elimini.</p>
         <div class="bar" id="bcBar" hidden><div></div></div>
         <div class="meta" id="bcInfo"></div>
@@ -1380,10 +1380,8 @@ function initBrowser() {
   const refresh = async (extra = "") => {
     const st = await be.storage().catch(() => ({}));
     const loaded = be.info().loaded;
-    const plan = await be.plan(), where = plan.backend === "webgpu" ? "WebGPU" : "CPU";
-    $("#bcInfo").textContent = [loaded ? `In uso: ${be.info().label}, ${where}${be.info().backend === "wasm" ? `, ${be.info().threads} thread` : ""}.` :
-      st.cached ? `Modello già scaricato in questo browser (${where}).` :
-      `Download: circa ${gb(plan.size_gb)}, gira su ${where}.`,
+    $("#bcInfo").textContent = [loaded ? `In uso: ${be.info().label}.` :
+      st.cached ? "Modello già scaricato in questo browser." : `Download: circa ${gb(be.SIZE_GB)}, gira sulla CPU.`,
       st.usage_gb != null ? `Spazio usato dal sito: ${gb(st.usage_gb)}.` : "", extra].filter(Boolean).join(" ");
     $("#bcClear").disabled = !st.cached && !loaded;
   };

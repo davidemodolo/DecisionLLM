@@ -195,17 +195,17 @@
     return {summary, results, sample_prompt: sample, model};
   }
 
-  const BROWSER_MODELS = [{key: "browser", label: "Qwen3.5 0.8B nel browser", quant: "q4f16 / int8"}];
+  const BROWSER_MODELS = [{key: "browser", label: "LFM2.5 1.2B nel browser", quant: "q8"}];
   async function configWithBrowser() {
     const cfg = await cached("data/config.json");
     if (!window.browserEngine || cfg.models.some(m => m.browser)) return cfg;
-    cfg.models.push(...BROWSER_MODELS.map(m => ({...m, repo: "onnx-community/Qwen3.5-0.8B-Text-ONNX", params_b: 0.87, browser: true})));
+    cfg.models.push(...BROWSER_MODELS.map(m => ({...m, repo: "LiquidAI/LFM2.5-1.2B-Instruct-ONNX", params_b: 1.17, browser: true})));
     return cfg;
   }
 
   async function browserScore(b, cfg, spec) {
     if (window.browserEngine.info().loaded !== b.model) await window.browserEngine.load(b.model);
-    const tpl = (await answersFor("qwen3.5-0.8b")).prompt || DEFAULT_TEMPLATE;
+    const tpl = (await answersFor(window.browserEngine.RECORDED)).prompt || DEFAULT_TEMPLATE;
     const method = b.scramble > 1 ? b.aggregation : "mean";
     const cal = calibrations[calKey(b)];
     const t0 = performance.now();
