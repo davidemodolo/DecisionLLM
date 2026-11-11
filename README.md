@@ -280,16 +280,6 @@ demo ricostruisce da questi dati qualsiasi numero di permutazioni da 1 a 10 (le 
 prime di quelle con K = 10) e ricalcola aggregazioni, metriche e calibrazione conforme come `core.py`. Le domande
 nuove ricevono probabilità casuali e sono segnate come simulate. La pagina Modelli legge `bench/results`.
 
-### Modello nel browser
-
-La voce "LFM2.5 1.2B nel browser" del menu Modello fa girare un modello vero nella pagina, senza server.
-`pages/browser.js` carica [`LiquidAI/LFM2.5-1.2B-Instruct-ONNX`](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Instruct-ONNX) (q8, circa 1.7 GB)
-con [Transformers.js](https://huggingface.co/docs/transformers.js) 4.3.2 e applica lo stesso metodo di `core.py`:
-lo stesso prompt, un passaggio per permutazione, i logit dell'ultima posizione e la softmax sui token
-delle lettere. Gira sulla CPU (WASM); `pages/coi-serviceworker.js` attiva la cross-origin isolation, così ONNX
-Runtime usa più thread. I pesi restano nella Cache API del browser (`transformers-cache`) e il pulsante "Elimina dal browser"
-li cancella.
-
 ```bash
 uv run python pages/record.py --models qwen3.5-0.8b   # risposte registrate (GPU), default tutti
 python3 pages/build.py             # sito in _site/
