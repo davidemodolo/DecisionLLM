@@ -154,9 +154,9 @@ def test_questions():
 
 @app.get("/api/bench")
 def bench():
-    """Benchmark summaries (eval and stress) from bench/results, for the comparison page."""
+    """Benchmark summaries (eval, stress and comparison with other systems) from bench/results."""
     results = ROOT / "bench" / "results"
-    out = {"eval": {}, "stress": {}}
+    out = {"eval": {}, "stress": {}, "compare": {}}
     for phase in out:
         for path in sorted(results.glob(f"{phase}-*.json")):
             out[phase][path.stem.removeprefix(f"{phase}-")] = json.loads(path.read_text())

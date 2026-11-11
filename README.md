@@ -24,6 +24,7 @@ registrate dai modelli veri (vedi [Demo statica](#demo-statica)).
 | `download_models.py` | Scarica i pesi dei modelli e il benchmark nella cache di Hugging Face |
 | `make_test_questions.py` | Genera `data/test_questions.json` (256 domande italiane con risposta nota) |
 | `bench/run_bench.py` | Benchmark dei modelli su Global-MMLU-Lite italiano e stress test |
+| `bench/compare.py` | Confronto con Laya, un classificatore NLI zero-shot, GLiClass e Jev (API) su dataset italiani di classificazione |
 | `bench/report.py` | Grafici (`bench/plots/`) e tabelle (`bench/RESULTS.md`) dai risultati |
 | `pages/` | Demo statica per GitHub Pages: registrazione delle risposte, API simulata nel browser, build del sito |
 | `tests/` | Test della logica pura, dell'API e di equivalenza dei percorsi di forward su modelli minuscoli generati dalle config reali |
@@ -93,7 +94,7 @@ su CPU e solo i vettori risultanti passano alla GPU. Così il modello entra in 8
 
 **Prompt.** Chat template del modello, thinking disattivato, istruzione *"Quale opzione è corretta? Rispondi con
 una sola lettera (A, B, C, D o E), senza altro testo né formattazione."* e risposta che inizia con `Risposta:`.
-È lo stile che tiene la massa di probabilità sulle lettere sopra il 98% su tutti i modelli (vedi
+È lo stile che tiene la massa di probabilità sulle lettere sopra il 98% sui modelli fino a 4B e al 95% sul 9B (vedi
 [`bench/RESULTS.md`](bench/RESULTS.md)). Due dettagli contano:
 
 - il prompt termina senza spazio: dopo `"Risposta: "` il token `" B"` non può più uscire e la massa sulle lettere scende, di quanto dipende dal modello (il notebook lo mostra);
@@ -239,14 +240,55 @@ Dataset: [Global-MMLU-Lite](https://huggingface.co/datasets/CohereLabs/Global-MM
 diventa "Nessuna delle altre". Risultati, grafici di accuratezza, calibrazione e velocità rispetto al numero di
 parametri sono in [`bench/RESULTS.md`](bench/RESULTS.md).
 
+### Confronto con i decision model
+
+```bash
+uv sync --group baselines
+uv run python bench/compare.py baselines    # Laya, NLI zero-shot, GLiClass, Jev (CLASSIFIER_DEV_API in .env)
+uv run python bench/compare.py llm          # i nostri modelli, 1 passata e 5 permutazioni
+uv run python bench/report.py
+```
+
+`bench/compare.py` pone le stesse domande a tre modelli open source che restituiscono probabilità con una sola
+passata, a Jev via API e ai nostri LLM. Jev riceve `share_data: false` e le risposte restano in cache in
+`bench/data/jev_cache.json`, così un nuovo run non ripete le chiamate:
+
+| Sistema | Repo | Parametri | Come risponde |
+|---|---|---|---|
+| Laya multilingual | [`convaiinnovations/laya`](https://huggingface.co/convaiinnovations/laya) (`multilingual`) | 322M | decision model su mmBERT: stato e domande tipizzate (scelta, punteggio, sì / no), come Jev |
+| bge-m3 zeroshot v2.0 | [`MoritzLaurer/bge-m3-zeroshot-v2.0`](https://huggingface.co/MoritzLaurer/bge-m3-zeroshot-v2.0) | 568M | cross-encoder NLI: una passata per opzione, probabilità di implicazione normalizzate |
+| GLiClass x-base | [`knowledgator/gliclass-x-base`](https://huggingface.co/knowledgator/gliclass-x-base) | 300M | mDeBERTa: testo e tutte le opzioni in una passata, un punteggio per opzione |
+| Jev (API) | [classifier.dev](https://classifier.dev) `/v1/systemone`, `jev-latest` | – | il decision model di TypeSafe, stato e domande tipizzate; tempi con la rete |
+
+I dataset sono in italiano e coprono i tre tipi di domanda:
+
+- [MASSIVE](https://huggingface.co/datasets/mteb/amazon_massive_intent) it-IT: richieste a un assistente vocale, scelta tra 5 intent (fino a 2 dello stesso dominio);
+- [SIB-200](https://huggingface.co/datasets/Davlan/sib200) ita_Latn: argomento di una frase tra 7, e la stessa frase come domanda sì / no;
+- [tweet_sentiment_multilingual](https://huggingface.co/datasets/cardiffnlp/tweet_sentiment_multilingual) italiano: punteggio su 3 livelli;
+- le 256 domande locali e Global-MMLU-Lite, come riferimento sulle domande di conoscenza.
+
+Ogni sistema produce una distribuzione sulle opzioni della domanda, valutata con le stesse metriche. Sullo split dev
+si fittano una temperatura (ECE con T) e la soglia della conformal prediction. I tempi sono a caldo, sulla stessa
+GPU. Il confronto è nella pagina Modelli della UI e in [`bench/RESULTS.md`](bench/RESULTS.md).
+
 ## Demo statica
 
 La demo su GitHub Pages è la stessa UI, con `pages/demo.js` al posto del server. `pages/record.py` fa rispondere
-i modelli (nella demo pubblicata Qwen3.5 0.8B, LFM2.5 1.2B e Qwen3.5 2B), con 10 permutazioni per domanda, agli esempi, alle 256 domande di test e alla domanda di "Come
+tutti i modelli, con 10 permutazioni per domanda, agli esempi, alle 256 domande di test e alla domanda di "Come
 funziona", e salva in `pages/data/` le probabilità di ogni permutazione e i tempi misurati a caldo. Nel browser la
 demo ricostruisce da questi dati qualsiasi numero di permutazioni da 1 a 10 (le permutazioni con K minore sono le
-prime di quelle con K = 10) e ricalcola aggregazioni, metriche e calibrazione conforme come `core.py`. I modelli non
-registrati e le domande nuove ricevono probabilità casuali e sono segnati come simulati. La pagina Modelli legge `bench/results`.
+prime di quelle con K = 10) e ricalcola aggregazioni, metriche e calibrazione conforme come `core.py`. Le domande
+nuove ricevono probabilità casuali e sono segnate come simulate. La pagina Modelli legge `bench/results`.
+
+### Modello nel browser
+
+La voce "LFM2.5 1.2B nel browser" del menu Modello fa girare un modello vero nella pagina, senza server.
+`pages/browser.js` carica [`LiquidAI/LFM2.5-1.2B-Instruct-ONNX`](https://huggingface.co/LiquidAI/LFM2.5-1.2B-Instruct-ONNX) (q8, circa 1.7 GB)
+con [Transformers.js](https://huggingface.co/docs/transformers.js) 4.3.2 e applica lo stesso metodo di `core.py`:
+lo stesso prompt, un passaggio per permutazione, i logit dell'ultima posizione e la softmax sui token
+delle lettere. Gira sulla CPU (WASM); `pages/coi-serviceworker.js` attiva la cross-origin isolation, così ONNX
+Runtime usa più thread. I pesi restano nella Cache API del browser (`transformers-cache`) e il pulsante "Elimina dal browser"
+li cancella.
 
 ```bash
 uv run python pages/record.py --models qwen3.5-0.8b   # risposte registrate (GPU), default tutti

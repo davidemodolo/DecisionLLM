@@ -9,17 +9,27 @@ from core import MODELS, MODELS_BY_KEY
 
 ROOT = Path(__file__).resolve().parent
 PATTERNS = ["*.json", "*.safetensors", "*.txt", "*.model", "*.jinja", "tokenizer*"]
+BENCHMARK_FILES = {
+    f"global_mmlu_lite_it_{split}.parquet": ("CohereLabs/Global-MMLU-Lite", f"it/{split}-00000-of-00001.parquet")
+    for split in ("dev", "test")
+} | {
+    f"massive_it_{split}.json.gz": ("mteb/amazon_massive_intent", f"{split}/it.json.gz")
+    for split in ("validation", "test")
+} | {
+    f"sib200_it_{split}.tsv": ("Davlan/sib200", f"data/ita_Latn/{split}.tsv") for split in ("dev", "test")
+} | {
+    f"sentiment_it_{split}.jsonl": ("cardiffnlp/tweet_sentiment_multilingual", f"data/italian/{split}.jsonl")
+    for split in ("validation", "test")
+}
 
 
 def download_benchmark():
     target = ROOT / "bench" / "data"
     target.mkdir(parents=True, exist_ok=True)
-    for split in ("dev", "test"):
-        dest = target / f"global_mmlu_lite_it_{split}.parquet"
+    for name, (repo, filename) in BENCHMARK_FILES.items():
+        dest = target / name
         if not dest.exists():
-            path = hf_hub_download("CohereLabs/Global-MMLU-Lite", f"it/{split}-00000-of-00001.parquet",
-                                   repo_type="dataset")
-            dest.write_bytes(Path(path).read_bytes())
+            dest.write_bytes(Path(hf_hub_download(repo, filename, repo_type="dataset")).read_bytes())
     print(f"benchmark in {target}")
 
 

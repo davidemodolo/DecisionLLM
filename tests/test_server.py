@@ -29,9 +29,11 @@ def test_bench_endpoint_returns_results_by_phase_and_model(tmp_path, monkeypatch
     results.mkdir(parents=True)
     (results / "eval-qwen3.5-2b.json").write_text(json.dumps({"data": {"configs": {}}}))
     (results / "raw-qwen3.5-2b.json").write_text("{}")
+    (results / "compare-laya.json").write_text(json.dumps({"datasets": {}}))
     monkeypatch.setattr(server, "ROOT", tmp_path)
     body = TestClient(server.app).get("/api/bench").json()
-    assert body == {"eval": {"qwen3.5-2b": {"data": {"configs": {}}}}, "stress": {}}
+    assert body == {"eval": {"qwen3.5-2b": {"data": {"configs": {}}}}, "stress": {},
+                    "compare": {"laya": {"datasets": {}}}}
 
 
 def test_typed_answer_reports_prediction_set_with_criteria_keys():

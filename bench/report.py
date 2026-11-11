@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT))
 from core import MODELS  # noqa: E402
 
 sys.path.insert(0, str(ROOT / "bench"))
+from compare import BASELINES, DATASETS  # noqa: E402
 from run_bench import STATE_QUESTIONS as STATE_N  # noqa: E402
 
 RESULTS = ROOT / "bench" / "results"
@@ -195,11 +196,141 @@ def plot_speed(st):
     return best
 
 
+CLASSIFICATION = ["massive", "sib200", "sib200-yesno", "sentiment"]
+
+
+def load_compare() -> list[dict]:
+    """One row per system and mode: baselines (single pass) and our LLMs with 1 pass and 5 permutations."""
+    rows = []
+    for key, base in BASELINES.items():
+        f = RESULTS / f"compare-{key}.json"
+        if f.exists():
+            rows.append({"label": base["label"], "mode": "API" if base.get("remote") else "1 passata", "kind": "base",
+                         "params": base["params_b"],
+                         "datasets": {d: (r["single"], {**r["timing"], "dev_questions": r.get("dev_questions")})
+                                      for d, r in json.loads(f.read_text())["datasets"].items()}})
+    for m in MODELS:
+        f = RESULTS / f"compare-{m.key}.json"
+        if not f.exists():
+            continue
+        ds = json.loads(f.read_text())["datasets"]
+        for mode, metrics, timing in (("1 passata", "single", "timing"), ("5 permutazioni", "scramble", "timing_scramble")):
+            rows.append({"label": short(m.key), "mode": mode, "kind": "llm1" if metrics == "single" else "llm5",
+                         "params": m.params_b, "key": m.key,
+                         "datasets": {d: (r[metrics], {**r[timing], "dev_questions": r.get("dev_questions")})
+                                      for d, r in ds.items()}})
+    return rows
+
+
+def avg(row: dict, f, datasets=CLASSIFICATION):
+    vals = [f(*row["datasets"][d]) for d in datasets if d in row["datasets"]]
+    return sum(vals) / len(vals) if len(vals) == len(datasets) and None not in vals else None
+
+
+def plot_compare(rows):
+    fig, ax = plt.subplots(figsize=(8, 5))
+    points = []
+    for r in rows:
+        x, y = avg(r, lambda m, t: t["ms_per_question"]), avg(r, lambda m, t: m["accuracy"])
+        if x is None:
+            continue
+        style = {"base": dict(marker="D", color=SERIES[1], s=70), "llm1": dict(marker="o", facecolor=SURFACE,
+                 edgecolor=MUTED, s=50), "llm5": dict(marker="o", color=SERIES[0], s=70)}[r["kind"]]
+        ax.scatter(x, y, zorder=3, **style)
+        points.append((r, x, y))
+    ax.set_xscale("log")
+    fig.canvas.draw()
+    taken = [ax.transData.transform((x, y)) for _, x, y in points]
+    for r, x, y in points:
+        if r["kind"] == "llm1":
+            continue
+        px, py = ax.transData.transform((x, y))
+        for dy in (3, -14, 14, -26):
+            box = (px + 7, py + dy - 4, px + 7 + 6.5 * len(r["label"]), py + dy + 10)
+            if not any(box[0] - 6 < tx < box[2] + 6 and box[1] - 6 < ty < box[3] + 6 for tx, ty in taken):
+                break
+        taken += [(bx, box[1] + 7) for bx in range(int(box[0]), int(box[2]), 8)]
+        ax.annotate(r["label"], (x, y), xytext=(7, dy), textcoords="offset points", fontsize=9)
+    for key in {r.get("key") for r in rows if r.get("key")}:
+        pair = [r for r in rows if r.get("key") == key]
+        pts = [(avg(r, lambda m, t: t["ms_per_question"]), avg(r, lambda m, t: m["accuracy"])) for r in pair]
+        if len(pts) == 2 and None not in (pts[0][0], pts[1][0]):
+            ax.plot(*zip(*pts), color=GRID, linewidth=2, zorder=2)
+    ax.xaxis.set_major_formatter(lambda v, _: f"{v:g}")
+    ax.set_xlabel("ms per domanda, a caldo (scala logaritmica)")
+    ax.set_ylabel("accuratezza media")
+    ax.yaxis.set_major_formatter(lambda v, _: f"{100 * v:.0f}%")
+    ax.set_title("Classificazione in italiano: accuratezza e velocità")
+    ax.scatter([], [], marker="D", color=SERIES[1], label="decision model")
+    ax.scatter([], [], marker="o", facecolor=SURFACE, edgecolor=MUTED, label="LLM, 1 passata")
+    ax.scatter([], [], marker="o", color=SERIES[0], label="LLM, 5 permutazioni")
+    ax.legend(loc="lower right")
+    fig.tight_layout()
+    fig.savefig(PLOTS / "compare_accuracy_latency.png", dpi=150)
+    plt.close(fig)
+
+
+def compare_md(rows) -> list[str]:
+    datasets = [d for d in DATASETS if any(d in r["datasets"] for r in rows)]
+    L = ["", "## Confronto con i decision model", "",
+         "Gli stessi dataset per tutti i sistemi, con i modelli locali sulla stessa GPU. Decision model: Laya multilingual (Convai, mmBERT "
+         "322M, stato e domande tipizzate), bge-m3 zeroshot v2.0 (MoritzLaurer, cross-encoder NLI, una passata per "
+         "opzione), GLiClass x-base (Knowledgator, mDeBERTa, tutte le opzioni in una passata) e Jev di TypeSafe via "
+         "l'API di classifier.dev (i tempi di Jev includono la rete). Ogni sistema "
+         "restituisce una distribuzione sulle opzioni della domanda. Sul dev si fittano una temperatura (ECE con T) e "
+         "la soglia della conformal prediction (ε 10%).", "",
+         "Rigenerare con `uv sync --group baselines && uv run python bench/compare.py baselines && "
+         "uv run python bench/compare.py llm`.", "",
+         "| Dataset | Test | Dev | Tipo |", "|---|---|---|---|"]
+    kinds = {"massive": "scelta tra 5 intent, fino a 2 dello stesso dominio", "sib200": "scelta tra 7 argomenti",
+             "sib200-yesno": "\"Il testo parla di X?\", metà vere", "sentiment": "punteggio su 3 livelli",
+             "local": "scelta tra 4 opzioni più \"Nessuna delle altre\"",
+             "mmlu": "come sopra, 20% con risposta \"Nessuna delle altre\""}
+    for d in datasets:
+        m, t = next(r["datasets"][d] for r in rows if d in r["datasets"])
+        L.append(f"| {DATASETS[d]} | {t['questions']} | {t.get('dev_questions') or '–'} | {kinds[d]} |")
+    L += ["", "![Confronto](plots/compare_accuracy_latency.png)", "", "### Accuratezza per dataset", "",
+         "| Sistema | Modalità | Parametri | " + " | ".join(DATASETS[d] for d in datasets) + " | Media classificazione |",
+         "|---|---|---|" + "---|" * (len(datasets) + 1)]
+    for r in rows:
+        cells = [pct(r["datasets"][d][0]["accuracy"]) if d in r["datasets"] else "–" for d in datasets]
+        L.append(f"| {r['label']} | {r['mode']} | {str(r['params']) + 'B' if r['params'] else '–'} | " + " | ".join(cells) +
+                 f" | **{pct(avg(r, lambda m, t: m['accuracy']))}** |")
+    L += ["", "### Calibrazione, conformal e velocità (media dei 4 dataset di classificazione)", "",
+          "| Sistema | Modalità | ECE | ECE con T | Brier | Decide da solo | Acc. quando decide | ms / domanda | Picco VRAM |",
+          "|---|---|---|---|---|---|---|---|---|"]
+    for r in rows:
+        f = lambda key, sub=None: avg(r, lambda m, t: (m.get("conformal") or {}).get(sub) if key == "conformal" else m.get(key))  # noqa: E731
+        num = lambda v, d=3: "–" if v is None else f"{v:.{d}f}"  # noqa: E731
+        L.append(f"| {r['label']} | {r['mode']} | {num(f('ece'))} | {num(f('ece_t'))} | {num(f('brier'))} | "
+                 f"{pct(f('conformal', 'decided_rate'))} | {pct(f('conformal', 'accuracy_when_decided'))} | "
+                 f"{num(avg(r, lambda m, t: t['ms_per_question']), 1)} | {'API' if r['mode'] == 'API' else num(avg(r, lambda m, t: t['peak_vram_gb']), 2) + ' GB'} |")
+    L += ["", "Note sul metodo:", "",
+          "- Laya valuta in un'unica passata più stati con la stessa domanda (`predict_batch`). Su MASSIVE, domande "
+          "locali e MMLU le opzioni cambiano da domanda a domanda, quindi Laya fa una chiamata per domanda.",
+          "- Il cross-encoder NLI riceve un'ipotesi per opzione (\"Questo testo parla di {}.\", \"L'utente vuole: {}.\"...) "
+          "e la probabilità di implicazione normalizzata sulle opzioni. Per il sì / no usa la probabilità di "
+          "implicazione dell'ipotesi.",
+          "- GLiClass dà un sigmoid per opzione: sulle domande a scelta i logit vengono normalizzati con una softmax, "
+          "sul sì / no il sigmoid dell'argomento chiesto è P(sì). Con una sola etichetta il sigmoid resta quasi sempre "
+          "sotto 0.5, quindi la risposta è quasi sempre \"No\" e l'accuratezza è vicina al caso. La temperatura "
+          "cambia la scala ma non la soglia.",
+          "- Jev è chiamato via API (classifier.dev, `/v1/systemone`), una richiesta per domanda: i tempi includono la "
+          "rete. L'API arrotonda le probabilità a due decimali, quindi alcune opzioni valgono 0: la temperatura fittata "
+          "sul NLL tende a valori alti e l'ECE grezza è la misura più fedele.",
+          "- LFM2.5 1.2B risponde \"Sì\" a ogni domanda sì / no di SIB-200 con probabilità vicina a 1, in entrambi "
+          "gli ordini delle opzioni: segue la parola, non la lettera. Accuratezza 50% con e senza permutazioni.",
+          "- I nostri LLM con una passata leggono le opzioni nell'ordine originale; con 5 permutazioni le opzioni "
+          "ruotano e le probabilità sono aggregate con la media geometrica. La temperatura e la soglia conforme sono "
+          "fittate separatamente per ogni modalità."]
+    return L
+
+
 def pct(x):
     return "-" if x is None else f"{100 * x:.1f}%"
 
 
-def write_md(ev, st):
+def write_md(ev, st, rows):
     keys = sorted(ev, key=params)
     L = ["# Risultati del benchmark", "",
          "Dataset: Global-MMLU-Lite, split italiano. 215 domande dev (calibrazione), 400 test (valutazione).",
@@ -250,11 +381,11 @@ def write_md(ev, st):
               "|---|---|---|---|---|---|---|---|"]
         for k in sorted(st, key=params):
             d = st[k]["data"]
-            rows = [(f"budget {b} token", v) for b, v in d["budgets"].items()]
-            rows.append((f"budget {d['best_budget']} + cache prefisso", d["prefix_cache"]))
+            speed_rows = [(f"budget {b} token", v) for b, v in d["budgets"].items()]
+            speed_rows.append((f"budget {d['best_budget']} + cache prefisso", d["prefix_cache"]))
             if "set_attention" in d:
-                rows.append((f"budget {d['best_budget']} + set attention", d["set_attention"]))
-            for label, v in rows:
+                speed_rows.append((f"budget {d['best_budget']} + set attention", d["set_attention"]))
+            for label, v in speed_rows:
                 L.append(f"| {short(k)} | {label} | {v['forward_s']:.1f} | {v['prompts_per_s']:.0f} | "
                          f"{v['tokens_per_s']:.0f} | {v['peak_vram_gb']:.2f} GB | {v['max_batch_rows']} | "
                          f"{100 * v['padding_ratio']:.0f}% |")
@@ -270,6 +401,8 @@ def write_md(ev, st):
             a, b = sd["plain"]["forward_s"], sd["prefix_cache"]["forward_s"]
             L.append(f"| {short(k)} | {1000 * a / len(STATE_N):.0f} | {1000 * b / len(STATE_N):.0f} | {a / b:.1f}× | "
                      f"{sd['prefix_cache']['tokens_saved']} |")
+    if rows:
+        L += compare_md(rows)
     L += ["", "## Note", "",
           "- In bf16 il risultato di un prompt può variare leggermente con la composizione del batch (forme diverse, "
           "kernel diversi): sulle domande incerte circa l'1-2% degli argmax cambia. In fp32 il padding non altera i "
@@ -287,7 +420,10 @@ def main():
     plot_reliability(ev)
     if st:
         plot_speed(st)
-    write_md(ev, st)
+    rows = load_compare()
+    if rows:
+        plot_compare(rows)
+    write_md(ev, st, rows)
     print(f"grafici in {PLOTS}, report in bench/RESULTS.md ({len(ev)} modelli valutati, {len(st)} stress)")
 
 

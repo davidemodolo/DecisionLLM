@@ -57,6 +57,43 @@
     });
   }
 
+  function permutations(n, k, seed) {
+    const base = [...Array(n).keys()], perms = [];
+    for (let s = 0; s < Math.min(k, n); s++) perms.push([...base.slice(s), ...base.slice(0, s)]);
+    const rand = rng(String(seed)), seen = new Set(perms.map(p => p.join()));
+    const fact = [...Array(n).keys()].reduce((a, i) => a * (i + 1), 1);
+    while (perms.length < k && seen.size < fact) {
+      const p = [...base];
+      for (let i = n - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [p[i], p[j]] = [p[j], p[i]]; }
+      if (!seen.has(p.join())) { seen.add(p.join()); perms.push(p); }
+    }
+    return perms;
+  }
+
+  // The template's own placeholders are filled first and the user's text last, through functions, so "$" patterns or
+  // an "(A o B)" written in a question stay as typed.
+  function buildPrompt(tpl, question, options, state) {
+    const l = LETTERS.slice(0, options.length).split("");
+    const ctx = state ? `Contesto:\n${state}\n\n` : "";
+    const [head, rest] = tpl.split("@@Q@@");
+    const tail = rest.replace("(A o B)", () => `(${l.slice(0, -1).join(", ")} o ${l[l.length - 1]})`);
+    const [before, after] = tail.split("A) @@O1@@\nB) @@O2@@");
+    return head + ctx + question + before + options.map((o, i) => `${l[i]}) ${o}`).join("\n") + after;
+  }
+  const DEFAULT_TEMPLATE = "@@Q@@\n\nA) @@O1@@\nB) @@O2@@\n\nQuale opzione è corretta? Rispondi con una sola lettera (A o B), senza altro testo né formattazione.\nRisposta:";
+
+  // Real answers computed in the browser: one forward pass per permutation, as core.Engine.run_variants.
+  async function browserVariants(q, state, opts, k, qi, tpl) {
+    const vs = [];
+    for (const order of permutations(opts.length, k, qi)) {
+      const r = await window.browserEngine.letters(buildPrompt(tpl, q.question, order.map(o => opts[o]), state), opts.length);
+      const probs = Array(opts.length);
+      order.forEach((o, pos) => { probs[o] = r.probs[pos]; });
+      vs.push([order, r.probs, probs, r.mass, r.top]);
+    }
+    return vs;
+  }
+
   function item(q, vs, method, cal, cfg) {
     const opts = allOptions(q, cfg);
     const vp = vs.map(v => v[2]), mass = vs.map(v => v[3]);
@@ -105,8 +142,9 @@
   }
 
   async function score(b, cfg) {
-    const data = await answersFor(b.model);
     const spec = cfg.models.find(m => m.key === b.model);
+    if (spec.browser) return browserScore(b, cfg, spec);
+    const data = await answersFor(b.model);
     const exact = b.prompt_style === cfg.default_prompt && !b.set_attention;
     const method = b.scramble > 1 ? b.aggregation : "mean";
     const cal = calibrations[calKey(b)];
@@ -125,6 +163,12 @@
       vs.forEach(v => v[1].forEach((p, j) => { posSum[j] = (posSum[j] || 0) + p; posCnt[j] = (posCnt[j] || 0) + 1; }));
       return Object.assign(item(q, vs, method, cal, cfg), rec ? {} : {simulated: true});
     });
+    const tpl = data.prompt || DEFAULT_TEMPLATE;
+    return finish(b, cfg, spec, results, prompts, forward, posSum, posCnt, cal, tpl,
+      {loaded: b.model, label: spec.label, repo: spec.repo, device: "demo", vram_gb: null});
+  }
+
+  function finish(b, cfg, spec, results, prompts, forward, posSum, posCnt, cal, tpl, model) {
     const graded = results.filter(r => r.answer);
     const summary = {
       questions: results.length, graded: graded.length,
@@ -146,21 +190,55 @@
         accuracy_when_decided: dg.length ? dg.filter(r => r.correct).length / dg.length : null,
       };
     }
-    const tpl = data.prompt || "@@Q@@\n\nA) @@O1@@\nB) @@O2@@\n\nQuale opzione è corretta? Rispondi con una sola lettera (A o B), senza altro testo né formattazione.\nRisposta:";
     const q0 = b.questions[0], opts0 = allOptions({...q0, options: q0.options || []}, cfg);
-    const letters = LETTERS.slice(0, opts0.length).split("");
-    const sample = tpl.replace("@@Q@@", q0.question)
-      .replace(/A\) @@O1@@\nB\) @@O2@@/, opts0.map((o, i) => `${letters[i]}) ${o}`).join("\n"))
-      .replace("(A o B)", `(${letters.slice(0, -1).join(", ")} o ${letters[letters.length - 1]})`);
-    return {summary, results, sample_prompt: sample, model: {loaded: b.model, label: spec.label, repo: spec.repo, device: "demo", vram_gb: null}};
+    const sample = buildPrompt(tpl, q0.question, opts0, (q0.state || b.state || "").trim());
+    return {summary, results, sample_prompt: sample, model};
+  }
+
+  const BROWSER_MODELS = [{key: "browser", label: "LFM2.5 1.2B nel browser", quant: "q8"}];
+  async function configWithBrowser() {
+    const cfg = await cached("data/config.json");
+    if (!window.browserEngine || cfg.models.some(m => m.browser)) return cfg;
+    cfg.models.push(...BROWSER_MODELS.map(m => ({...m, repo: "LiquidAI/LFM2.5-1.2B-Instruct-ONNX", params_b: 1.17, browser: true})));
+    return cfg;
+  }
+
+  async function browserScore(b, cfg, spec) {
+    if (window.browserEngine.info().loaded !== b.model) await window.browserEngine.load(b.model);
+    const tpl = (await answersFor(window.browserEngine.RECORDED)).prompt || DEFAULT_TEMPLATE;
+    const method = b.scramble > 1 ? b.aggregation : "mean";
+    const cal = calibrations[calKey(b)];
+    const t0 = performance.now();
+    let prompts = 0;
+    const posSum = [], posCnt = [], results = [];
+    for (const [i, raw] of b.questions.entries()) {
+      const q = {...raw, id: raw.id ?? String(i), options: raw.options || []};
+      const opts = allOptions(q, cfg);
+      const vs = await browserVariants(q, (q.state || b.state || "").trim(), opts, b.scramble, i, tpl);
+      prompts += vs.length;
+      vs.forEach(v => v[1].forEach((p, j) => { posSum[j] = (posSum[j] || 0) + p; posCnt[j] = (posCnt[j] || 0) + 1; }));
+      results.push(item(q, vs, method, cal, cfg));
+      window.browserEngine.progress?.(i + 1, b.questions.length);
+    }
+    const forward = (performance.now() - t0) / 1000;
+    return finish(b, cfg, spec, results, prompts, forward, posSum, posCnt, cal, tpl,
+      {...window.browserEngine.info(), label: spec.label});
   }
 
   window.demoApi = async (path, body) => {
-    const cfg = await cached("data/config.json");
-    if (path === "/api/config") return {...cfg, engine: loaded ? {loaded, device: "demo"} : {}, calibrations: {...calibrations}};
+    const cfg = await configWithBrowser();
+    if (path === "/api/config") {
+      const browserGone = cfg.models.find(m => m.key === loaded)?.browser && !window.browserEngine.info().loaded;
+      return {...cfg, engine: loaded && !browserGone ? {loaded, device: "demo"} : {}, calibrations: {...calibrations}};
+    }
     if (path === "/api/bench") return cached("data/bench.json");
     if (path === "/api/test-questions") return cached("data/test_questions.json");
     if (path === "/api/examples") return cached("data/examples.json");
+    if (path === "/api/load" && cfg.models.find(m => m.key === body.model)?.browser) {
+      const r = await window.browserEngine.load(body.model);
+      loaded = body.model;
+      return {...r, label: cfg.models.find(m => m.key === body.model).label};
+    }
     if (path === "/api/load") {
       await answersFor(body.model);
       loaded = body.model;
