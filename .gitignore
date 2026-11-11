@@ -8,3 +8,5 @@ bench/data/
 data/calibrations.json
 bench/results/*.log
 bench/results/prompt-round1/
+.env
+.*.swp
