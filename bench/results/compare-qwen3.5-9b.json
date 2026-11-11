@@ -1,0 +1,978 @@
+{
+ "system": {
+  "loaded": "qwen3.5-9b",
+  "label": "Qwen3.5 9B (4-bit)",
+  "repo": "Qwen/Qwen3.5-9B",
+  "load_seconds": 17.35,
+  "vram_gb": 5.52,
+  "device": "cuda",
+  "key": "qwen3.5-9b",
+  "params_b": 9.65
+ },
+ "datasets": {
+  "massive": {
+   "single": {
+    "accuracy": 0.86,
+    "ece": 0.05293898344039913,
+    "brier": 0.1895857667264535,
+    "nll": 0.394617593843906,
+    "reliability": [
+     {
+      "lo": 0.2,
+      "hi": 0.3,
+      "confidence": 0.2562275230884552,
+      "accuracy": 0.0,
+      "n": 1
+     },
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.3518312468248255,
+      "accuracy": 0.4117647058823529,
+      "n": 17
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.45644891835176027,
+      "accuracy": 0.4230769230769231,
+      "n": 26
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5581873059272766,
+      "accuracy": 0.45454545454545453,
+      "n": 33
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.659954896679631,
+      "accuracy": 0.6296296296296297,
+      "n": 27
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7547921550770601,
+      "accuracy": 0.7916666666666666,
+      "n": 48
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8515328463755156,
+      "accuracy": 0.968421052631579,
+      "n": 95
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9596308139944265,
+      "accuracy": 0.9881422924901185,
+      "n": 253
+     }
+    ],
+    "avg_confidence": 0.8285124673843384,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.7686585485935211,
+     "threshold": 0.23134145140647888,
+     "calibration_n": 200,
+     "decided_rate": 0.87,
+     "avg_set_size": 1.14,
+     "coverage": 0.912,
+     "accuracy_when_decided": 0.9195402298850575
+    },
+    "temperature": 0.8187307530779818,
+    "ece_t": 0.037772596716880755,
+    "brier_t": 0.1884437833883943,
+    "nll_t": 0.3780420050199106
+   },
+   "scramble": {
+    "accuracy": 0.892,
+    "ece": 0.06505388057231903,
+    "brier": 0.16009635949256606,
+    "nll": 0.3341361954937245,
+    "reliability": [
+     {
+      "lo": 0.2,
+      "hi": 0.3,
+      "confidence": 0.2763092368841171,
+      "accuracy": 0.0,
+      "n": 2
+     },
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.3580663467154783,
+      "accuracy": 0.5882352941176471,
+      "n": 17
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.4601022183895111,
+      "accuracy": 0.5666666666666667,
+      "n": 30
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5370993852615357,
+      "accuracy": 0.5333333333333333,
+      "n": 30
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6563626031080881,
+      "accuracy": 0.6666666666666666,
+      "n": 24
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7529586369083041,
+      "accuracy": 0.8809523809523809,
+      "n": 42
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.856604951231376,
+      "accuracy": 0.967391304347826,
+      "n": 92
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.95841765992995,
+      "accuracy": 0.9923954372623575,
+      "n": 263
+     }
+    ],
+    "avg_confidence": 0.8296085195541382,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.7518948167562485,
+     "threshold": 0.24810518324375153,
+     "calibration_n": 200,
+     "decided_rate": 0.882,
+     "avg_set_size": 1.118,
+     "coverage": 0.93,
+     "accuracy_when_decided": 0.9297052154195011
+    },
+    "temperature": 0.7408182206817179,
+    "ece_t": 0.030295237481594094,
+    "brier_t": 0.15486966315731845,
+    "nll_t": 0.29887384968104685
+   },
+   "timing": {
+    "questions": 500,
+    "forward_s": 67.14335003374107,
+    "ms_per_question": 134.28670006748214,
+    "questions_per_s": 7.446753844554055,
+    "peak_vram_gb": 5.814149856567383,
+    "tokenize_ms_per_question": 0.42
+   },
+   "timing_scramble": {
+    "questions": 500,
+    "forward_s": 337.0456846701172,
+    "ms_per_question": 674.0913693402345,
+    "questions_per_s": 1.4834784207054126,
+    "peak_vram_gb": 5.814149856567383,
+    "tokenize_ms_per_question": 2.43
+   },
+   "dev_questions": 200
+  },
+  "sib200": {
+   "single": {
+    "accuracy": 0.9068627450980392,
+    "ece": 0.06444072854869501,
+    "brier": 0.14899992129547038,
+    "nll": 0.3297654872863296,
+    "reliability": [
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.3587053120136261,
+      "accuracy": 0.0,
+      "n": 1
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.46371820994785856,
+      "accuracy": 0.42857142857142855,
+      "n": 7
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5519046908930728,
+      "accuracy": 0.631578947368421,
+      "n": 19
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.642454369501634,
+      "accuracy": 1.0,
+      "n": 11
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7645831257104874,
+      "accuracy": 0.8125,
+      "n": 16
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8568233251571655,
+      "accuracy": 0.9473684210526315,
+      "n": 38
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9563662553472179,
+      "accuracy": 0.9821428571428571,
+      "n": 112
+     }
+    ],
+    "avg_confidence": 0.8483507693106053,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.7574546933174133,
+     "threshold": 0.24254530668258667,
+     "calibration_n": 99,
+     "decided_rate": 0.8872549019607843,
+     "avg_set_size": 1.1127450980392157,
+     "coverage": 0.946078431372549,
+     "accuracy_when_decided": 0.9502762430939227
+    },
+    "temperature": 0.9048374180359595,
+    "ece_t": 0.050695176656339644,
+    "brier_t": 0.14484297383607164,
+    "nll_t": 0.3129956459618926
+   },
+   "scramble": {
+    "accuracy": 0.9166666666666666,
+    "ece": 0.05380700587057603,
+    "brier": 0.14200924928238476,
+    "nll": 0.3039796748211014,
+    "reliability": [
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.33374112844467163,
+      "accuracy": 1.0,
+      "n": 1
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.46857136487960815,
+      "accuracy": 1.0,
+      "n": 4
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5480217933654785,
+      "accuracy": 0.5625,
+      "n": 16
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6537058864321027,
+      "accuracy": 0.7142857142857143,
+      "n": 14
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7604890736666593,
+      "accuracy": 0.9090909090909091,
+      "n": 11
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8559334611191469,
+      "accuracy": 0.9117647058823529,
+      "n": 34
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9550644808238552,
+      "accuracy": 0.9838709677419355,
+      "n": 124
+     }
+    ],
+    "avg_confidence": 0.8628596607960907,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.6970188319683075,
+     "threshold": 0.3029811680316925,
+     "calibration_n": 99,
+     "decided_rate": 0.9362745098039216,
+     "avg_set_size": 1.0637254901960784,
+     "coverage": 0.9362745098039216,
+     "accuracy_when_decided": 0.9319371727748691
+    },
+    "temperature": 0.9048374180359595,
+    "ece_t": 0.03314554150782375,
+    "brier_t": 0.1396383898120202,
+    "nll_t": 0.28813112110477684
+   },
+   "timing": {
+    "questions": 204,
+    "forward_s": 33.413199689481345,
+    "ms_per_question": 163.79019455628114,
+    "questions_per_s": 6.105371586553571,
+    "peak_vram_gb": 5.817716598510742,
+    "tokenize_ms_per_question": 0.51
+   },
+   "timing_scramble": {
+    "questions": 204,
+    "forward_s": 134.21099746252355,
+    "ms_per_question": 657.8970463849193,
+    "questions_per_s": 1.5199946640510142,
+    "peak_vram_gb": 6.643819808959961,
+    "tokenize_ms_per_question": 2.31
+   },
+   "dev_questions": 99
+  },
+  "sib200-yesno": {
+   "single": {
+    "accuracy": 0.9166666666666666,
+    "ece": 0.1748672422825121,
+    "brier": 0.20549549476453818,
+    "nll": 0.3599089055686244,
+    "reliability": [
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5501142419301547,
+      "accuracy": 0.7692307692307693,
+      "n": 39
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6607307894476528,
+      "accuracy": 0.8620689655172413,
+      "n": 29
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7575387689802382,
+      "accuracy": 0.9523809523809523,
+      "n": 63
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8504973878463109,
+      "accuracy": 0.9833333333333333,
+      "n": 60
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9197421945058383,
+      "accuracy": 1.0,
+      "n": 13
+     }
+    ],
+    "avg_confidence": 0.7417994243841545,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.4688098430633545,
+     "threshold": 0.5311901569366455,
+     "calibration_n": 99,
+     "decided_rate": 1.0,
+     "avg_set_size": 1.0,
+     "coverage": 0.9166666666666666,
+     "accuracy_when_decided": 0.9166666666666666
+    },
+    "temperature": 0.3499377491111553,
+    "ece_t": 0.03780293493878613,
+    "brier_t": 0.15180646383771548,
+    "nll_t": 0.25852747247251834
+   },
+   "scramble": {
+    "accuracy": 0.9215686274509803,
+    "ece": 0.14849745350725513,
+    "brier": 0.1590892624243639,
+    "nll": 0.30109504517991753,
+    "reliability": [
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5473662771676716,
+      "accuracy": 0.5263157894736842,
+      "n": 19
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6543554719537497,
+      "accuracy": 0.84375,
+      "n": 32
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7508000184078606,
+      "accuracy": 0.9795918367346939,
+      "n": 49
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.853120203259625,
+      "accuracy": 0.9873417721518988,
+      "n": 79
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9192562675476075,
+      "accuracy": 1.0,
+      "n": 25
+     }
+    ],
+    "avg_confidence": 0.7769923432200563,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.5000006556510925,
+     "threshold": 0.49999934434890747,
+     "calibration_n": 99,
+     "decided_rate": 0.9950980392156863,
+     "avg_set_size": 1.0049019607843137,
+     "coverage": 0.9215686274509803,
+     "accuracy_when_decided": 0.9211822660098522
+    },
+    "temperature": 0.4723665527410147,
+    "ece_t": 0.03728096654602127,
+    "brier_t": 0.10998283037832357,
+    "nll_t": 0.19732383045731086
+   },
+   "timing": {
+    "questions": 204,
+    "forward_s": 25.01811687351169,
+    "ms_per_question": 122.63782781133182,
+    "questions_per_s": 8.154090934637374,
+    "peak_vram_gb": 5.814149856567383,
+    "tokenize_ms_per_question": 0.37
+   },
+   "timing_scramble": {
+    "questions": 204,
+    "forward_s": 51.087859565091954,
+    "ms_per_question": 250.43068414260762,
+    "questions_per_s": 3.9931209045875167,
+    "peak_vram_gb": 6.5820136070251465,
+    "tokenize_ms_per_question": 0.78
+   },
+   "dev_questions": 99
+  },
+  "sentiment": {
+   "single": {
+    "accuracy": 0.69,
+    "ece": 0.047655564606189714,
+    "brier": 0.41580323829083593,
+    "nll": 0.7145368042574971,
+    "reliability": [
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.376742422580719,
+      "accuracy": 0.5,
+      "n": 4
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.4551348228063156,
+      "accuracy": 0.47761194029850745,
+      "n": 67
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5469364006729687,
+      "accuracy": 0.47058823529411764,
+      "n": 68
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6436227784640547,
+      "accuracy": 0.6086956521739131,
+      "n": 69
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7499474365460245,
+      "accuracy": 0.618421052631579,
+      "n": 76
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8595969373104619,
+      "accuracy": 0.8235294117647058,
+      "n": 102
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9346688191095988,
+      "accuracy": 0.9298245614035088,
+      "n": 114
+     }
+    ],
+    "avg_confidence": 0.7296595758795739,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.8732153177261353,
+     "threshold": 0.12678468227386475,
+     "calibration_n": 300,
+     "decided_rate": 0.458,
+     "avg_set_size": 1.866,
+     "coverage": 0.924,
+     "accuracy_when_decided": 0.868995633187773
+    },
+    "temperature": 1.161834242728283,
+    "ece_t": 0.040538241624832126,
+    "brier_t": 0.4131629899899039,
+    "nll_t": 0.7143094314358166
+   },
+   "scramble": {
+    "accuracy": 0.674,
+    "ece": 0.06604541790485384,
+    "brier": 0.41496498583443725,
+    "nll": 0.7052741217789416,
+    "reliability": [
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.36699429154396057,
+      "accuracy": 0.3333333333333333,
+      "n": 3
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.4573288520469385,
+      "accuracy": 0.36764705882352944,
+      "n": 68
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5545953730742137,
+      "accuracy": 0.48333333333333334,
+      "n": 60
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6515406721677536,
+      "accuracy": 0.5897435897435898,
+      "n": 78
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7518557268712256,
+      "accuracy": 0.625,
+      "n": 72
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8554081214101691,
+      "accuracy": 0.7789473684210526,
+      "n": 95
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9328218914808766,
+      "accuracy": 0.9435483870967742,
+      "n": 124
+     }
+    ],
+    "avg_confidence": 0.7347250760793685,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.8487803637981415,
+     "threshold": 0.15121963620185852,
+     "calibration_n": 300,
+     "decided_rate": 0.524,
+     "avg_set_size": 1.692,
+     "coverage": 0.908,
+     "accuracy_when_decided": 0.8473282442748091
+    },
+    "temperature": 1.1051709180756477,
+    "ece_t": 0.051903733670711515,
+    "brier_t": 0.4121213584437396,
+    "nll_t": 0.7042172914469381
+   },
+   "timing": {
+    "questions": 500,
+    "forward_s": 62.986721195412926,
+    "ms_per_question": 125.97344239082585,
+    "questions_per_s": 7.9381811040580565,
+    "peak_vram_gb": 5.814149856567383,
+    "tokenize_ms_per_question": 0.39
+   },
+   "timing_scramble": {
+    "questions": 500,
+    "forward_s": 235.90009419211512,
+    "ms_per_question": 471.80018838423024,
+    "questions_per_s": 2.119541332581258,
+    "peak_vram_gb": 6.5849432945251465,
+    "tokenize_ms_per_question": 1.6
+   },
+   "dev_questions": 300
+  },
+  "local": {
+   "single": {
+    "accuracy": 0.85546875,
+    "ece": 0.12560177769046277,
+    "brier": 0.18951745561403996,
+    "nll": 0.4135975514662976,
+    "reliability": [
+     {
+      "lo": 0.2,
+      "hi": 0.3,
+      "confidence": 0.27842291444540024,
+      "accuracy": 0.25,
+      "n": 4
+     },
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.36160828948020934,
+      "accuracy": 0.24,
+      "n": 25
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.4598318916909835,
+      "accuracy": 0.47058823529411764,
+      "n": 17
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5507977464619804,
+      "accuracy": 0.7058823529411765,
+      "n": 17
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6451660924487643,
+      "accuracy": 0.9444444444444444,
+      "n": 18
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7488523097265334,
+      "accuracy": 1.0,
+      "n": 21
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8594453200488024,
+      "accuracy": 1.0,
+      "n": 71
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.933248603200338,
+      "accuracy": 1.0,
+      "n": 83
+     }
+    ],
+    "avg_confidence": 0.7545068074250594
+   },
+   "scramble": {
+    "accuracy": 0.91015625,
+    "ece": 0.1477073529968038,
+    "brier": 0.17067686658572054,
+    "nll": 0.37459741539142377,
+    "reliability": [
+     {
+      "lo": 0.2,
+      "hi": 0.3,
+      "confidence": 0.2695873200893402,
+      "accuracy": 0.4,
+      "n": 5
+     },
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.34901012017809113,
+      "accuracy": 0.5862068965517241,
+      "n": 29
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.44675767108013753,
+      "accuracy": 0.7894736842105263,
+      "n": 19
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5553073982397715,
+      "accuracy": 0.75,
+      "n": 12
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6698813537756602,
+      "accuracy": 0.9166666666666666,
+      "n": 12
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.761305645108223,
+      "accuracy": 1.0,
+      "n": 20
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8687049127092549,
+      "accuracy": 1.0,
+      "n": 51
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9351570677978022,
+      "accuracy": 1.0,
+      "n": 108
+     }
+    ],
+    "avg_confidence": 0.7624488970031962
+   },
+   "timing": {
+    "questions": 256,
+    "forward_s": 28.08689495512267,
+    "ms_per_question": 109.71443341844792,
+    "questions_per_s": 9.11457106273362,
+    "peak_vram_gb": 5.814149856567383,
+    "tokenize_ms_per_question": 0.33
+   },
+   "timing_scramble": {
+    "questions": 256,
+    "forward_s": 136.72563425638072,
+    "ms_per_question": 534.0845088139872,
+    "questions_per_s": 1.8723628629870699,
+    "peak_vram_gb": 5.814149856567383,
+    "tokenize_ms_per_question": 1.9
+   },
+   "dev_questions": 0
+  },
+  "mmlu": {
+   "single": {
+    "accuracy": 0.5975,
+    "ece": 0.09069063458591703,
+    "brier": 0.5402803802276429,
+    "nll": 1.087767937793381,
+    "reliability": [
+     {
+      "lo": 0.2,
+      "hi": 0.3,
+      "confidence": 0.2754312956875021,
+      "accuracy": 0.2727272727272727,
+      "n": 11
+     },
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.3560327897811758,
+      "accuracy": 0.3448275862068966,
+      "n": 29
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.45287415336390013,
+      "accuracy": 0.29508196721311475,
+      "n": 61
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5439686342781666,
+      "accuracy": 0.39215686274509803,
+      "n": 51
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6506881308048329,
+      "accuracy": 0.6808510638297872,
+      "n": 47
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7536552736633703,
+      "accuracy": 0.5964912280701754,
+      "n": 57
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8428797069433573,
+      "accuracy": 0.7432432432432432,
+      "n": 74
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9456467398575374,
+      "accuracy": 0.9571428571428572,
+      "n": 70
+     }
+    ],
+    "avg_confidence": 0.6770787042751908,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.8894213959574699,
+     "threshold": 0.11057860404253006,
+     "calibration_n": 215,
+     "decided_rate": 0.355,
+     "avg_set_size": 2.075,
+     "coverage": 0.81,
+     "accuracy_when_decided": 0.8309859154929577
+    },
+    "temperature": 1.0512710963760241,
+    "ece_t": 0.06788322433829305,
+    "brier_t": 0.5372206308894826,
+    "nll_t": 1.0776589755178894
+   },
+   "scramble": {
+    "accuracy": 0.585,
+    "ece": 0.0865593672916293,
+    "brier": 0.5345622363278495,
+    "nll": 1.060516856390955,
+    "reliability": [
+     {
+      "lo": 0.2,
+      "hi": 0.3,
+      "confidence": 0.2705385896066825,
+      "accuracy": 0.25,
+      "n": 12
+     },
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.35421202406287194,
+      "accuracy": 0.35,
+      "n": 40
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.44815889221650584,
+      "accuracy": 0.3148148148148148,
+      "n": 54
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5546255719427969,
+      "accuracy": 0.3333333333333333,
+      "n": 51
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6463538395861784,
+      "accuracy": 0.5208333333333334,
+      "n": 48
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7431225549090993,
+      "accuracy": 0.6363636363636364,
+      "n": 55
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8541415361257699,
+      "accuracy": 0.8307692307692308,
+      "n": 65
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9507519181569417,
+      "accuracy": 0.92,
+      "n": 75
+     }
+    ],
+    "avg_confidence": 0.6715593672916293,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.8808186203241348,
+     "threshold": 0.11918137967586517,
+     "calibration_n": 215,
+     "decided_rate": 0.415,
+     "avg_set_size": 2.04,
+     "coverage": 0.8275,
+     "accuracy_when_decided": 0.8313253012048193
+    },
+    "temperature": 1.0,
+    "ece_t": 0.0865593675151467,
+    "brier_t": 0.5345622365639153,
+    "nll_t": 1.060516856464939
+   },
+   "timing": {
+    "questions": 400,
+    "forward_s": 79.90993035252635,
+    "ms_per_question": 199.77482588131585,
+    "questions_per_s": 5.005635698033793,
+    "peak_vram_gb": 5.817716598510742,
+    "tokenize_ms_per_question": 0.63
+   },
+   "timing_scramble": {
+    "questions": 400,
+    "forward_s": 363.7283261833638,
+    "ms_per_question": 909.3208154584094,
+    "questions_per_s": 1.0997218836301212,
+    "peak_vram_gb": 6.629121780395508,
+    "tokenize_ms_per_question": 3.32
+   },
+   "dev_questions": 215
+  }
+ }
+}
