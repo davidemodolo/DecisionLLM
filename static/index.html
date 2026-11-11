@@ -295,6 +295,18 @@ details.under[open] summary .icon { transform: rotate(180deg); }
 .heat td .pos { display: block; font-size: 10px; font-weight: 500; opacity: .8; }
 
 /* stats */
+.sys-h { font-size: 12px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--on-surface-variant); margin: 20px 0 -4px; }
+.sys-h span { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.sys { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 16px 0; }
+.sys > div { background: var(--surface-low); border-radius: 20px; padding: 16px; display: grid; grid-template-columns: 40px 1fr; gap: 4px 12px; align-content: start; }
+.sys .ic { grid-row: span 3; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--tertiary-container); color: var(--on-tertiary-container); }
+.sys .ours .ic { background: var(--primary-container); color: var(--on-primary-container); }
+.sys .name { font-weight: 600; font-size: 15px; }
+.sys .meta { font-size: 12px; color: var(--on-surface-variant); }
+.sys .what { font-size: 13px; line-height: 18px; color: var(--on-surface-variant); }
+.note { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--on-surface-variant); margin: 0 0 20px; }
+.note .icon { font-size: 18px; color: var(--primary); }
 .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 .kpi { background: var(--surface-low); border-radius: 20px; padding: 16px 18px; }
 .kpi .k { font-size: 13px; color: var(--on-surface-variant); display: flex; align-items: center; gap: 6px; }
@@ -346,6 +358,20 @@ table.data tr:last-child td { border-bottom: 0; }
   border-radius: 20px; background: var(--tertiary-container); color: var(--on-tertiary-container); font-size: 14px; line-height: 20px; }
 .demo-banner a { color: inherit; font-weight: 600; }
 .demo-banner[hidden] { display: none; }
+.browser-card { display: grid; grid-template-columns: 48px 1fr auto; gap: 16px; align-items: center; padding: 16px 20px; margin: 0 0 20px;
+  max-width: 1180px; border-radius: 24px; background: var(--primary-container); color: var(--on-primary-container); }
+.browser-card[hidden] { display: none; }
+.browser-card > .icon { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; font-size: 26px;
+  background: var(--primary); color: var(--on-primary); }
+.browser-card .t { font-weight: 600; font-size: 16px; }
+.browser-card p { margin: 2px 0 0; font-size: 14px; line-height: 20px; }
+.browser-card .meta { font-size: 12px; opacity: .85; margin-top: 6px; }
+.browser-card .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.browser-card .btn.text { color: var(--on-primary-container); }
+.bar { height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--on-primary-container) 18%, transparent); margin-top: 10px; overflow: hidden; }
+.bar[hidden] { display: none; }
+.bar > div { height: 100%; width: 0; background: var(--primary); border-radius: 3px; transition: width .2s; }
+@media (max-width: 720px) { .browser-card { grid-template-columns: 48px 1fr; } .browser-card .actions { grid-column: 1 / -1; justify-content: flex-start; } }
 
 /* top bar status */
 .status { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 12px; border-radius: 20px;
@@ -418,11 +444,26 @@ pre.prompt mark { background: var(--primary-container); color: var(--on-primary-
     </header>
 
     <div class="demo-banner" id="demoBanner" hidden><span class="icon">info</span><div><b>Demo statica.</b>
-      Per Qwen3.5 0.8B, LFM2.5 1.2B e Qwen3.5 2B le risposte a esempi, domande di test e "Come funziona" sono state
-      calcolate in anticipo dai modelli veri, con i tempi misurati su una GPU da 8 GB. Gli altri modelli e le domande
-      nuove ricevono probabilità casuali, segnate come <i>simulate</i>.
+      Le risposte di tutti i modelli a esempi, domande di test e "Come funziona" sono state calcolate in anticipo dai
+      modelli veri, con i tempi misurati su una GPU da 8 GB. Le domande nuove ricevono probabilità casuali, segnate
+      come <i>simulate</i>.
       I benchmark nella pagina Modelli sono reali. Per usare i modelli dal vivo:
       <a href="https://github.com/davidemodolo/DecisionLLM">github.com/davidemodolo/DecisionLLM</a>.</div></div>
+
+    <div class="browser-card" id="browserCard" hidden>
+      <span class="icon">memory</span>
+      <div>
+        <div class="t">Prova un modello vero, nel tuo browser</div>
+        <p>Qwen3.5 0.8B gira sul tuo computer: le risposte sono calcolate qui, con lo stesso metodo del server. Il modello si
+          scarica una volta e resta nel browser finché non lo elimini.</p>
+        <div class="bar" id="bcBar" hidden><div></div></div>
+        <div class="meta" id="bcInfo"></div>
+      </div>
+      <div class="actions">
+        <button class="btn filled" id="bcUse"><span class="icon">download</span>Usa nel browser</button>
+        <button class="btn text" id="bcClear"><span class="icon">delete</span>Elimina dal browser</button>
+      </div>
+    </div>
 
     <!-- DECIDI -->
     <section class="page" id="page-decidi">
@@ -436,7 +477,7 @@ pre.prompt mark { background: var(--primary-container); color: var(--on-primary-
         <div class="card">
           <div class="row between" style="margin-bottom:12px;align-items:flex-start">
             <div><h2 class="title-lg">1. Contesto</h2>
-              <div class="muted body-sm">Il testo su cui decidere: una segnalazione, una mail, un documento. Vale per tutte le domande. Facoltativo.</div></div>
+              <div class="muted body-sm">Il testo su cui decidere: una segnalazione, una mail, un documento. Vale per tutte le domande. <b>Facoltativo.</b></div></div>
             <button class="btn text" id="clearState"><span class="icon">backspace</span>Svuota</button>
           </div>
           <label class="field"><textarea id="state" rows="5" placeholder="Es. Buongiorno, da tre settimane il lampione davanti al civico 12 è spento..."></textarea></label>
@@ -508,10 +549,7 @@ pre.prompt mark { background: var(--primary-container); color: var(--on-primary-
 
     <!-- MODELLI -->
     <section class="page" id="page-modelli">
-      <p class="lead">Risultati del benchmark su <b>Global-MMLU-Lite in italiano</b>: 400 domande di cultura generale con
-        4 opzioni più "Nessuna delle altre". Nel 20% dei casi la risposta corretta è stata tolta, così la risposta giusta
-        diventa "Nessuna delle altre". Rispondendo a caso si ottiene circa il 21%. I dati vengono da
-        <span class="mono">bench/results</span>; passa il mouse sui grafici per i dettagli.</p>
+      <p class="lead">I risultati dei benchmark, letti da <span class="mono">bench/results</span>. Passa il mouse sui grafici per i dettagli.</p>
       <div id="benchOut"></div>
     </section>
 
@@ -665,7 +703,8 @@ function renderSettings() {
 function renderStatus() {
   const e = CFG.engine, loaded = e?.loaded === S.model;
   $("#status").classList.toggle("ready", loaded);
-  const where = e?.device === "cuda" ? `GPU, ${fmt(e.vram_gb, 1)} GB` : e?.device === "demo" ? "demo" : "CPU";
+  const where = e?.device === "cuda" ? `GPU, ${fmt(e.vram_gb, 1)} GB` : e?.device === "demo" ? "demo"
+    : e?.device === "browser" ? `nel browser, ${e.backend === "webgpu" ? "WebGPU" : "CPU"}` : "CPU";
   $("#statusText").textContent = loaded ? `Pronto · ${where}` : "Non caricato";
   $("#loadBtn").style.display = loaded ? "none" : "";
 }
@@ -1103,67 +1142,18 @@ async function loadBench() {
   try { BENCH = await api("/api/bench"); renderBench(); }
   catch (e) { $("#benchOut").innerHTML = `<div class="card empty">${esc(e.message)}</div>`; }
 }
-function dumbbell(rows, {title, yLabel, fmtV = v => pct(v), chance = null}) {
-  const W = 560, H = 320, m = {l: 52, r: 96, t: 16, b: 44}, w = W - m.l - m.r, h = H - m.t - m.b;
-  const vals = rows.flatMap(r => [r.a, r.b]).filter(v => v != null);
-  let lo = Math.min(...vals, chance ?? Infinity), hi = Math.max(...vals);
-  const pad = (hi - lo) * .12 || .05; lo = Math.max(0, lo - pad); hi += pad;
-  const x0 = Math.log2(.7), x1 = Math.log2(12);
-  const X = p => m.l + (Math.log2(p) - x0) / (x1 - x0) * w, Y = v => m.t + (1 - (v - lo) / (hi - lo)) * h;
-  const yt = Array.from({length: 5}, (_, i) => lo + (hi - lo) * i / 4);
-  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">`;
-  s += `<g class="grid">${yt.map(t => `<line x1="${m.l}" x2="${m.l + w}" y1="${Y(t)}" y2="${Y(t)}"/>`).join("")}</g>`;
-  s += yt.map(t => `<text x="${m.l - 8}" y="${Y(t) + 4}" text-anchor="end">${fmtV(t)}</text>`).join("");
-  s += [1, 2, 4, 8].map(p => `<text x="${X(p)}" y="${H - m.b + 18}" text-anchor="middle">${p}B</text>`).join("");
-  s += `<text x="${m.l + w / 2}" y="${H - 6}" text-anchor="middle">parametri (scala logaritmica)</text>`;
-  s += `<text transform="translate(12 ${m.t + h / 2}) rotate(-90)" text-anchor="middle">${esc(yLabel)}</text>`;
-  if (chance != null) s += `<line x1="${m.l}" x2="${m.l + w}" y1="${Y(chance)}" y2="${Y(chance)}" stroke="var(--error)" stroke-dasharray="4 4"/><text x="${m.l + w + 6}" y="${Y(chance) + 4}" style="fill:var(--error)">a caso</text>`;
-  const placed = [];
-  const labelPos = (x, y, text) => {
-    const tw = text.length * 6.6;
-    for (const [dx, dy, anchor] of [[11, 4, "start"], [0, -12, "middle"], [0, 20, "middle"], [-11, 4, "end"]]) {
-      const left = anchor === "start" ? x + dx : anchor === "end" ? x + dx - tw : x - tw / 2;
-      const box = [left, y + dy - 11, left + tw, y + dy + 3];
-      if (!placed.some(b => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1])) {
-        placed.push(box);
-        return `x="${x + dx}" y="${y + dy}" text-anchor="${anchor}"`;
-      }
-    }
-    return `x="${x + 11}" y="${y + 4}"`;
-  };
-  rows.forEach(r => {
-    const x = X(r.params);
-    placed.push([x - 8, Y(r.a ?? r.b) - 8, x + 8, Y(r.a ?? r.b) + 8], [x - 8, Y(r.b ?? r.a) - 8, x + 8, Y(r.b ?? r.a) + 8]);
-  });
-  rows.forEach(r => {
-    const x = X(r.params);
-    const tip = `<b>${esc(r.label)}</b><br>1 passata: ${fmtV(r.a)}<br>5 permutazioni: ${fmtV(r.b)}`;
-    if (r.a != null && r.b != null) s += `<line x1="${x}" x2="${x}" y1="${Y(r.a)}" y2="${Y(r.b)}" stroke="var(--outline)" stroke-width="2"/>`;
-    if (r.a != null) s += `<circle cx="${x}" cy="${Y(r.a)}" r="6" fill="var(--surface)" stroke="var(--outline)" stroke-width="2" data-tip="${tip}"/>`;
-    if (r.b != null) s += `<circle cx="${x}" cy="${Y(r.b)}" r="7" fill="var(--primary)" stroke="var(--surface)" stroke-width="2" data-tip="${tip}"/>`;
-    s += `<text ${labelPos(x, Y(r.b ?? r.a), r.short)} class="lbl">${esc(r.short)}</text>`;
-  });
-  return s + "</svg>";
-}
 function renderBench() {
-  const ev = BENCH.eval, st = BENCH.stress;
+  const ev = BENCH.eval, st = BENCH.stress, hasCompare = Object.keys(BENCH.compare || {}).length > 0;
   const models = CFG.models.filter(m => ev[m.key]);
-  if (!models.length) {
-    $("#benchOut").innerHTML = `<div class="card empty"><span class="icon">bar_chart</span>Nessun risultato in bench/results. Esegui <span class="mono">uv run python bench/run_bench.py eval</span>.</div>`;
+  if (!models.length && !hasCompare) {
+    $("#benchOut").innerHTML = `<div class="card empty"><span class="icon">bar_chart</span>Nessun risultato in bench/results. Esegui <span class="mono">uv run python bench/compare.py</span>.</div>`;
     return;
   }
   const short = m => m.label.replace(" (4-bit)", "").replace("Qwen3.5", "Qwen").replace("Granite 4.2", "Granite").replace("LFM2.5", "LFM");
   const cfg = (k, c) => ev[k].data.configs[c];
-  const rows = f => models.map(m => ({label: m.label, short: short(m), params: m.params_b, a: f(cfg(m.key, "s1-single")), b: f(cfg(m.key, "s5-geomean"))}));
-  const legend = `<div class="legend"><span><i style="background:var(--surface);border:2px solid var(--outline)"></i>1 passata</span><span><i style="background:var(--primary)"></i>5 permutazioni (media geometrica)</span></div>`;
-  let html = `<div class="grid2">
-    <div class="card"><h3 class="title-md">Accuratezza</h3><p class="sub">Più parametri, più accuratezza. Le permutazioni aiutano soprattutto i modelli piccoli.</p>${legend}${dumbbell(rows(c => c.accuracy), {title: "Accuratezza", yLabel: "accuratezza", chance: .21})}</div>
-    <div class="card"><h3 class="title-md">Calibrazione (ECE, più basso è meglio)</h3><p class="sub">Scarto medio tra la probabilità dichiarata e l'accuratezza reale.</p>${legend}${dumbbell(rows(c => c.ece), {title: "ECE", yLabel: "ECE", fmtV: v => fmt(v, 2)})}</div>
-    <div class="card"><h3 class="title-md">Quante volte decide da solo</h3><p class="sub">Conformal prediction con ε 10% e 5 permutazioni: domande con una sola opzione nel prediction set.</p>
-      ${barChart(models.map(m => ({label: short(m), v: cfg(m.key, "s5-geomean").conformal?.decided_rate ?? 0})))}</div>
-    <div class="card"><h3 class="title-md">Accuratezza quando decide da solo</h3><p class="sub">Solo sulle domande in cui il modello non chiede aiuto.</p>
-      ${barChart(models.map(m => ({label: short(m), v: cfg(m.key, "s5-geomean").conformal?.accuracy_when_decided ?? 0})), {ref: .9, refLabel: "1 − ε"})}</div>
-  </div>`;
+  let html = hasCompare ? `<div id="cmpOut"></div>` : "";
+  html += `<h2 class="title-lg" style="margin-top:40px">Dentro il motore</h2>
+    <p class="lead">Set-based attention, velocità a caldo e cache del prefisso dei nostri modelli.</p>`;
   const setModels = models.filter(m => cfg(m.key, "s1-single-set"));
   if (setModels.length) {
     const setBias = m => cfg(m.key, "s1-single-set").position_bias.map((v, i) => ({label: `Lettera ${LETTERS[i]}`, v}));
@@ -1191,15 +1181,158 @@ function renderBench() {
           {max: Math.max(...sm.map(m => perQ(m.key, "plain"))) * 1.05, fmtV: v => `${Math.round(v)} ms`, height: 18})}</div>
     </div>`;
   }
-  html += `<div class="card" style="margin-top:16px"><h3 class="title-md">Tutti i numeri</h3><div class="table-wrap"><table class="data"><thead><tr><th>Modello</th><th class="num">Parametri</th><th>Precisione</th>
-    <th class="num">Acc. 1 passata</th><th class="num">Acc. 5 perm.</th><th class="num">ECE 1</th><th class="num">ECE 5</th><th class="num">Decide da solo</th><th class="num">Acc. quando decide</th><th class="num">Prob. sulle lettere</th></tr></thead><tbody>
-    ${models.map(m => {
-      const a = cfg(m.key, "s1-single"), b = cfg(m.key, "s5-geomean");
-      return `<tr><td><b>${esc(m.label)}</b></td><td class="num">${m.params_b}B</td><td>${m.quant ? "4-bit NF4" : "bf16"}</td><td class="num">${pct(a.accuracy, 1)}</td><td class="num"><b>${pct(b.accuracy, 1)}</b></td>
-        <td class="num">${fmt(a.ece, 3)}</td><td class="num">${fmt(b.ece, 3)}</td><td class="num">${pct(b.conformal?.decided_rate)}</td><td class="num">${pct(b.conformal?.accuracy_when_decided)}</td><td class="num">${pct(b.letter_mass, 1)}</td></tr>`;
-    }).join("")}</tbody></table></div></div>`;
   $("#benchOut").innerHTML = html;
   $$("#benchOut .chart").forEach(tipOn);
+  if ($("#cmpOut")) renderCompare("avg");
+}
+
+/* ---------- confronto con i decision model ---------- */
+const CMP_DATASETS = [
+  ["avg", "Media", "Media dei quattro dataset di classificazione."],
+  ["massive", "Intent", "MASSIVE it-IT: 500 richieste a un assistente vocale, 5 intent tra cui scegliere (fino a 2 dello stesso dominio). A caso: 20%."],
+  ["sib200", "Argomento", "SIB-200 ita_Latn: 204 frasi da classificare in 7 argomenti. A caso: 14%."],
+  ["sib200-yesno", "Sì / no", "SIB-200 come domanda sì / no: \"Il testo parla di X?\", metà vere e metà false. A caso: 50%."],
+  ["sentiment", "Sentiment", "Tweet italiani (Cardiff): domanda di tipo punteggio su 3 livelli, negativo, neutro e positivo. A caso: 33%."],
+  ["local", "Domande locali", "Le 256 domande di test del progetto (aritmetica, contrari, capitali...), 4 opzioni più \"Nessuna delle altre\"."],
+  ["mmlu", "MMLU", "Global-MMLU-Lite in italiano, 400 domande di cultura generale, 20% con risposta \"Nessuna delle altre\". A caso: 21%."],
+];
+const CMP_AVG = ["massive", "sib200", "sib200-yesno", "sentiment"];
+const CMP_CHANCE = {massive: .2, sib200: 1 / 7, "sib200-yesno": .5, sentiment: 1 / 3, mmlu: .21, local: .2};
+function cmpSystems(ds) {
+  const C = BENCH.compare, out = [];
+  const get = (r, mode, tmode) => {
+    const sets = ds === "avg" ? CMP_AVG : [ds];
+    if (!sets.every(d => r.datasets[d]?.[mode])) return null;
+    const avg = f => { const v = sets.map(d => f(r.datasets[d])); return v.some(x => x == null) ? null : v.reduce((a, b) => a + b, 0) / v.length; };
+    const m = d => d[mode];
+    return {
+      accuracy: avg(d => m(d).accuracy), ece: avg(d => m(d).ece), ece_t: avg(d => m(d).ece_t), brier: avg(d => m(d).brier),
+      decided: avg(d => m(d).conformal?.decided_rate), accDecided: avg(d => m(d).conformal?.accuracy_when_decided),
+      coverage: avg(d => m(d).conformal?.coverage), ms: avg(d => d[tmode].ms_per_question), vram: avg(d => d[tmode].peak_vram_gb),
+    };
+  };
+  for (const [key, r] of Object.entries(C)) {
+    const llm = CFG.models.find(m => m.key === key);
+    if (llm) {
+      const short = llm.label.replace(" (4-bit)", "");
+      const a = get(r, "single", "timing"), b = get(r, "scramble", "timing_scramble");
+      if (a) out.push({key, group: key, label: short, kind: "llm1", params: llm.params_b, sub: "1 passata", ...a});
+      if (b) out.push({key, group: key, label: short, kind: "llm5", params: llm.params_b, sub: "5 permutazioni", ...b});
+    } else {
+      const m = get(r, "single", "timing");
+      if (m) out.push({key, group: key, label: r.system.label, kind: "base", params: r.system.params_b, remote: !!r.system.remote,
+        sub: r.system.remote ? "API, tempi con la rete" : "1 passata", ...m});
+    }
+  }
+  return out.sort((x, y) => (y.kind === "base") - (x.kind === "base") || (x.params ?? 99) - (y.params ?? 99) || x.kind.localeCompare(y.kind));
+}
+function latencyChart(rows, chance) {
+  const W = 620, H = 360, m = {l: 52, r: 16, t: 16, b: 44}, w = W - m.l - m.r, h = H - m.t - m.b;
+  const xs = rows.map(r => r.ms), ys = rows.map(r => r.accuracy);
+  const x0 = Math.log10(Math.min(...xs) / 1.5), x1 = Math.log10(Math.max(...xs) * 1.5);
+  let lo = Math.min(...ys, chance ?? 1), hi = Math.max(...ys);
+  const pad = (hi - lo) * .1 || .05; lo = Math.max(0, lo - pad); hi = Math.min(1, hi + pad);
+  const X = v => m.l + (Math.log10(v) - x0) / (x1 - x0) * w, Y = v => m.t + (1 - (v - lo) / (hi - lo)) * h;
+  const yt = Array.from({length: 5}, (_, i) => lo + (hi - lo) * i / 4);
+  const xt = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000].filter(v => Math.log10(v) >= x0 && Math.log10(v) <= x1);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Accuratezza e tempo per domanda">`;
+  s += `<g class="grid">${yt.map(t => `<line x1="${m.l}" x2="${m.l + w}" y1="${Y(t)}" y2="${Y(t)}"/>`).join("")}${xt.map(t => `<line x1="${X(t)}" x2="${X(t)}" y1="${m.t}" y2="${m.t + h}"/>`).join("")}</g>`;
+  s += yt.map(t => `<text x="${m.l - 8}" y="${Y(t) + 4}" text-anchor="end">${pct(t)}</text>`).join("");
+  s += xt.map(t => `<text x="${X(t)}" y="${H - m.b + 18}" text-anchor="middle">${t}</text>`).join("");
+  s += `<text x="${m.l + w / 2}" y="${H - 6}" text-anchor="middle">ms per domanda, a caldo (scala logaritmica)</text>`;
+  s += `<text transform="translate(12 ${m.t + h / 2}) rotate(-90)" text-anchor="middle">accuratezza</text>`;
+  if (chance != null && chance >= lo) s += `<line x1="${m.l}" x2="${m.l + w}" y1="${Y(chance)}" y2="${Y(chance)}" stroke="var(--error)" stroke-dasharray="4 4"/><text x="${m.l + w - 4}" y="${Y(chance) - 6}" text-anchor="end" style="fill:var(--error)">a caso</text>`;
+  const groups = {};
+  rows.forEach(r => (groups[r.group] ||= []).push(r));
+  Object.values(groups).filter(g => g.length === 2).forEach(([a, b]) =>
+    s += `<line x1="${X(a.ms)}" y1="${Y(a.accuracy)}" x2="${X(b.ms)}" y2="${Y(b.accuracy)}" stroke="var(--outline)" stroke-width="2"/>`);
+  const placed = rows.map(r => [X(r.ms) - 8, Y(r.accuracy) - 8, X(r.ms) + 8, Y(r.accuracy) + 8]);
+  const labelAt = (x, y, text) => {
+    const tw = text.length * 6.6;
+    for (const [dx, dy, anchor] of [[11, 4, "start"], [11, 18, "start"], [11, -10, "start"], [-11, 4, "end"], [-11, 18, "end"]]) {
+      const left = anchor === "start" ? x + dx : x + dx - tw, box = [left, y + dy - 11, left + tw, y + dy + 3];
+      if (!placed.some(b => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1])) {
+        placed.push(box);
+        return `x="${x + dx}" y="${y + dy}" text-anchor="${anchor}"`;
+      }
+    }
+    return `x="${x + 11}" y="${y + 4}"`;
+  };
+  rows.forEach(r => {
+    const x = X(r.ms), y = Y(r.accuracy);
+    const tip = `<b>${esc(r.label)}</b> (${esc(r.sub)})<br>accuratezza ${pct(r.accuracy, 1)}<br>${fmt(r.ms, 1)} ms per domanda`;
+    if (r.kind === "base") s += `<rect x="${x - 7}" y="${y - 7}" width="14" height="14" rx="3" transform="rotate(45 ${x} ${y})" fill="var(--tertiary)" stroke="var(--surface)" stroke-width="2" data-tip="${tip}"/>`;
+    else if (r.kind === "llm1") s += `<circle cx="${x}" cy="${y}" r="6" fill="var(--surface)" stroke="var(--outline)" stroke-width="2" data-tip="${tip}"/>`;
+    else s += `<circle cx="${x}" cy="${y}" r="7" fill="var(--primary)" stroke="var(--surface)" stroke-width="2" data-tip="${tip}"/>`;
+  });
+  rows.filter(r => r.kind !== "llm1").forEach(r => {
+    const text = r.label.replace("Qwen3.5", "Qwen").replace("Granite 4.2", "Granite").replace("LFM2.5", "LFM").replace(" Instruct", "");
+    s += `<text ${labelAt(X(r.ms), Y(r.accuracy), text)} class="lbl">${esc(text)}</text>`;
+  });
+  return s + "</svg>";
+}
+function renderCompare(ds) {
+  const rows = cmpSystems(ds), info = CMP_DATASETS.find(d => d[0] === ds);
+  if (!rows.length) {
+    $("#cmpOut").innerHTML = `<div class="card empty"><span class="icon">bar_chart</span>Nessun risultato per questo dataset. Esegui <span class="mono">uv run python bench/compare.py</span>.</div>`;
+    return;
+  }
+  const chance = ds === "avg" ? null : CMP_CHANCE[ds];
+  const best = rows.filter(r => r.kind !== "llm1");
+  const calRows = best.filter(r => r.ece_t != null);
+  let html = `<h2 class="title-lg">Accuratezza, calibrazione e velocità</h2>
+    <p class="lead">Le stesse domande a quattro decision model e ai nostri LLM, con le stesse metriche.</p>
+    <p class="sys-h">Decision model</p>
+    <div class="sys">
+      <div><span class="ic icon">cloud</span><span class="name">Jev</span><span class="meta">TypeSafe · via API classifier.dev</span>
+        <span class="what">Il decision model a cui si ispira il progetto. I tempi includono la rete.</span></div>
+      <div><span class="ic icon">account_tree</span><span class="name">Laya multilingual</span><span class="meta">Convai · mmBERT, 322M</span>
+        <span class="what">Stato e domande tipizzate come Jev, open source.</span></div>
+      <div><span class="ic icon">compare_arrows</span><span class="name">bge-m3 zeroshot v2.0</span><span class="meta">MoritzLaurer · cross-encoder NLI, 568M</span>
+        <span class="what">Una passata per opzione: quanto il testo implica ogni risposta.</span></div>
+      <div><span class="ic icon">label</span><span class="name">GLiClass x-base</span><span class="meta">Knowledgator · mDeBERTa, 300M</span>
+        <span class="what">Testo e tutte le opzioni in una sola passata.</span></div>
+    </div>
+    <p class="sys-h">I nostri LLM <span>· lettere vincolate sul token successivo, con 1 passata o 5 permutazioni</span></p>
+    <div class="sys">
+      <div class="ours"><span class="ic icon">neurology</span><span class="name">Qwen3.5</span><span class="meta">Alibaba · 0.8B, 2B, 4B e 9B</span>
+        <span class="what">Attention ibrida con layer gated-delta. 0.8B e 2B in bf16, 4B e 9B in 4 bit.</span></div>
+      <div class="ours"><span class="ic icon">waves</span><span class="name">LFM2.5 1.2B Instruct</span><span class="meta">Liquid AI · 1.2B, bf16</span>
+        <span class="what">Ibrido di convoluzioni brevi e attention.</span></div>
+      <div class="ours"><span class="ic icon">terrain</span><span class="name">Granite 4.2 3B</span><span class="meta">IBM · 3.7B, 4 bit</span>
+        <span class="what">Solo layer di attention: è l'unico che supporta la set-based attention.</span></div>
+    </div>
+    <p class="note"><span class="icon">tune</span>Per ogni sistema una temperatura fittata sul dev corregge la sicurezza dichiarata. La conformal prediction usa ε 10%. I modelli locali girano sulla stessa GPU da 8 GB.</p>
+    <div class="group sm" id="cmpDs" style="margin:8px 0 4px">${CMP_DATASETS.map(([k, l]) => `<button data-v="${k}" class="${k === ds ? "on" : ""}">${l}</button>`).join("")}</div>
+    <p class="sub" style="margin:8px 0 16px">${esc(info[2])}</p>
+    <div class="grid2">
+      <div class="card"><h3 class="title-md">Accuratezza e velocità</h3><p class="sub">In alto a sinistra è meglio. Rombi: decision model. Cerchi vuoti: i nostri LLM con una passata, pieni con 5 permutazioni.</p>
+        <div class="legend"><span><i style="background:var(--tertiary)"></i>decision model</span><span><i style="background:var(--surface);border:2px solid var(--outline)"></i>LLM, 1 passata</span><span><i style="background:var(--primary)"></i>LLM, 5 permutazioni</span></div>
+        ${latencyChart(rows, chance)}</div>
+      <div class="card"><h3 class="title-md">Calibrazione: ECE grezza e dopo la temperatura</h3><p class="sub">Più basso è meglio. Grigio: probabilità come escono dal modello. Colore: dopo una temperatura fittata sul dev.</p>
+        <div class="legend"><span><i style="background:var(--outline)"></i>grezza</span><span><i style="background:var(--primary)"></i>con temperatura</span></div>
+        ${calRows.length ? barChart(calRows.flatMap(r => [
+          {label: r.label, v: r.ece, color: "var(--outline)"},
+          {label: `${r.label}, T`, v: r.ece_t, strong: true, color: r.kind === "base" ? "var(--tertiary)" : "var(--primary)"}]),
+          {max: Math.max(...calRows.map(r => r.ece)) * 1.05, fmtV: v => fmt(v, 3), height: 16, labelW: 190})
+          : `<p class="sub">Questo dataset non ha uno split di calibrazione.</p>`}</div>
+    </div>
+    ${calRows.length ? `<div class="grid2" style="margin-top:16px">
+      <div class="card"><h3 class="title-md">Quante volte decide da solo</h3><p class="sub">Conformal prediction con ε 10%: domande con una sola opzione nel prediction set.</p>
+        ${barChart(calRows.map(r => ({label: r.label, v: r.decided ?? 0, color: r.kind === "base" ? "var(--tertiary)" : "var(--primary)"})), {labelW: 190})}</div>
+      <div class="card"><h3 class="title-md">Accuratezza quando decide da solo</h3><p class="sub">Solo sulle domande in cui il modello non chiede aiuto. La linea è il livello garantito, 1 − ε.</p>
+        ${barChart(calRows.map(r => ({label: r.label, v: r.accDecided ?? 0, color: r.kind === "base" ? "var(--tertiary)" : "var(--primary)"})), {ref: .9, refLabel: "1 − ε", labelW: 190})}</div>
+    </div>` : ""}
+    <div class="card" style="margin-top:16px"><h3 class="title-md">Tutti i numeri</h3><div class="table-wrap"><table class="data"><thead><tr>
+      <th>Sistema</th><th>Modalità</th><th class="num">Parametri</th><th class="num">Accuratezza</th><th class="num">ECE</th><th class="num">ECE con T</th><th class="num">Brier</th>
+      <th class="num">Decide da solo</th><th class="num">Acc. quando decide</th><th class="num">ms / domanda</th><th class="num">Picco VRAM</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td><b>${esc(r.label)}</b></td><td>${esc(r.sub)}</td><td class="num">${r.params ? r.params + "B" : "–"}</td><td class="num"><b>${pct(r.accuracy, 1)}</b></td>
+        <td class="num">${fmt(r.ece, 3)}</td><td class="num">${fmt(r.ece_t, 3)}</td><td class="num">${fmt(r.brier, 3)}</td><td class="num">${pct(r.decided)}</td>
+        <td class="num">${pct(r.accDecided)}</td><td class="num">${fmt(r.ms, 1)}</td><td class="num">${r.vram ? fmt(r.vram, 2) + " GB" : r.remote ? "API" : "–"}</td></tr>`).join("")}
+    </tbody></table></div></div>`;
+  $("#cmpOut").innerHTML = html;
+  $$("#cmpOut .chart").forEach(tipOn);
+  bindGroup($("#cmpDs"), renderCompare);
 }
 
 /* ---------- come funziona ---------- */
@@ -1240,6 +1373,43 @@ function renderExplain(rep) {
   $$("#xOut .chart").forEach(tipOn);
 }
 
+/* ---------- modello nel browser (solo demo statica) ---------- */
+function initBrowser() {
+  const be = window.browserEngine, gb = x => `${fmt(x, 2)} GB`;
+  $("#browserCard").hidden = false;
+  const refresh = async (extra = "") => {
+    const st = await be.storage().catch(() => ({}));
+    const loaded = be.info().loaded;
+    const plan = await be.plan(), where = plan.backend === "webgpu" ? "WebGPU" : "CPU";
+    $("#bcInfo").textContent = [loaded ? `In uso: ${be.info().label}, ${where}${be.info().backend === "wasm" ? `, ${be.info().threads} thread` : ""}.` :
+      st.cached ? `Modello già scaricato in questo browser (${where}).` :
+      `Download: circa ${gb(plan.size_gb)}, gira su ${where}.`,
+      st.usage_gb != null ? `Spazio usato dal sito: ${gb(st.usage_gb)}.` : "", extra].filter(Boolean).join(" ");
+    $("#bcClear").disabled = !st.cached && !loaded;
+  };
+  be.onChange(e => {
+    const bar = $("#bcBar");
+    if (e.phase === "download") {
+      bar.hidden = false;
+      const f = e.total ? e.loaded / e.total : 0;
+      bar.firstElementChild.style.width = `${100 * f}%`;
+      if (busy) $("#statusText").textContent = e.total ? `Download ${Math.round(100 * f)}% · ${gb(e.total / 2 ** 30)}` : "Download...";
+    } else { bar.hidden = true; refresh(); }
+  });
+  be.progress = (i, n) => { if (busy) $("#statusText").textContent = `Nel browser: domanda ${i} di ${n}`; };
+  $("#bcUse").addEventListener("click", () => {
+    if (!CFG.models.find(m => m.key === S.model)?.browser) { S.model = "browser"; $("#model").value = S.model; saveSettings(); renderSettings(); renderStatus(); }
+    $("#loadBtn").click();
+  });
+  $("#bcClear").addEventListener("click", async () => {
+    await be.clear();
+    CFG.engine = {};
+    renderStatus(); refresh();
+    snack("Modello eliminato dal browser");
+  });
+  refresh();
+}
+
 /* ---------- init ---------- */
 async function init() {
   [CFG, EXAMPLES] = await Promise.all([api("/api/config"), api("/api/examples")]);
@@ -1268,6 +1438,7 @@ async function init() {
     try { const r = await api("/api/load", {model: S.model}); CFG.engine = r; snack(`${r.label} caricato in ${fmt(r.load_seconds, 1)} s`); }
     catch (e) { snack(e.message); } finally { setBusy(false); }
   });
+  if (window.browserEngine) initBrowser();
   $("#settingsBtn").addEventListener("click", () => openSheet(true));
   $("#sheetClose").addEventListener("click", () => openSheet(false));
   $("#scrim").addEventListener("click", () => openSheet(false));
