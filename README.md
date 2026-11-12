@@ -24,7 +24,7 @@ registrate dai modelli veri (vedi [Demo statica](#demo-statica)).
 | `download_models.py` | Scarica i pesi dei modelli e il benchmark nella cache di Hugging Face |
 | `make_test_questions.py` | Genera `data/test_questions.json` (256 domande italiane con risposta nota) |
 | `bench/run_bench.py` | Benchmark dei modelli su Global-MMLU-Lite italiano e stress test |
-| `bench/compare.py` | Confronto con Laya, un classificatore NLI zero-shot, GLiClass e Jev (API) su dataset italiani di classificazione |
+| `bench/compare.py` | Confronto con Laya, un classificatore NLI zero-shot, GLiClass, Clef-flash, Jev e Gemini Decision 1 (API) su dataset italiani di classificazione |
 | `bench/report.py` | Grafici (`bench/plots/`) e tabelle (`bench/RESULTS.md`) dai risultati |
 | `pages/` | Demo statica per GitHub Pages: registrazione delle risposte, API simulata nel browser, build del sito |
 | `tests/` | Test della logica pura, dell'API e di equivalenza dei percorsi di forward su modelli minuscoli generati dalle config reali |
@@ -244,21 +244,25 @@ parametri sono in [`bench/RESULTS.md`](bench/RESULTS.md).
 
 ```bash
 uv sync --group baselines
-uv run python bench/compare.py baselines    # Laya, NLI zero-shot, GLiClass, Jev (CLASSIFIER_DEV_API in .env)
+uv run python bench/compare.py baselines    # Laya, NLI zero-shot, GLiClass, Clef-flash, Jev e Gemini (chiavi in .env)
 uv run python bench/compare.py llm          # i nostri modelli, 1 passata e 5 permutazioni
 uv run python bench/report.py
 ```
 
-`bench/compare.py` pone le stesse domande a tre modelli open source che restituiscono probabilità con una sola
-passata, a Jev via API e ai nostri LLM. Jev riceve `share_data: false` e le risposte restano in cache in
-`bench/data/jev_cache.json`, così un nuovo run non ripete le chiamate:
+`bench/compare.py` pone le stesse domande a quattro modelli open source che restituiscono probabilità con una sola
+passata, a due decision model via API (Jev e Gemini Decision 1) e ai nostri LLM. Le chiavi vanno in `.env`
+(`CLASSIFIER_DEV_API` per Jev, `GOOGLE_API_KEY` per Gemini). Jev riceve `share_data: false`. Le risposte restano
+in cache in `bench/data/jev_cache.json` e `bench/data/gemini_cache.json`, così un nuovo run non ripete le
+chiamate. Le richieste a Gemini restano sotto i limiti del livello gratuito (180 richieste e 45k token al minuto):
 
 | Sistema | Repo | Parametri | Come risponde |
 |---|---|---|---|
 | Laya multilingual | [`convaiinnovations/laya`](https://huggingface.co/convaiinnovations/laya) (`multilingual`) | 322M | decision model su mmBERT: stato e domande tipizzate (scelta, punteggio, sì / no), come Jev |
 | bge-m3 zeroshot v2.0 | [`MoritzLaurer/bge-m3-zeroshot-v2.0`](https://huggingface.co/MoritzLaurer/bge-m3-zeroshot-v2.0) | 568M | cross-encoder NLI: una passata per opzione, probabilità di implicazione normalizzate |
 | GLiClass x-base | [`knowledgator/gliclass-x-base`](https://huggingface.co/knowledgator/gliclass-x-base) | 300M | mDeBERTa: testo e tutte le opzioni in una passata, un punteggio per opzione |
+| Clef-flash (4-bit) | [`Cloudflare/clef-flash`](https://huggingface.co/Cloudflare/clef-flash) | 9.65B | decision model di Cloudflare: Qwen3.5 9B con una testa che dà un logit per opzione, stato e domande tipizzate come Jev; layer in NF4 sulla nostra GPU |
 | Jev (API) | [classifier.dev](https://classifier.dev) `/v1/systemone`, `jev-latest` | – | il decision model di TypeSafe, stato e domande tipizzate; tempi con la rete |
+| Gemini Decision 1 (API) | [Gemini Decisions API](https://aistudio.google.com/docs/decisions-api) `/v1beta/decisions`, `gemini-decision-1` | – | il decision model di Google, stato e domande tipizzate come Jev; tempi con la rete |
 
 I dataset sono in italiano e coprono i tre tipi di domanda:
 

@@ -1,0 +1,451 @@
+{
+ "system": {
+  "label": "Gemini Decision 1 (API)",
+  "repo": "Gemini API, gemini-decision-1",
+  "params_b": null,
+  "remote": true,
+  "key": "gemini",
+  "device": "cuda",
+  "load_seconds": 0.05,
+  "model": "gemini-decision-1"
+ },
+ "datasets": {
+  "massive": {
+   "single": {
+    "accuracy": 0.938,
+    "ece": 0.028566642403602672,
+    "brier": 0.09113604361330986,
+    "nll": 0.1937354293171467,
+    "reliability": [
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.36924105882644653,
+      "accuracy": 0.5,
+      "n": 2
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.48510628938674927,
+      "accuracy": 0.2857142857142857,
+      "n": 7
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5531774373615489,
+      "accuracy": 0.5882352941176471,
+      "n": 17
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6597602830992805,
+      "accuracy": 0.4444444444444444,
+      "n": 9
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.753327185457403,
+      "accuracy": 0.9090909090909091,
+      "n": 11
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8564945834654348,
+      "accuracy": 0.9629629629629629,
+      "n": 27
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.987129241158309,
+      "accuracy": 0.9742388758782201,
+      "n": 427
+     }
+    ],
+    "avg_confidence": 0.9447844477891922,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.36565500497817993,
+     "threshold": 0.6343449950218201,
+     "calibration_n": 200,
+     "decided_rate": 1.0,
+     "avg_set_size": 1.0,
+     "coverage": 0.938,
+     "accuracy_when_decided": 0.938
+    },
+    "temperature": 1.0,
+    "ece_t": 0.028566642403602672,
+    "brier_t": 0.09113604355875722,
+    "nll_t": 0.1937354293171467
+   },
+   "timing": {
+    "questions": 500,
+    "forward_s": 161.193857441001,
+    "ms_per_question": 322.387714882002,
+    "questions_per_s": 3.1018551695309253,
+    "peak_vram_gb": 0.0
+   },
+   "dev_questions": 200
+  },
+  "sib200": {
+   "single": {
+    "accuracy": 0.9166666666666666,
+    "ece": 0.04028521375913246,
+    "brier": 0.1173045693450864,
+    "nll": 0.23419698077895354,
+    "reliability": [
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.45822305232286453,
+      "accuracy": 0.5,
+      "n": 4
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.543294178114997,
+      "accuracy": 0.3333333333333333,
+      "n": 9
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6408569912115732,
+      "accuracy": 0.8333333333333334,
+      "n": 12
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7582086324691772,
+      "accuracy": 0.8235294117647058,
+      "n": 17
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.853896646587937,
+      "accuracy": 0.9259259259259259,
+      "n": 27
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9792854198703059,
+      "accuracy": 0.9851851851851852,
+      "n": 135
+     }
+    ],
+    "avg_confidence": 0.8949074098000339,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.7158589065074921,
+     "threshold": 0.28414109349250793,
+     "calibration_n": 99,
+     "decided_rate": 0.9019607843137255,
+     "avg_set_size": 1.0980392156862746,
+     "coverage": 0.9558823529411765,
+     "accuracy_when_decided": 0.9565217391304348
+    },
+    "temperature": 1.1051709180756477,
+    "ece_t": 0.05551514920650745,
+    "brier_t": 0.12053473106829492,
+    "nll_t": 0.2433771210165856
+   },
+   "timing": {
+    "questions": 204,
+    "forward_s": 63.354943741998795,
+    "ms_per_question": 310.56344971568035,
+    "questions_per_s": 3.219953928627133,
+    "peak_vram_gb": 0.0
+   },
+   "dev_questions": 99
+  },
+  "sib200-yesno": {
+   "single": {
+    "accuracy": 0.946078431372549,
+    "ece": 0.04081191064095964,
+    "brier": 0.08446758381066032,
+    "nll": 0.1548746555083775,
+    "reliability": [
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5391201206615993,
+      "accuracy": 0.5714285714285714,
+      "n": 7
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6625489429994063,
+      "accuracy": 0.8181818181818182,
+      "n": 11
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7389698425928751,
+      "accuracy": 0.6666666666666666,
+      "n": 12
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8685932576656341,
+      "accuracy": 1.0,
+      "n": 20
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9682354803209181,
+      "accuracy": 0.987012987012987,
+      "n": 154
+     }
+    ],
+    "avg_confidence": 0.913772776722908,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.3234361410140991,
+     "threshold": 0.6765638589859009,
+     "calibration_n": 99,
+     "decided_rate": 1.0,
+     "avg_set_size": 1.0,
+     "coverage": 0.946078431372549,
+     "accuracy_when_decided": 0.946078431372549
+    },
+    "temperature": 0.8187307530779818,
+    "ece_t": 0.02771692883734611,
+    "brier_t": 0.0821110186078742,
+    "nll_t": 0.1441861064205738
+   },
+   "timing": {
+    "questions": 204,
+    "forward_s": 68.21282775199938,
+    "ms_per_question": 334.376606627448,
+    "questions_per_s": 2.990639835980419,
+    "peak_vram_gb": 0.0
+   },
+   "dev_questions": 99
+  },
+  "sentiment": {
+   "single": {
+    "accuracy": 0.8,
+    "ece": 0.07282198864221574,
+    "brier": 0.29183501148319385,
+    "nll": 0.5114013325546061,
+    "reliability": [
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.3674793541431427,
+      "accuracy": 0.4,
+      "n": 5
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.4497092611649457,
+      "accuracy": 0.5588235294117647,
+      "n": 34
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5525581367088087,
+      "accuracy": 0.5151515151515151,
+      "n": 66
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6520122077273226,
+      "accuracy": 0.735632183908046,
+      "n": 87
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7476106041244098,
+      "accuracy": 0.875,
+      "n": 112
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8535710093194404,
+      "accuracy": 0.8938053097345132,
+      "n": 113
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9399922561932759,
+      "accuracy": 0.9879518072289156,
+      "n": 83
+     }
+    ],
+    "avg_confidence": 0.7370533594489097,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.7289943099021912,
+     "threshold": 0.27100569009780884,
+     "calibration_n": 300,
+     "decided_rate": 0.714,
+     "avg_set_size": 1.3,
+     "coverage": 0.906,
+     "accuracy_when_decided": 0.8851540616246498
+    },
+    "temperature": 0.7046880897187134,
+    "ece_t": 0.0336336523890495,
+    "brier_t": 0.2832815313440039,
+    "nll_t": 0.4903448252904076
+   },
+   "timing": {
+    "questions": 500,
+    "forward_s": 164.59737756700247,
+    "ms_per_question": 329.19475513400494,
+    "questions_per_s": 3.037715469047893,
+    "peak_vram_gb": 0.0
+   },
+   "dev_questions": 300,
+   "blocked": 1
+  },
+  "local": {
+   "single": {
+    "accuracy": 1.0,
+    "ece": 0.013486281968653183,
+    "brier": 0.0012617788730153573,
+    "nll": 0.013951134663792384,
+    "reliability": [
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.7662064731121063,
+      "accuracy": 1.0,
+      "n": 2
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8646969795227051,
+      "accuracy": 1.0,
+      "n": 2
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.9892289877410919,
+      "accuracy": 1.0,
+      "n": 252
+     }
+    ],
+    "avg_confidence": 0.9865137180313468
+   },
+   "timing": {
+    "questions": 256,
+    "forward_s": 82.71227317700095,
+    "ms_per_question": 323.09481709766,
+    "questions_per_s": 3.095066671087255,
+    "peak_vram_gb": 0.0
+   },
+   "dev_questions": 0
+  },
+  "mmlu": {
+   "single": {
+    "accuracy": 0.815,
+    "ece": 0.05654287509620191,
+    "brier": 0.2894804292907668,
+    "nll": 0.5992231604581998,
+    "reliability": [
+     {
+      "lo": 0.2,
+      "hi": 0.3,
+      "confidence": 0.28342345356941223,
+      "accuracy": 0.0,
+      "n": 1
+     },
+     {
+      "lo": 0.3,
+      "hi": 0.4,
+      "confidence": 0.3693602155236637,
+      "accuracy": 0.35294117647058826,
+      "n": 17
+     },
+     {
+      "lo": 0.4,
+      "hi": 0.5,
+      "confidence": 0.45450615882873535,
+      "accuracy": 0.6388888888888888,
+      "n": 36
+     },
+     {
+      "lo": 0.5,
+      "hi": 0.6,
+      "confidence": 0.5517866157350086,
+      "accuracy": 0.6190476190476191,
+      "n": 42
+     },
+     {
+      "lo": 0.6,
+      "hi": 0.7,
+      "confidence": 0.6577569706873461,
+      "accuracy": 0.7727272727272727,
+      "n": 44
+     },
+     {
+      "lo": 0.7,
+      "hi": 0.8,
+      "confidence": 0.741811231772105,
+      "accuracy": 0.8666666666666667,
+      "n": 45
+     },
+     {
+      "lo": 0.8,
+      "hi": 0.9,
+      "confidence": 0.8560534631504731,
+      "accuracy": 0.8705882352941177,
+      "n": 85
+     },
+     {
+      "lo": 0.9,
+      "hi": 1.0,
+      "confidence": 0.948621392250061,
+      "accuracy": 0.9538461538461539,
+      "n": 130
+     }
+    ],
+    "avg_confidence": 0.7612698604911565,
+    "conformal": {
+     "epsilon": 0.1,
+     "qhat": 0.8405286967754364,
+     "threshold": 0.1594713032245636,
+     "calibration_n": 215,
+     "decided_rate": 0.625,
+     "avg_set_size": 1.4625,
+     "coverage": 0.9175,
+     "accuracy_when_decided": 0.912
+    },
+    "temperature": 0.8607079764250578,
+    "ece_t": 0.04150991670787333,
+    "brier_t": 0.28440265206514825,
+    "nll_t": 0.5945489764702865
+   },
+   "timing": {
+    "questions": 400,
+    "forward_s": 283.6879898970028,
+    "ms_per_question": 709.219974742507,
+    "questions_per_s": 1.4099997682144598,
+    "peak_vram_gb": 0.0
+   },
+   "dev_questions": 215
+  }
+ }
+}

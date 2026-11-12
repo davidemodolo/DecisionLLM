@@ -111,7 +111,7 @@ Uno stato di circa 250 parole e 20 domande (scelta, punteggio, sì/no) × 5 perm
 
 ## Confronto con i decision model
 
-Gli stessi dataset per tutti i sistemi, con i modelli locali sulla stessa GPU. Decision model: Laya multilingual (Convai, mmBERT 322M, stato e domande tipizzate), bge-m3 zeroshot v2.0 (MoritzLaurer, cross-encoder NLI, una passata per opzione), GLiClass x-base (Knowledgator, mDeBERTa, tutte le opzioni in una passata) e Jev di TypeSafe via l'API di classifier.dev (i tempi di Jev includono la rete). Ogni sistema restituisce una distribuzione sulle opzioni della domanda. Sul dev si fittano una temperatura (ECE con T) e la soglia della conformal prediction (ε 10%).
+Gli stessi dataset per tutti i sistemi, con i modelli locali sulla stessa GPU. Decision model: Laya multilingual (Convai, mmBERT 322M, stato e domande tipizzate), Clef-flash (Cloudflare, Qwen3.5 9B con una testa sulle opzioni, in 4 bit), bge-m3 zeroshot v2.0 (MoritzLaurer, cross-encoder NLI, una passata per opzione), GLiClass x-base (Knowledgator, mDeBERTa, tutte le opzioni in una passata), Jev di TypeSafe via l'API di classifier.dev e Gemini Decision 1 via la Gemini Decisions API (i tempi dei due servizi API includono la rete). Ogni sistema restituisce una distribuzione sulle opzioni della domanda. Sul dev si fittano una temperatura (ECE con T) e la soglia della conformal prediction (ε 10%).
 
 Rigenerare con `uv sync --group baselines && uv run python bench/compare.py baselines && uv run python bench/compare.py llm`.
 
@@ -134,6 +134,8 @@ Rigenerare con `uv sync --group baselines && uv run python bench/compare.py base
 | bge-m3 zeroshot v2.0 | 1 passata | 0.57B | 80.8% | 83.8% | 86.3% | 61.8% | 34.8% | 29.0% | **78.2%** |
 | GLiClass x-base | 1 passata | 0.3B | 75.6% | 73.5% | 50.5% | 50.8% | 50.4% | 26.0% | **62.6%** |
 | Jev (API) | API | – | 93.4% | 90.7% | 94.6% | 79.6% | 97.3% | 78.5% | **89.6%** |
+| Clef-flash (4-bit) | 1 passata | 9.65B | 95.4% | 88.2% | 93.6% | 58.2% | 93.4% | 74.8% | **83.9%** |
+| Gemini Decision 1 (API) | API | – | 93.8% | 91.7% | 94.6% | 80.0% | 100.0% | 81.5% | **90.0%** |
 | Qwen3.5 0.8B | 1 passata | 0.87B | 67.0% | 76.5% | 86.8% | 46.2% | 61.3% | 35.2% | **69.1%** |
 | Qwen3.5 0.8B | 5 permutazioni | 0.87B | 75.0% | 83.3% | 77.0% | 53.4% | 62.5% | 38.0% | **72.2%** |
 | LFM2.5 1.2B | 1 passata | 1.17B | 69.2% | 80.4% | 50.0% | 47.0% | 55.5% | 29.2% | **61.6%** |
@@ -155,6 +157,8 @@ Rigenerare con `uv sync --group baselines && uv run python bench/compare.py base
 | bge-m3 zeroshot v2.0 | 1 passata | 0.119 | 0.056 | 0.313 | 65.2% | 91.2% | 12.7 | 1.06 GB |
 | GLiClass x-base | 1 passata | 0.211 | 0.101 | 0.564 | 45.9% | 80.0% | 7.0 | 1.32 GB |
 | Jev (API) | API | 0.051 | 0.086 | 0.169 | 88.8% | 92.5% | 471.2 | API |
+| Clef-flash (4-bit) | 1 passata | 0.067 | 0.032 | 0.230 | 77.3% | 89.3% | 257.9 | 4.45 GB |
+| Gemini Decision 1 (API) | API | 0.046 | 0.036 | 0.146 | 90.4% | 93.1% | 324.1 | API |
 | Qwen3.5 0.8B | 1 passata | 0.148 | 0.068 | 0.459 | 43.5% | 89.5% | 16.1 | 1.54 GB |
 | Qwen3.5 0.8B | 5 permutazioni | 0.098 | 0.058 | 0.385 | 49.4% | 88.8% | 58.7 | 1.88 GB |
 | LFM2.5 1.2B | 1 passata | 0.340 | 0.096 | 0.713 | 51.4% | 79.0% | 19.9 | 2.30 GB |
@@ -174,6 +178,8 @@ Note sul metodo:
 - Il cross-encoder NLI riceve un'ipotesi per opzione ("Questo testo parla di {}.", "L'utente vuole: {}."...) e la probabilità di implicazione normalizzata sulle opzioni. Per il sì / no usa la probabilità di implicazione dell'ipotesi.
 - GLiClass dà un sigmoid per opzione: sulle domande a scelta i logit vengono normalizzati con una softmax, sul sì / no il sigmoid dell'argomento chiesto è P(sì). Con una sola etichetta il sigmoid resta quasi sempre sotto 0.5, quindi la risposta è quasi sempre "No" e l'accuratezza è vicina al caso. La temperatura cambia la scala ma non la soglia.
 - Jev è chiamato via API (classifier.dev, `/v1/systemone`), una richiesta per domanda: i tempi includono la rete. L'API arrotonda le probabilità a due decimali, quindi alcune opzioni valgono 0: la temperatura fittata sul NLL tende a valori alti e l'ECE grezza è la misura più fedele.
+- Clef-flash usa il codice e la testa del rilascio (`joint_schema_model.py`). Il backbone è caricato come il nostro Qwen3.5 9B (layer in NF4 sulla GPU, embedding e `lm_head` sulla CPU), perché il rilascio in bf16 richiede circa 19 GB: i risultati possono scostarsi da quelli in bf16. Sul sentiment (domanda a punteggio) Clef tende al livello centrale: sui primi 200 tweet del test risponde "Neutro" al 79% dei negativi e al 57% dei positivi.
+- Gemini Decision 1 è chiamato via Gemini Decisions API (`/v1beta/decisions`, `gemini-decision-1`), una richiesta per domanda con le stesse domande tipizzate di Jev: i tempi includono la rete. Un tweet del sentiment viene rifiutato dai filtri di sicurezza (HTTP 400) e conta come probabilità uniformi.
 - LFM2.5 1.2B risponde "Sì" a ogni domanda sì / no di SIB-200 con probabilità vicina a 1, in entrambi gli ordini delle opzioni: segue la parola, non la lettera. Accuratezza 50% con e senza permutazioni.
 - I nostri LLM con una passata leggono le opzioni nell'ordine originale; con 5 permutazioni le opzioni ruotano e le probabilità sono aggregate con la media geometrica. La temperatura e la soglia conforme sono fittate separatamente per ogni modalità.
 
