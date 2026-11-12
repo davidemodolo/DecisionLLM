@@ -380,7 +380,41 @@ table.data tr:last-child td { border-bottom: 0; }
 .status.ready .dot { background: var(--good); }
 .status.busy .dot { background: var(--primary); animation: pulse 1s infinite; }
 @keyframes pulse { 50% { opacity: .3; } }
-.model-pick { width: 290px; --fbg: var(--surface); }
+.model-pick { position: relative; width: 320px; }
+.mp-btn { width: 100%; display: grid; grid-template-columns: 36px 1fr 24px; align-items: center; gap: 10px; height: 52px;
+  padding: 0 8px 0 8px; border: 1px solid var(--outline); border-radius: 14px; background: var(--surface); color: var(--on-surface);
+  cursor: pointer; text-align: left; font: inherit; transition: border-color .2s, background .2s; }
+.mp-btn:hover { background: var(--surface-low); }
+.mp-btn[aria-expanded="true"] { border: 2px solid var(--primary); padding: 0 7px; }
+.mp-btn .mp-txt { display: flex; flex-direction: column; min-width: 0; }
+.mp-btn .mp-l { font-size: 11px; line-height: 14px; color: var(--on-surface-variant); }
+.mp-btn .mp-name { font-weight: 600; font-size: 15px; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mp-ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 20px;
+  background: var(--primary-container); color: var(--on-primary-container); }
+.mp-ic.decision { background: var(--tertiary-container); color: var(--on-tertiary-container); }
+.mp-menu { position: absolute; top: calc(100% + 6px); left: 0; width: max(100%, min(400px, calc(100vw - 32px))); max-height: min(72vh, 640px);
+  overflow: auto; z-index: 60; padding: 8px; border-radius: 20px; background: var(--surface-container);
+  box-shadow: 0 8px 28px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.08); transform-origin: top left; animation: mp-in .28s var(--spring); }
+@keyframes mp-in { from { opacity: 0; transform: scale(.96) translateY(-4px); } }
+.mp-g { padding: 12px 12px 6px; font-size: 12px; font-weight: 600; letter-spacing: .4px; text-transform: uppercase; color: var(--on-surface-variant); }
+.mp-g span { text-transform: none; letter-spacing: 0; font-weight: 400; }
+.mp-item { width: 100%; display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 2px 12px; padding: 8px 10px;
+  border: 0; border-radius: 14px; background: none; color: var(--on-surface); font: inherit; text-align: left; cursor: pointer; }
+.mp-item:hover, .mp-item:focus-visible { background: var(--surface-high); outline: none; }
+.mp-item.on { background: var(--secondary-container); color: var(--on-secondary-container); }
+.mp-item[disabled] { cursor: not-allowed; }
+.mp-item[disabled] .mp-ic, .mp-item[disabled] .nm { opacity: .5; }
+.mp-item .mp-ic { grid-row: span 2; }
+.mp-item .nm { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.mp-item .nm .live { width: 8px; height: 8px; border-radius: 50%; background: var(--good); flex: none; }
+.mp-item .mt { font-size: 12px; color: var(--on-surface-variant); grid-column: 2; }
+.mp-item .mt.why { color: var(--error); }
+.mp-item .st { grid-row: span 2; grid-column: 3; text-align: right; font-size: 12px; color: var(--on-surface-variant); line-height: 16px; }
+.mp-item .st b { display: block; font-size: 14px; color: var(--on-surface); font-weight: 600; }
+.mp-foot { padding: 10px 12px 6px; font-size: 12px; color: var(--on-surface-variant); }
+.setting-note { display: flex; gap: 10px; align-items: flex-start; margin: 12px 0 4px; padding: 12px 14px; border-radius: 14px;
+  background: var(--tertiary-container); color: var(--on-tertiary-container); font-size: 13px; line-height: 18px; }
+.sheet .off { opacity: .4; pointer-events: none; }
 
 /* snackbar */
 .snack { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 140px); z-index: 70; background: var(--inverse-surface);
@@ -437,7 +471,11 @@ pre.prompt mark { background: var(--primary-container); color: var(--on-primary-
   <main class="main">
     <header class="topbar">
       <div class="page-title"><h1 class="headline" id="pageTitle">Decidi</h1></div>
-      <label class="field select dense model-pick"><span class="fl">Modello</span><select id="model"></select></label>
+      <div class="model-pick" id="modelPick">
+        <button class="mp-btn" id="modelBtn" aria-haspopup="listbox" aria-expanded="false"><span class="mp-ic icon" id="mpIc">neurology</span>
+          <span class="mp-txt"><span class="mp-l">Modello</span><span class="mp-name" id="mpName"></span></span><span class="icon">arrow_drop_down</span></button>
+        <div class="mp-menu" id="modelMenu" role="listbox" aria-label="Scegli il modello" hidden></div>
+      </div>
       <div class="status" id="status"><span class="dot"></span><span id="statusText">Non caricato</span></div>
       <button class="btn tonal" id="loadBtn"><span class="icon">download</span>Carica</button>
       <button class="icon-btn tonal" id="settingsBtn" title="Impostazioni"><span class="icon">tune</span></button>
@@ -578,7 +616,9 @@ pre.prompt mark { background: var(--primary-container); color: var(--on-primary-
 <aside class="sheet" id="sheet" aria-label="Impostazioni">
   <div class="row between" style="margin-bottom:8px"><h2 class="headline">Impostazioni</h2>
     <button class="icon-btn" id="sheetClose" title="Chiudi"><span class="icon">close</span></button></div>
-  <section>
+  <div class="setting-note" id="decisionNote" hidden><span class="icon">info</span><span>I decision model rispondono con una
+    sola passata e ricevono le domande nel loro formato tipizzato: scramble, prompt e opzioni di velocità valgono solo per i nostri LLM.</span></div>
+  <section id="llmOnly1">
     <span class="label-md">Scramble</span>
     <div class="setting"><div class="txt"><b>Permuta le opzioni</b><small>Pone ogni domanda più volte con le opzioni in ordine diverso e unisce le risposte. Toglie la preferenza del modello per certe posizioni e migliora la calibrazione, al costo di più passaggi.</small></div>
       <label class="switch"><input type="checkbox" id="scrambleOn"><span></span></label></div>
@@ -590,14 +630,14 @@ pre.prompt mark { background: var(--primary-container); color: var(--on-primary-
       <div class="body-sm muted" id="aggHelp" style="margin-top:8px"></div>
     </div>
   </section>
-  <section>
+  <section id="llmOnly2">
     <span class="label-md">Velocità</span>
     <div class="setting"><div class="txt"><b>Cache del prefisso</b><small>Il testo comune (contesto e domanda) viene elaborato una volta sola e riusato per tutte le permutazioni e le domande. Stesse probabilità, meno calcolo.</small></div>
       <label class="switch"><input type="checkbox" id="prefixCache"><span></span></label></div>
     <div class="setting"><div class="txt"><b>Set-based attention</b><small>Le opzioni non si vedono tra loro e partono dalla stessa posizione: l'ordine non conta e basta un passaggio. Disponibile solo per i modelli con soli layer di attention (Granite). Riduce l'accuratezza.</small></div>
       <label class="switch"><input type="checkbox" id="setAttention"><span></span></label></div>
   </section>
-  <section>
+  <section id="llmOnly3">
     <span class="label-md">Avanzate</span>
     <label class="field select dense" style="margin:14px 0 16px"><span class="fl">Stile del prompt</span><select id="promptStyle"></select></label>
     <div class="grid2" style="gap:12px">
@@ -672,9 +712,69 @@ const S = Object.assign({model: null, scramble: true, k: 5, aggregation: "geomea
   prompt: null, batchTokens: null, batchRows: null, epsilon: 0.1}, store.get("settings", {}));
 const saveSettings = () => store.set("settings", S);
 const spec = () => CFG.models.find(m => m.key === S.model);
+const isDecision = () => spec()?.kind === "decision";
 function runParams() {
-  return {model: S.model, scramble: S.scramble ? S.k : 1, aggregation: S.aggregation, batch_size: S.batchRows,
-    batch_tokens: S.batchTokens, prompt_style: S.prompt, prefix_cache: S.prefix, set_attention: !!(S.set && spec().set_attention)};
+  const one = isDecision();
+  return {model: S.model, scramble: S.scramble && !one ? S.k : 1, aggregation: S.aggregation, batch_size: S.batchRows,
+    batch_tokens: S.batchTokens, prompt_style: S.prompt, prefix_cache: S.prefix, set_attention: !!(S.set && !one && spec().set_attention)};
+}
+
+/* ---------- model picker ---------- */
+const MODEL_ICONS = [["qwen", "neurology"], ["lfm", "waves"], ["granite", "terrain"], ["clef", "hub"], ["laya", "account_tree"],
+  ["d3", "route"], ["glide", "flight_takeoff"], ["vela", "sailing"],
+  ["jev", "cloud"], ["gemini", "cloud"], ["browser", "language"]];
+const modelIcon = m => (MODEL_ICONS.find(([k]) => m.key.startsWith(k)) || [0, "smart_toy"])[1];
+const MODEL_GROUPS = [
+  ["llm", "I nostri LLM", "lettere vincolate sul token successivo"],
+  ["browser", "Nel browser", "il modello gira in questa pagina"],
+  ["decision-gpu", "Decision model sulla GPU", "open source, una passata"],
+  ["decision-api", "Decision model via API", "tempi con la rete"],
+];
+const modelGroup = m => m.browser ? "browser" : m.kind === "decision" ? `decision-${m.where}` : "llm";
+const modelName = m => m.label.replace(/ \((API|4-bit)\)$/, "");
+function modelMeta(m) {
+  const size = m.params_b ? `${m.params_b}B` : null;
+  const prec = m.where === "api" ? "API" : m.browser ? m.quant : m.quant === "nf4" || m.key === "clef" ? "4 bit"
+    : m.kind === "llm" ? "bf16" : null;
+  return [m.vendor, size, prec, m.set_attention ? "set-attention" : null].filter(Boolean).join(" · ");
+}
+function benchStat(m) {
+  if (!BENCH?.compare?.[m.key]) return null;
+  const kind = m.kind === "decision" ? "base" : S.scramble ? "llm5" : "llm1";
+  return cmpSystems("avg").find(r => r.key === m.key && r.kind === kind) || null;
+}
+function modelItem(m, loaded) {
+  const st = benchStat(m);
+  const stat = st ? `<span class="st" title="Media dei 4 dataset di classificazione"><b>${pct(st.accuracy, 1)}</b>${fmt(st.ms, 0)} ms</span>` : `<span class="st"></span>`;
+  return `<button class="mp-item${m.key === S.model ? " on" : ""}" role="option" data-key="${m.key}" aria-selected="${m.key === S.model}"${m.unavailable ? " disabled" : ""}>
+    <span class="mp-ic icon${m.kind === "decision" ? " decision" : ""}">${modelIcon(m)}</span>
+    <span class="nm">${esc(modelName(m))}${m.key === loaded ? `<span class="live" title="In memoria"></span>` : ""}</span>${stat}
+    <span class="mt${m.unavailable ? " why" : ""}">${esc(m.unavailable || modelMeta(m))}</span></button>`;
+}
+function renderModelPicker() {
+  const cur = spec();
+  $("#mpName").textContent = cur ? modelName(cur) : "";
+  $("#mpIc").textContent = cur ? modelIcon(cur) : "smart_toy";
+  $("#mpIc").classList.toggle("decision", cur?.kind === "decision");
+  let html = "";
+  for (const [g, title, sub] of MODEL_GROUPS) {
+    const group = CFG.models.filter(m => modelGroup(m) === g);
+    if (group.length) html += `<div class="mp-g">${title} <span>· ${sub}</span></div>` + group.map(m => modelItem(m, CFG.engine?.loaded)).join("");
+  }
+  html += `<div class="mp-foot">${BENCH ? "A destra: accuratezza media e ms per domanda nel benchmark della pagina Modelli." : "La pagina Modelli mostra accuratezza e velocità di ognuno."}</div>`;
+  $("#modelMenu").innerHTML = html;
+}
+function openModelMenu(on) {
+  const menu = $("#modelMenu");
+  if (on === !menu.hidden) return;
+  menu.hidden = !on;
+  $("#modelBtn").setAttribute("aria-expanded", on);
+  if (on) { renderModelPicker(); (menu.querySelector(".mp-item.on") || menu.querySelector(".mp-item:not([disabled])"))?.focus(); }
+}
+function pickModel(key) {
+  openModelMenu(false);
+  S.model = key; saveSettings(); renderSettings(); renderStatus();
+  $("#modelBtn").focus();
 }
 function setRangeFill(el) { el.style.setProperty("--fill", `${100 * (el.value - el.min) / (el.max - el.min)}%`); }
 function bindGroup(el, onPick) {
@@ -685,6 +785,10 @@ function bindGroup(el, onPick) {
   });
 }
 function renderSettings() {
+  const one = isDecision();
+  $("#decisionNote").hidden = !one;
+  ["#llmOnly1", "#llmOnly2", "#llmOnly3"].forEach(id => $(id).classList.toggle("off", one));
+  $("#evalCompareBtn").disabled = one;
   $("#scrambleOn").checked = S.scramble;
   $("#scrambleOpts").style.opacity = S.scramble ? 1 : .4;
   $("#scrambleOpts").style.pointerEvents = S.scramble ? "" : "none";
@@ -703,10 +807,11 @@ function renderSettings() {
 function renderStatus() {
   const e = CFG.engine, loaded = e?.loaded === S.model;
   $("#status").classList.toggle("ready", loaded);
-  const where = e?.device === "cuda" ? `GPU, ${fmt(e.vram_gb, 1)} GB` : e?.device === "demo" ? "demo"
+  const where = e?.device === "cuda" ? `GPU, ${fmt(e.vram_gb, 1)} GB` : e?.device === "demo" ? "demo" : e?.device === "api" ? "via API"
     : e?.device === "browser" ? `nel browser, ${e.backend === "webgpu" ? "WebGPU" : "CPU"}` : "CPU";
   $("#statusText").textContent = loaded ? `Pronto · ${where}` : "Non caricato";
   $("#loadBtn").style.display = loaded ? "none" : "";
+  if ($("#modelMenu").hidden) renderModelPicker();
 }
 function openSheet(on) { $("#sheet").classList.toggle("open", on); $("#scrim").classList.toggle("open", on); }
 
@@ -870,16 +975,17 @@ function answerHtml(r) {
       <span class="bar-track"><span class="bar-fill" style="width:${100 * r.probs[j]}%"></span></span>
       <span class="val">${pct(r.probs[j])}</span></div>`;
   }).join("")}</div>`;
-  const k = r.variants.length;
+  const k = r.variants.length, llm = r.variants[0]?.unconstrained_top != null;
   const facts = [
     r.correct != null ? `<span class="badge ${r.correct ? "good" : "bad"}"><span class="icon">${r.correct ? "task_alt" : "cancel"}</span>${r.correct ? "Corretta" : `Sbagliata, attesa: ${esc(opts[LETTERS.indexOf(r.answer)])}`}</span>` : "",
     k > 1 ? `<span class="fact" title="Permutazioni che hanno scelto la stessa risposta finale"><span class="icon">shuffle</span>Coerenza <b>${Math.round(r.consistency * k)}/${k}</b></span>` : "",
-    `<span class="fact" title="Probabilità che il modello mette sulle lettere rispetto a tutto il vocabolario"><span class="icon">percent</span>Probabilità sulle lettere <b>${pct(r.letter_mass)}</b></span>`,
+    llm ? `<span class="fact" title="Probabilità che il modello mette sulle lettere rispetto a tutto il vocabolario"><span class="icon">percent</span>Probabilità sulle lettere <b>${pct(r.letter_mass)}</b></span>` : "",
     `<span class="fact" title="0 = certezza assoluta; il massimo corrisponde a una risposta a caso"><span class="icon">blur_on</span>Entropia <b>${fmt(r.entropy)}</b> su ${fmt(Math.log(opts.length))}</span>`,
   ].join("");
   const sim = r.simulated ? `<span class="badge neutral" title="Domanda non registrata nella demo: probabilità casuali"><span class="icon">casino</span>Simulata</span>` : "";
+  const detail = llm ? `<details class="under"><summary><span class="icon">expand_more</span>${k > 1 ? `Cosa ha risposto ognuna delle ${k} permutazioni` : "Dettaglio del passaggio"}</summary>${heatmap(r)}</details>` : "";
   return `<div class="answer"><div class="answer-top">${headline}${sim}${confidenceBadge(r)}</div>${scale}${bars}<div class="facts">${facts}</div>
-    <details class="under"><summary><span class="icon">expand_more</span>${k > 1 ? `Cosa ha risposto ognuna delle ${k} permutazioni` : "Dettaglio del passaggio"}</summary>${heatmap(r)}</details></div>`;
+    ${detail}</div>`;
 }
 function heatColor(p) {
   return `background:color-mix(in srgb, var(--primary) ${Math.round(100 * p)}%, var(--surface-low));color:${p > .5 ? "var(--on-primary)" : "var(--on-surface)"}`;
@@ -1135,12 +1241,13 @@ async function runCalibrate(source) {
 }
 
 /* ---------- modelli (benchmark) ---------- */
-let BENCH = null;
+let BENCH = null, benchP = null, benchShown = false;
+const benchData = () => benchP ||= api("/api/bench").then(b => { BENCH = b; renderModelPicker(); return b; });
 async function loadBench() {
-  if (BENCH) return;
-  $("#benchOut").innerHTML = `<div class="loading-card"><div class="loader"><div></div></div><div class="title-md">Lettura dei risultati...</div></div>`;
-  try { BENCH = await api("/api/bench"); renderBench(); }
-  catch (e) { $("#benchOut").innerHTML = `<div class="card empty">${esc(e.message)}</div>`; }
+  if (benchShown) return;
+  if (!BENCH) $("#benchOut").innerHTML = `<div class="loading-card"><div class="loader"><div></div></div><div class="title-md">Lettura dei risultati...</div></div>`;
+  try { await benchData(); renderBench(); benchShown = true; }
+  catch (e) { benchP = null; $("#benchOut").innerHTML = `<div class="card empty">${esc(e.message)}</div>`; }
 }
 function renderBench() {
   const ev = BENCH.eval, st = BENCH.stress, hasCompare = Object.keys(BENCH.compare || {}).length > 0;
@@ -1212,7 +1319,7 @@ function cmpSystems(ds) {
     };
   };
   for (const [key, r] of Object.entries(C)) {
-    const llm = CFG.models.find(m => m.key === key);
+    const llm = CFG.models.find(m => m.key === key && m.kind !== "decision");
     if (llm) {
       const short = llm.label.replace(" (4-bit)", "");
       const a = get(r, "single", "timing"), b = get(r, "scramble", "timing_scramble");
@@ -1281,7 +1388,7 @@ function renderCompare(ds) {
   const best = rows.filter(r => r.kind !== "llm1");
   const calRows = best.filter(r => r.ece_t != null);
   let html = `<h2 class="title-lg">Accuratezza, calibrazione e velocità</h2>
-    <p class="lead">Le stesse domande a sei decision model e ai nostri LLM, con le stesse metriche.</p>
+    <p class="lead">Le stesse domande a nove decision model e ai nostri LLM, con le stesse metriche.</p>
     <p class="sys-h">Decision model</p>
     <div class="sys">
       <div><span class="ic icon">cloud</span><span class="name">Jev</span><span class="meta">TypeSafe · via API classifier.dev</span>
@@ -1290,6 +1397,12 @@ function renderCompare(ds) {
         <span class="what">Stesse domande tipizzate di Jev, con probabilità per ogni opzione. I tempi includono la rete.</span></div>
       <div><span class="ic icon">hub</span><span class="name">Clef-flash</span><span class="meta">Cloudflare · Qwen3.5 9B + testa, 4 bit</span>
         <span class="what">Decision model open source: un logit per opzione da una testa sopra il backbone. Gira sulla nostra GPU.</span></div>
+      <div><span class="ic icon">route</span><span class="name">d3-lite</span><span class="meta">vLLM-SR · Qwen3.5 0.8B + testa, 0.85B</span>
+        <span class="what">Decision model open source della famiglia Decision 3.0, una chiamata per richiesta.</span></div>
+      <div><span class="ic icon">flight_takeoff</span><span class="name">GLiDE 0.4B</span><span class="meta">Fastino · encoder ModernBERT, 0.4B</span>
+        <span class="what">Encoder con un punteggio per opzione. Licenza Fastino Community.</span></div>
+      <div><span class="ic icon">sailing</span><span class="name">vela3.1-fast</span><span class="meta">vLLM-SR · encoder UltraBERT, 380M</span>
+        <span class="what">Encoder addestrato in 15 lingue. Senza tipo punteggio: i livelli passano come scelta.</span></div>
       <div><span class="ic icon">account_tree</span><span class="name">Laya multilingual</span><span class="meta">Convai · mmBERT, 322M</span>
         <span class="what">Stato e domande tipizzate come Jev, open source.</span></div>
       <div><span class="ic icon">compare_arrows</span><span class="name">bge-m3 zeroshot v2.0</span><span class="meta">MoritzLaurer · cross-encoder NLI, 568M</span>
@@ -1400,7 +1513,7 @@ function initBrowser() {
   });
   be.progress = (i, n) => { if (busy) $("#statusText").textContent = `Nel browser: domanda ${i} di ${n}`; };
   $("#bcUse").addEventListener("click", () => {
-    if (!CFG.models.find(m => m.key === S.model)?.browser) { S.model = "browser"; $("#model").value = S.model; saveSettings(); renderSettings(); renderStatus(); }
+    if (!CFG.models.find(m => m.key === S.model)?.browser) pickModel("browser");
     $("#loadBtn").click();
   });
   $("#bcClear").addEventListener("click", async () => {
@@ -1416,10 +1529,7 @@ function initBrowser() {
 async function init() {
   [CFG, EXAMPLES] = await Promise.all([api("/api/config"), api("/api/examples")]);
   if (window.demoApi) $("#demoBanner").hidden = false;
-  const m = $("#model");
-  m.innerHTML = CFG.models.map(x => `<option value="${x.key}">${esc(x.label)} · ${x.params_b}B</option>`).join("");
-  if (!CFG.models.some(x => x.key === S.model)) S.model = CFG.engine?.loaded || CFG.models[0].key;
-  m.value = S.model;
+  if (!CFG.models.some(x => x.key === S.model && !x.unavailable)) S.model = CFG.engine?.loaded || CFG.models[0].key;
   $("#promptStyle").innerHTML = CFG.prompt_styles.map(p => `<option value="${p.key}">${esc(p.label)}</option>`).join("");
   if (!CFG.prompt_styles.some(p => p.key === S.prompt)) S.prompt = CFG.default_prompt;
   S.batchTokens ||= CFG.default_batch_tokens;
@@ -1434,7 +1544,17 @@ async function init() {
   $("#state").value = STATE_TEXT;
   renderSettings(); renderStatus(); renderQuestions(); renderHistory(); route();
 
-  m.addEventListener("change", () => { S.model = m.value; saveSettings(); renderSettings(); renderStatus(); });
+  $("#modelBtn").addEventListener("click", () => openModelMenu($("#modelMenu").hidden));
+  $("#modelMenu").addEventListener("click", e => { const b = e.target.closest(".mp-item"); if (b && !b.disabled) pickModel(b.dataset.key); });
+  $("#modelMenu").addEventListener("keydown", e => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    const items = $$("#modelMenu .mp-item:not([disabled])"), i = items.indexOf(document.activeElement);
+    items[(i + (e.key === "ArrowDown" ? 1 : items.length - 1)) % items.length]?.focus();
+  });
+  document.addEventListener("click", e => { if (!e.target.closest("#modelPick")) openModelMenu(false); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#modelMenu").hidden) { openModelMenu(false); $("#modelBtn").focus(); } });
+  benchData().catch(() => {});
   $("#loadBtn").addEventListener("click", async () => {
     setBusy(true, "Caricamento...");
     try { const r = await api("/api/load", {model: S.model}); CFG.engine = r; snack(`${r.label} caricato in ${fmt(r.load_seconds, 1)} s`); }
