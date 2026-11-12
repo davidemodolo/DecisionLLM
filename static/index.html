@@ -339,6 +339,23 @@ table.data th { text-align: left; font-weight: 600; font-size: 12px; color: var(
 table.data td { padding: 10px 12px; border-bottom: 1px solid var(--outline-variant); vertical-align: middle; }
 table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
 table.data tr:last-child td { border-bottom: 0; }
+.nums-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px 24px; flex-wrap: wrap; margin-bottom: 8px; }
+.switch-row { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--on-surface-variant); cursor: pointer; }
+table.nums td { padding: 8px 12px; color: var(--on-surface-variant); }
+table.nums tr.grp th { border-bottom: 0; padding-bottom: 0; text-align: center; font-size: 12px; }
+table.nums tr.grp th[colspan] { border-bottom: 2px solid var(--outline-variant); }
+table.nums tr.sec td { padding: 18px 12px 6px; font-size: 12px; font-weight: 600; color: var(--primary); letter-spacing: .4px;
+  text-transform: uppercase; border-bottom: 1px solid var(--outline-variant); }
+table.nums td.sys-c { white-space: nowrap; position: sticky; left: 0; background: var(--surface-low); color: var(--on-surface); }
+table.nums .nm { display: block; font-weight: 600; }
+table.nums .mt { display: block; font-size: 12px; color: var(--on-surface-variant); }
+table.nums td.acc { color: var(--on-surface); font-weight: 600; white-space: nowrap; }
+table.nums .accbar { display: inline-block; vertical-align: middle; width: 72px; height: 6px; margin-right: 10px; border-radius: 3px;
+  background: var(--outline-variant); overflow: hidden; }
+table.nums .accbar i { display: block; height: 100%; background: var(--primary); border-radius: 3px; }
+table.nums td.best { color: var(--primary); font-weight: 700; }
+table.nums td.dim { color: var(--outline); }
+@media (max-width: 600px) { table.nums .accbar { display: none; } table.nums td, table.nums th { padding-left: 8px; padding-right: 8px; } }
 
 /* loading indicator (shape morph) */
 .loader { width: 48px; height: 48px; display: grid; place-items: center; flex: none; }
@@ -1440,16 +1457,51 @@ function renderCompare(ds) {
       <div class="card"><h3 class="title-md">Accuratezza quando decide da solo</h3><p class="sub">Solo sulle domande in cui il modello non chiede aiuto. La linea è il livello garantito, 1 − ε.</p>
         ${barChart(calRows.map(r => ({label: r.label, v: r.accDecided ?? 0, color: r.kind === "base" ? "var(--tertiary)" : "var(--primary)"})), {ref: .9, refLabel: "1 − ε", labelW: 190})}</div>
     </div>` : ""}
-    <div class="card" style="margin-top:16px"><h3 class="title-md">Tutti i numeri</h3><div class="table-wrap"><table class="data"><thead><tr>
-      <th>Sistema</th><th>Modalità</th><th class="num">Parametri</th><th class="num">Accuratezza</th><th class="num">ECE</th><th class="num">ECE con T</th><th class="num">Brier</th>
-      <th class="num">Decide da solo</th><th class="num">Acc. quando decide</th><th class="num">ms / domanda</th><th class="num">Picco VRAM</th></tr></thead><tbody>
-      ${rows.map(r => `<tr><td><b>${esc(r.label)}</b></td><td>${esc(r.sub)}</td><td class="num">${r.params ? r.params + "B" : "–"}</td><td class="num"><b>${pct(r.accuracy, 1)}</b></td>
-        <td class="num">${fmt(r.ece, 3)}</td><td class="num">${fmt(r.ece_t, 3)}</td><td class="num">${fmt(r.brier, 3)}</td><td class="num">${pct(r.decided)}</td>
-        <td class="num">${pct(r.accDecided)}</td><td class="num">${fmt(r.ms, 1)}</td><td class="num">${r.vram ? fmt(r.vram, 2) + " GB" : r.remote ? "API" : "–"}</td></tr>`).join("")}
-    </tbody></table></div></div>`;
+    <div class="card" style="margin-top:16px" id="cmpNums">${numbersTable(rows)}</div>`;
   $("#cmpOut").innerHTML = html;
   $$("#cmpOut .chart").forEach(tipOn);
   bindGroup($("#cmpDs"), renderCompare);
+  bindNumbers(rows);
+}
+const NUM_COLS = [
+  {k: "ece", label: "ECE", d: 3, low: true}, {k: "ece_t", label: "con T", d: 3, low: true}, {k: "brier", label: "Brier", d: 3, low: true},
+  {k: "decided", label: "Decide", pct: true}, {k: "accDecided", label: "Accuratezza", pct: true},
+  {k: "ms", label: "ms", d: 1, low: true}, {k: "vram", label: "VRAM", d: 2, low: true, unit: " GB"},
+];
+function numbersTable(rows) {
+  const shown = rows.filter(r => cmpAllModes || r.kind !== "llm1");
+  const best = {};
+  for (const c of [{k: "accuracy"}, ...NUM_COLS]) {
+    const v = shown.map(r => r[c.k]).filter(x => x != null && x > 0);
+    if (v.length) best[c.k] = c.low ? Math.min(...v) : Math.max(...v);
+  }
+  const maxAcc = Math.max(...shown.map(r => r.accuracy));
+  const cell = (r, c) => {
+    const v = r[c.k];
+    if (v == null || (c.k === "vram" && !v)) return `<td class="num dim">${c.k === "vram" && r.remote ? "API" : "–"}</td>`;
+    return `<td class="num${v === best[c.k] ? " best" : ""}">${c.pct ? pct(v) : fmt(v, c.d) + (c.unit || "")}</td>`;
+  };
+  const row = r => {
+    const m = CFG.models.find(x => x.key === r.key);
+    const meta = [m?.vendor, r.remote ? "API" : r.params ? r.params + "B" : null, r.kind === "base" ? null : r.sub].filter(Boolean).join(" · ");
+    return `<tr><td class="sys-c"><span class="nm">${esc(r.label.replace(/ \((API|4-bit)\)$/, ""))}</span><span class="mt">${esc(meta)}</span></td>
+      <td class="num acc${r.accuracy === best.accuracy ? " best" : ""}"><span class="accbar"><i style="width:${100 * Math.max(0.04, (r.accuracy - .4) / (maxAcc - .4))}%"></i></span>${pct(r.accuracy, 1)}</td>
+      ${NUM_COLS.map(c => cell(r, c)).join("")}</tr>`;
+  };
+  const section = (title, list) => list.length ? `<tr class="sec"><td colspan="${2 + NUM_COLS.length}">${title}</td></tr>` +
+    list.sort((a, b) => b.accuracy - a.accuracy).map(row).join("") : "";
+  return `<div class="nums-head"><div><h3 class="title-md">Tutti i numeri</h3>
+      <p class="sub">Ordinati per accuratezza. In colore il migliore di ogni colonna.</p></div>
+      <label class="switch-row"><input type="checkbox" id="cmpAll"${cmpAllModes ? " checked" : ""}> LLM anche con 1 passata</label></div>
+    <div class="table-wrap"><table class="data nums"><thead>
+      <tr class="grp"><th></th><th></th><th colspan="3">Calibrazione</th><th colspan="2">Conformal, ε 10%</th><th colspan="2">Costo</th></tr>
+      <tr><th>Sistema</th><th class="num">Accuratezza</th>${NUM_COLS.map(c => `<th class="num">${c.label}</th>`).join("")}</tr></thead><tbody>
+      ${section("Decision model", shown.filter(r => r.kind === "base"))}${section("I nostri LLM", shown.filter(r => r.kind !== "base"))}
+    </tbody></table></div>`;
+}
+let cmpAllModes = false;
+function bindNumbers(rows) {
+  $("#cmpAll").addEventListener("change", e => { cmpAllModes = e.target.checked; $("#cmpNums").innerHTML = numbersTable(rows); bindNumbers(rows); });
 }
 
 /* ---------- come funziona ---------- */
