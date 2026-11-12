@@ -13,10 +13,11 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from core import (
-    AGGREGATIONS, DEFAULT_BATCH_ROWS, DEFAULT_BATCH_TOKENS, DEFAULT_PROMPT, LETTERS, MAX_QUESTIONS, MODELS, MODELS_BY_KEY, NONE_OPTION, PROMPT_STYLES,
-    PROMPT_STYLES_BY_KEY, Calibration, Engine, Question, build_report, calibrate, calibration_key,
+    AGGREGATIONS, DEFAULT_BATCH_ROWS, DEFAULT_BATCH_TOKENS, DEFAULT_PROMPT, LETTERS, MAX_QUESTIONS, MODELS_BY_KEY,
+    NONE_OPTION, PROMPT_STYLES, PROMPT_STYLES_BY_KEY, Calibration, Question, build_report, calibrate, calibration_key,
     true_probs,
 )
+from systems import DECISION_BY_KEY, Engines, catalog
 
 ROOT = Path(__file__).resolve().parent
 STATIC = ROOT / "static"
@@ -24,7 +25,7 @@ CALIBRATIONS = ROOT / "data" / "calibrations.json"
 sys.path.insert(0, str(ROOT / "bench"))
 
 app = FastAPI(title="DecisionLLM")
-engine = Engine()
+engine = Engines()
 gpu_lock = threading.Lock()
 
 
@@ -95,7 +96,10 @@ def to_questions(items: list[QuestionIn], state: str | None = None) -> list[Ques
 
 
 def validate(req: RunIn):
-    if req.model not in MODELS_BY_KEY:
+    """Decision models answer in one pass: permutations and set-attention are turned off for them."""
+    if req.model in DECISION_BY_KEY:
+        req.scramble, req.set_attention = 1, False
+    elif req.model not in MODELS_BY_KEY:
         raise HTTPException(422, f"Modello sconosciuto: {req.model}")
     if req.aggregation not in AGGREGATIONS:
         raise HTTPException(422, f"Aggregazione sconosciuta: {req.aggregation}")
@@ -121,7 +125,7 @@ def config():
         gpu = {"name": torch.cuda.get_device_name(0),
                "total_gb": torch.cuda.get_device_properties(0).total_memory / 2**30}
     return {
-        "models": [asdict(m) for m in MODELS],
+        "models": catalog(),
         "prompt_styles": [asdict(p) for p in PROMPT_STYLES],
         "aggregations": list(AGGREGATIONS),
         "default_prompt": DEFAULT_PROMPT,
@@ -135,11 +139,21 @@ def config():
     }
 
 
+def load_engine(model: str):
+    """The engine for `model`, loaded; a decision model that cannot run here (missing key or package) is a 422."""
+    try:
+        e = engine.get(model)
+        e.load(model)
+        return e
+    except RuntimeError as err:
+        raise HTTPException(422, str(err))
+
+
 @app.post("/api/load")
 def load(req: RunIn):
     validate(req)
     with gpu_lock:
-        return engine.load(req.model)
+        return load_engine(req.model).info()
 
 
 @app.get("/api/examples")
@@ -171,9 +185,9 @@ def score(req: RunIn):
         raise HTTPException(422, "Nessuna domanda")
     cal = load_calibrations().get(key_for(req))
     with gpu_lock:
-        engine.load(req.model)
+        e = load_engine(req.model)
         try:
-            return engine.score(questions, req.scramble, req.aggregation, req.batch_size, req.prompt_style, cal,
+            return e.score(questions, req.scramble, req.aggregation, req.batch_size, req.prompt_style, cal,
                                 prefix_cache=req.prefix_cache, set_attention=req.set_attention,
                                 batch_tokens=req.batch_tokens)
         except torch.OutOfMemoryError:
@@ -192,8 +206,7 @@ def calibrate_endpoint(req: CalibrateIn):
     if len(questions) < 10:
         raise HTTPException(422, "Servono almeno 10 domande con risposta nota per calibrare")
     with gpu_lock:
-        engine.load(req.model)
-        variants, timing = engine.run_variants(questions, req.scramble, req.batch_size, req.prompt_style,
+        variants, timing = load_engine(req.model).run_variants(questions, req.scramble, req.batch_size, req.prompt_style,
                                                max_questions=None, prefix_cache=req.prefix_cache,
                                                set_attention=req.set_attention, batch_tokens=req.batch_tokens)
     method = req.aggregation if req.scramble > 1 else "mean"
@@ -258,10 +271,9 @@ def decide(req: DecideIn):
             raise HTTPException(422, f"{key}: {err}")
         questions.append(q)
     with gpu_lock:
-        engine.load(req.model)
-        rep = engine.score(questions, req.scramble, req.aggregation, prompt_style=req.prompt_style,
-                           calibration=load_calibrations().get(key_for(run)), prefix_cache=req.prefix_cache,
-                           set_attention=req.set_attention)
+        rep = load_engine(req.model).score(questions, run.scramble, req.aggregation, prompt_style=req.prompt_style,
+                                           calibration=load_calibrations().get(key_for(run)),
+                                           prefix_cache=req.prefix_cache, set_attention=run.set_attention)
     s = rep["summary"]
     return {
         "model": rep["model"]["repo"],
@@ -276,7 +288,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8000)
-    ap.add_argument("--preload", choices=list(MODELS_BY_KEY))
+    ap.add_argument("--preload", choices=[*MODELS_BY_KEY, *DECISION_BY_KEY])
     args = ap.parse_args()
     if args.preload:
         engine.load(args.preload)

@@ -4,6 +4,9 @@ services:
     image: decisionllm:0.1.0
     ports:
       - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
     environment:
       HF_TOKEN: ${HF_TOKEN:-}
     volumes:
