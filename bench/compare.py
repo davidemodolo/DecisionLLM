@@ -6,6 +6,9 @@ Systems:
   nli       MoritzLaurer bge-m3-zeroshot-v2.0 (NLI cross-encoder, one forward pass per option)
   gliclass  Knowledgator GLiClass x-base (mDeBERTa, all options in one forward pass)
   jev       TypeSafe Jev through the classifier.dev API (/v1/systemone), key CLASSIFIER_DEV_API in .env
+  glide     Fastino GLiDE 0.4B (ModernBERT encoder decision model)
+  vela      vLLM-SR vela3.1-fast (UltraBERT 380M encoder decision model, multilingual)
+  d3        vLLM-SR d3-lite (Qwen3.5 0.8B with a decision readout)
   clef      Cloudflare Clef-flash (Qwen3.5 9B with a joint schema head), NF4 on our GPU
   gemini    Google Gemini Decision 1 through the Gemini Decisions API (/v1beta/decisions), key GOOGLE_API_KEY in .env
 
@@ -43,6 +46,9 @@ BASELINES = {
     "nli": {"label": "bge-m3 zeroshot v2.0", "repo": "MoritzLaurer/bge-m3-zeroshot-v2.0", "params_b": 0.57},
     "gliclass": {"label": "GLiClass x-base", "repo": "knowledgator/gliclass-x-base", "params_b": 0.30},
     "jev": {"label": "Jev (API)", "repo": "classifier.dev, jev-latest", "params_b": None, "remote": True},
+    "glide": {"label": "GLiDE 0.4B", "repo": "fastino/GLiDE-0.4B", "params_b": 0.4},
+    "vela": {"label": "vela3.1-fast", "repo": "vllm-sr/vela3.1-fast", "params_b": 0.38},
+    "d3": {"label": "d3-lite", "repo": "vllm-sr/d3-lite", "params_b": 0.85},
     "clef": {"label": "Clef-flash (4-bit)", "repo": "Cloudflare/clef-flash", "params_b": 9.65},
     "gemini": {"label": "Gemini Decision 1 (API)", "repo": "Gemini API, gemini-decision-1", "params_b": None,
                "remote": True},
@@ -454,6 +460,81 @@ class ClefRunner:
         return {"noul": probs["true"]} if q.type == "yesno" else {"probabilities": probs}
 
 
+def system_one_request(q: Question) -> dict:
+    """The Jev request body for one question: the state (or the question itself) and one typed question."""
+    return {"state": q.state or q.question, "questions": {"q": LayaRunner.question_def(q)}}
+
+
+class SystemOneRunner:
+    """Local decision models that answer Jev-style requests: answers() returns the answer of question "q" for
+    each request, in the shape LayaRunner.probs reads (noul, or probabilities keyed like the criteria)."""
+
+    def answers(self, requests: list[dict]) -> list[dict]:
+        raise NotImplementedError
+
+    def __call__(self, items: list[dict]) -> list[list[float]]:
+        requests = [system_one_request(it["question"]) for it in items]
+        return [LayaRunner.probs(it["question"], a) for it, a in zip(items, self.answers(requests))]
+
+
+def snapshot_module(repo: str, ignore: list[str] | None = None) -> Path:
+    """Downloads a model repo that ships its own inference code and puts it on sys.path."""
+    from huggingface_hub import snapshot_download
+    path = Path(snapshot_download(repo, ignore_patterns=ignore))
+    sys.path.insert(0, str(path))
+    return path
+
+
+class GlideRunner(SystemOneRunner):
+    """Fastino GLiDE 0.4B (ModernBERT encoder) with its glide package, text only."""
+
+    def __init__(self, device: str):
+        path = snapshot_module(BASELINES["glide"]["repo"], ["assets/*"])
+        from glide import Glide
+        self.model = Glide.from_pretrained(str(path), device=device, vision=False)
+
+    def answers(self, requests: list[dict]) -> list[dict]:
+        return [r["answers"]["q"] for r in self.model.decide_batch(requests)]
+
+
+class VelaRunner(SystemOneRunner):
+    """vLLM-SR vela3.1-fast decisions (UltraBERT encoder, the DecisionEncoder of the package). It has no score type:
+    the levels go in as a choice keyed "0", "1"... and the probabilities keep those keys."""
+
+    def __init__(self, device: str):
+        path = snapshot_module(BASELINES["vela"]["repo"], ["assets/*", "*_adapter.safetensors"])
+        from vela3_encoder import DecisionEncoder
+        self.model = DecisionEncoder.load(str(path), device=device)
+
+    @staticmethod
+    def as_choice(question: dict) -> dict:
+        if question["type"] != "score":
+            return question
+        return {"type": "choice", "instructions": question["instructions"],
+                "criteria": {str(i): level for i, level in enumerate(question["criteria"])}}
+
+    def answers(self, requests: list[dict]) -> list[dict]:
+        questions = [self.as_choice(r["questions"]["q"]) for r in requests]
+        recs = [self.model.encode(r["state"], q) for r, q in zip(requests, questions)]
+        out = []
+        for q, rec, p in zip(questions, recs, self.model.forward_recs(recs)):
+            probs = {n: float(v) for n, v in zip(rec["names"], p)}
+            out.append({"noul": probs["yes"]} if q["type"] == "noul" else {"probabilities": probs})
+        return out
+
+
+class D3Runner(SystemOneRunner):
+    """vLLM-SR d3-lite (Qwen3.5 0.8B with a decision readout) through AutoModel: one request per call."""
+
+    def __init__(self, device: str):
+        from transformers import AutoModel
+        self.model = AutoModel.from_pretrained(BASELINES["d3"]["repo"], trust_remote_code=True,
+                                               device="cuda:0" if device == "cuda" else device)
+
+    def answers(self, requests: list[dict]) -> list[dict]:
+        return [self.model.system_one(state=r["state"], questions=r["questions"])["answers"]["q"] for r in requests]
+
+
 class RateLimiter:
     """Sliding 60 s window on requests and tokens, kept below the provider quota."""
 
@@ -483,8 +564,10 @@ class ApiRunner:
     def cache_path(self) -> Path:
         raise NotImplementedError
 
-    def __init__(self, device: str):
-        self.cache = json.loads(self.cache_path.read_text()) if self.cache_path.exists() else {}
+    def __init__(self, device: str, persist: bool = True):
+        """persist=False sends every question to the API (live latency) and leaves the disk cache alone."""
+        self.persist = persist
+        self.cache = json.loads(self.cache_path.read_text()) if persist and self.cache_path.exists() else {}
         self.model = None
 
     def headers(self) -> dict:
@@ -535,18 +618,19 @@ class ApiRunner:
     def answer(self, q: Question) -> dict:
         body = self.body(q)
         key = json.dumps(body, ensure_ascii=False, sort_keys=True)
-        if key not in self.cache:
+        if not self.persist or key not in self.cache:
             resp, ms, err = self.request(body)
             self.cache[key] = ({"answer": None, "model": None, "ms": ms, "error": err} if resp is None else
                                {"answer": resp["answers"]["q"], "model": resp.get("model") or self.model_id,
                                 "ms": ms})
-            if len(self.cache) % 50 == 0:
+            if self.persist and len(self.cache) % 50 == 0:
                 self.save()
         self.model = self.cache[key]["model"] or self.model
         return self.cache[key]
 
     def save(self):
-        self.cache_path.write_text(json.dumps(self.cache, ensure_ascii=False))
+        if self.persist:
+            self.cache_path.write_text(json.dumps(self.cache, ensure_ascii=False))
 
     def __call__(self, items: list[dict]) -> list[list[float]]:
         out = []
@@ -583,9 +667,9 @@ class JevRunner(ApiRunner):
     def cache_path(self) -> Path:
         return JEV_CACHE
 
-    def __init__(self, device: str):
+    def __init__(self, device: str, persist: bool = True):
         self.key = env_key("CLASSIFIER_DEV_API")
-        super().__init__(device)
+        super().__init__(device, persist)
 
     def headers(self) -> dict:
         return {"Authorization": f"Bearer {self.key}", "X-Classifier-Share-Data": "false"}
@@ -609,10 +693,10 @@ class GeminiRunner(ApiRunner):
     def cache_path(self) -> Path:
         return GEMINI_CACHE
 
-    def __init__(self, device: str):
+    def __init__(self, device: str, persist: bool = True):
         self.key = env_key("GOOGLE_API_KEY")
         self.limiter = RateLimiter(*GEMINI_LIMITS)
-        super().__init__(device)
+        super().__init__(device, persist)
 
     def headers(self) -> dict:
         return {"x-goog-api-key": self.key}
@@ -642,7 +726,8 @@ def run_baseline(name: str, datasets: list[str], device: str):
     reset_peak()
     t0 = time.perf_counter()
     runner = {"laya": LayaRunner, "nli": NliRunner, "gliclass": GliclassRunner, "jev": JevRunner,
-              "gemini": GeminiRunner, "clef": ClefRunner}[name](device)
+              "gemini": GeminiRunner, "clef": ClefRunner, "glide": GlideRunner, "vela": VelaRunner,
+              "d3": D3Runner}[name](device)
     remote = getattr(runner, "remote", False)
     info = {**BASELINES[name], "key": name, "device": device, "load_seconds": round(time.perf_counter() - t0, 2)}
     call = (lambda items, ds: runner(items, ds)) if name == "nli" else (lambda items, ds: runner(items))
@@ -697,7 +782,7 @@ def report(label: str, ds: str, r: dict):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("system", choices=["llm", "baselines"])
-    ap.add_argument("--models", nargs="*", help="llm: chiavi dei modelli; baselines: laya nli gliclass clef jev gemini")
+    ap.add_argument("--models", nargs="*", help="llm: chiavi dei modelli; baselines: laya nli gliclass glide vela d3 clef jev gemini")
     ap.add_argument("--datasets", nargs="*", default=list(DATASETS), choices=list(DATASETS))
     ap.add_argument("--batch-size", type=int, default=64)
     ap.add_argument("--fresh", action="store_true", help="ricalcola anche i dataset già salvati")

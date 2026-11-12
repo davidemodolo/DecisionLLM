@@ -184,3 +184,25 @@ def test_missing_env_file_gives_a_clear_message(tmp_path, monkeypatch):
     monkeypatch.delenv("CLASSIFIER_DEV_API", raising=False)
     with pytest.raises(SystemExit, match="CLASSIFIER_DEV_API"):
         compare.env_key("CLASSIFIER_DEV_API")
+
+
+def test_vela_turns_score_levels_into_a_choice_keyed_by_level():
+    q = {"type": "score", "instructions": "Tono?", "criteria": ["Neg", "Neu", "Pos"]}
+    assert compare.VelaRunner.as_choice(q) == {"type": "choice", "instructions": "Tono?",
+                                               "criteria": {"0": "Neg", "1": "Neu", "2": "Pos"}}
+    yesno = {"type": "noul", "instructions": "Ok?"}
+    assert compare.VelaRunner.as_choice(yesno) is yesno
+
+
+def test_system_one_runner_sends_jev_requests_and_maps_answers():
+    class Fake(compare.SystemOneRunner):
+        def answers(self, requests):
+            self.sent = requests
+            return [{"probabilities": {"0": 0.2, "1": 0.3, "2": 0.5}}, {"noul": 0.9}]
+
+    score = compare.Question("Tono?", ["Neg", "Neu", "Pos"], "C", type="score", state="ottimo")
+    yesno = compare.Question("Parla di sport?", ["Sì", "No"], "A", type="yesno", state="partita")
+    runner = Fake()
+    assert runner([compare.item(score), compare.item(yesno)]) == [[0.2, 0.3, 0.5], [0.9, pytest.approx(0.1)]]
+    assert runner.sent[0] == {"state": "ottimo", "questions": {"q": {"type": "score", "instructions": "Tono?",
+                                                                    "criteria": ["Neg", "Neu", "Pos"]}}}

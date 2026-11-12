@@ -322,6 +322,13 @@ def compare_md(rows) -> list[str]:
           "- Jev è chiamato via API (classifier.dev, `/v1/systemone`), una richiesta per domanda: i tempi includono la "
           "rete. L'API arrotonda le probabilità a due decimali, quindi alcune opzioni valgono 0: la temperatura fittata "
           "sul NLL tende a valori alti e l'ECE grezza è la misura più fedele.",
+          "- GLiDE, vela3.1-fast e d3-lite girano con il codice dei loro rilasci (`glide`, `vela3_encoder.DecisionEncoder`, "
+          "`AutoModel` con `trust_remote_code`) sulla stessa GPU. vela3.1-fast non ha il tipo punteggio: sul sentiment i "
+          "tre livelli passano come scelta. d3-lite risponde a una richiesta per chiamata, GLiDE e vela elaborano le "
+          "domande in batch. Su MMLU vela3.1-fast resta al livello del caso (25% con quattro opzioni) e sulle domande "
+          "locali sbaglia due volte su tre con confidenza alta (ECE 0.28): risponde bene quando le opzioni sono "
+          "etichette brevi di intenti o argomenti. d3-lite arriva all'83% sui dataset di classificazione con 0.85B "
+          "di parametri e ha l'ECE grezza più bassa della tabella (0.041).",
           "- Clef-flash usa il codice e la testa del rilascio (`joint_schema_model.py`). Il backbone è caricato come il "
           "nostro Qwen3.5 9B (layer in NF4 sulla GPU, embedding e `lm_head` sulla CPU), perché il rilascio in bf16 "
           "richiede circa 19 GB: i risultati possono scostarsi da quelli in bf16. Sul sentiment (domanda a "
