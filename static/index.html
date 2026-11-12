@@ -1281,11 +1281,15 @@ function renderCompare(ds) {
   const best = rows.filter(r => r.kind !== "llm1");
   const calRows = best.filter(r => r.ece_t != null);
   let html = `<h2 class="title-lg">Accuratezza, calibrazione e velocità</h2>
-    <p class="lead">Le stesse domande a quattro decision model e ai nostri LLM, con le stesse metriche.</p>
+    <p class="lead">Le stesse domande a sei decision model e ai nostri LLM, con le stesse metriche.</p>
     <p class="sys-h">Decision model</p>
     <div class="sys">
       <div><span class="ic icon">cloud</span><span class="name">Jev</span><span class="meta">TypeSafe · via API classifier.dev</span>
         <span class="what">Il decision model a cui si ispira il progetto. I tempi includono la rete.</span></div>
+      <div><span class="ic icon">cloud</span><span class="name">Gemini Decision 1</span><span class="meta">Google · via Gemini Decisions API</span>
+        <span class="what">Stesse domande tipizzate di Jev, con probabilità per ogni opzione. I tempi includono la rete.</span></div>
+      <div><span class="ic icon">hub</span><span class="name">Clef-flash</span><span class="meta">Cloudflare · Qwen3.5 9B + testa, 4 bit</span>
+        <span class="what">Decision model open source: un logit per opzione da una testa sopra il backbone. Gira sulla nostra GPU.</span></div>
       <div><span class="ic icon">account_tree</span><span class="name">Laya multilingual</span><span class="meta">Convai · mmBERT, 322M</span>
         <span class="what">Stato e domande tipizzate come Jev, open source.</span></div>
       <div><span class="ic icon">compare_arrows</span><span class="name">bge-m3 zeroshot v2.0</span><span class="meta">MoritzLaurer · cross-encoder NLI, 568M</span>
