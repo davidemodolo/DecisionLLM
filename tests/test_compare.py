@@ -92,7 +92,7 @@ def test_jev_runner_maps_answers_and_reuses_cache(tmp_path, monkeypatch):
 
     def fake_request(self, body):
         calls.append(body)
-        return {"model": "jev-1.13.0", "answers": {"q": {"type": "choice", "probabilities": {"A": 0.0, "B": 0.95, "C": 0.05}}}}, 200.0
+        return {"model": "jev-1.13.0", "answers": {"q": {"type": "choice", "probabilities": {"A": 0.0, "B": 0.95, "C": 0.05}}}}, 200.0, None
 
     monkeypatch.setattr(compare.JevRunner, "request", fake_request)
     q = compare.Question("q", ["x", "y"], "B", state="testo")
@@ -101,6 +101,75 @@ def test_jev_runner_maps_answers_and_reuses_cache(tmp_path, monkeypatch):
     assert runner(items)[0] == pytest.approx([0.0, 0.95, 0.05])
     assert compare.JevRunner("cpu")(items) and len(calls) == 1
     assert runner.ms(items) == pytest.approx(0.2) and runner.model == "jev-1.13.0"
+
+
+def test_gemini_runner_sends_typed_questions_and_answers_blocked_input_uniformly(tmp_path, monkeypatch):
+    monkeypatch.setattr(compare, "GEMINI_CACHE", tmp_path / "gemini.json")
+    monkeypatch.setenv("GOOGLE_API_KEY", "test")
+    bodies = []
+
+    def fake_request(self, body):
+        bodies.append(body)
+        if body["input"] == "bloccato":
+            return None, 90.0, "safety"
+        return {"answers": {"q": {"type": "score", "probabilities": {"0": 0.1, "1": 0.2, "2": 0.7}}}}, 180.0, None
+
+    monkeypatch.setattr(compare.GeminiRunner, "request", fake_request)
+    score = compare.Question("Tono?", ["Neg", "Neu", "Pos"], "Pos", type="score", state="ottimo")
+    blocked = compare.Question("q", ["x", "y"], "A", state="bloccato")
+    items = [compare.item(score), compare.item(blocked)]
+    runner = compare.GeminiRunner("cpu")
+    out = runner(items)
+    assert out[0] == pytest.approx([0.1, 0.2, 0.7])
+    assert out[1] == pytest.approx([1 / len(blocked.all_options)] * len(blocked.all_options))
+    assert bodies[0] == {"model": "gemini-decision-1", "input": "ottimo", "questions": {"q": {
+        "type": "score", "instructions": "Tono?", "criteria": ["Neg", "Neu", "Pos"]}}}
+    assert runner.model == "gemini-decision-1" and runner.blocked_count(items) == 1
+    assert compare.GeminiRunner("cpu")(items) and len(bodies) == 2
+
+
+def test_gemini_blocked_recognises_only_safety_errors(monkeypatch):
+    monkeypatch.setenv("GOOGLE_API_KEY", "test")
+    runner = compare.GeminiRunner.__new__(compare.GeminiRunner)
+    safety = compare.json.dumps({"error": {"code": "safety", "message": "blocked"}}).encode()
+    invalid = compare.json.dumps({"error": {"code": 400, "message": "criteria must have 2 options"}}).encode()
+    assert runner.blocked(400, safety) == "blocked"
+    assert runner.blocked(400, invalid) is None
+
+
+def test_rate_limiter_waits_for_the_window(monkeypatch):
+    clock = [0.0]
+    monkeypatch.setattr(compare.time, "monotonic", lambda: clock[0])
+    monkeypatch.setattr(compare.time, "sleep", lambda s: clock.__setitem__(0, clock[0] + s))
+    limiter = compare.RateLimiter(rpm=2, tpm=100)
+    limiter.wait(40); limiter.add(40)
+    limiter.wait(40); limiter.add(40)
+    assert clock[0] == 0
+    limiter.wait(10)
+    assert clock[0] >= 60
+    limiter.add(90)
+    limiter.wait(20)
+    assert clock[0] >= 120
+
+
+def test_clef_answer_maps_option_ids_to_our_order():
+    yesno = compare.Question("q", ["Sì", "No"], "A", type="yesno", state="s")
+    choice = compare.Question("q", ["x", "y"], "B", state="s")
+    p = {"true": 0.8, "false": 0.2}
+    assert compare.LayaRunner.probs(yesno, compare.ClefRunner.answer(yesno, p)) == pytest.approx([0.8, 0.2])
+    p = {k: 1 / len(choice.all_options) for k in compare.LETTERS[:len(choice.all_options)]}
+    assert len(compare.LayaRunner.probs(choice, compare.ClefRunner.answer(choice, p))) == len(choice.all_options)
+
+
+def test_cpu_rows_gathers_on_cpu():
+    rows = compare.CpuRows(compare.torch.arange(12.0).reshape(4, 3), "cpu")
+    assert rows[compare.torch.tensor([3, 1])].tolist() == [[9, 10, 11], [3, 4, 5]]
+
+
+def test_retry_delay_reads_google_error_details():
+    payload = compare.json.dumps({"error": {"details": [{"@type": "x"}, {"retryDelay": "23s"}]}}).encode()
+    assert compare.retry_delay(payload, 1) == 24
+    assert compare.retry_delay(b"not json", 5) == 5
 
 
 def test_retry_after_accepts_seconds_and_http_dates():

@@ -6,6 +6,8 @@ Systems:
   nli       MoritzLaurer bge-m3-zeroshot-v2.0 (NLI cross-encoder, one forward pass per option)
   gliclass  Knowledgator GLiClass x-base (mDeBERTa, all options in one forward pass)
   jev       TypeSafe Jev through the classifier.dev API (/v1/systemone), key CLASSIFIER_DEV_API in .env
+  clef      Cloudflare Clef-flash (Qwen3.5 9B with a joint schema head), NF4 on our GPU
+  gemini    Google Gemini Decision 1 through the Gemini Decisions API (/v1beta/decisions), key GOOGLE_API_KEY in .env
 
 Every system returns one probability vector per question over Question.all_options. Metrics, temperature
 scaling and conformal calibration (fitted on the dev split) are the same for all of them.
@@ -29,7 +31,8 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "bench"))
 
-from core import LETTERS, MODELS, MODELS_BY_KEY, Engine, Question, build_report, calibrate, true_probs  # noqa: E402
+from core import (LETTERS, MODELS, MODELS_BY_KEY, Engine, Question, _embeddings_to_cpu, build_report,  # noqa: E402
+                  calibrate, true_probs)
 from run_bench import BATCH_SIZE, EPSILON, RESULTS, SCRAMBLE, load_split, local_questions, save  # noqa: E402
 
 DATA = ROOT / "bench" / "data"
@@ -40,10 +43,18 @@ BASELINES = {
     "nli": {"label": "bge-m3 zeroshot v2.0", "repo": "MoritzLaurer/bge-m3-zeroshot-v2.0", "params_b": 0.57},
     "gliclass": {"label": "GLiClass x-base", "repo": "knowledgator/gliclass-x-base", "params_b": 0.30},
     "jev": {"label": "Jev (API)", "repo": "classifier.dev, jev-latest", "params_b": None, "remote": True},
+    "clef": {"label": "Clef-flash (4-bit)", "repo": "Cloudflare/clef-flash", "params_b": 9.65},
+    "gemini": {"label": "Gemini Decision 1 (API)", "repo": "Gemini API, gemini-decision-1", "params_b": None,
+               "remote": True},
 }
 JEV_URL = "https://classifier.dev/v1/systemone"
 JEV_PAUSE_S = 0.15
 JEV_CACHE = DATA / "jev_cache.json"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/decisions"
+GEMINI_MODEL = "gemini-decision-1"
+GEMINI_CACHE = DATA / "gemini_cache.json"
+GEMINI_LIMITS = (180, 45_000)
+GEMINI_SAFETY = ("safety", "prohibited_content", "blocklist", "image_safety", "content_blocked")
 
 SIB_LABELS = {
     "science/technology": "Scienza e tecnologia", "travel": "Viaggi", "politics": "Politica", "sports": "Sport",
@@ -368,53 +379,181 @@ def env_key(name: str) -> str:
     raise SystemExit(f"{name} mancante in .env")
 
 
-class JevRunner:
-    """One request per question (systemone takes one state), cached on disk with the measured latency.
-    The answer shapes are the ones Laya copies, so the question mapping is shared."""
-    remote = True
+class CpuRows:
+    """Row lookup into a weight kept on the CPU, returned on the GPU: Clef's head only gathers option tokens."""
+
+    def __init__(self, weight: torch.Tensor, device: str):
+        self.weight, self.device = weight, device
+
+    def __getitem__(self, ids: torch.Tensor) -> torch.Tensor:
+        return self.weight[ids.cpu()].to(self.device, torch.bfloat16)
+
+
+class ClefRunner:
+    """Clef-flash with the release head. The backbone is loaded like our Qwen3.5 9B (NF4 layers on the GPU,
+    embedding table and lm_head on the CPU) because the bf16 release needs about 19 GB."""
+    tokens_per_batch = 4096
 
     def __init__(self, device: str):
-        self.key = env_key("CLASSIFIER_DEV_API")
-        self.cache = json.loads(JEV_CACHE.read_text()) if JEV_CACHE.exists() else {}
+        from huggingface_hub import snapshot_download
+        from safetensors.torch import load_file
+        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+        path = Path(snapshot_download(BASELINES["clef"]["repo"]))
+        sys.path.insert(0, str(path))
+        import joint_schema_model as jsm
+        self.jsm, self.device = jsm, device
+        self.tok = AutoTokenizer.from_pretrained(path)
+        kwargs = {"dtype": torch.bfloat16 if device == "cuda" else torch.float32, "device_map": device}
+        if device == "cuda":
+            kwargs["device_map"] = {"model.embed_tokens": "cpu", "model.layers": 0, "model.norm": 0,
+                                    "model.rotary_emb": 0, "lm_head": "cpu"}
+            kwargs["quantization_config"] = BitsAndBytesConfig(
+                load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.bfloat16,
+                llm_int8_enable_fp32_cpu_offload=True, llm_int8_skip_modules=["lm_head"])
+        self.model = AutoModelForCausalLM.from_pretrained(path, **kwargs).eval()
+        if device == "cuda":
+            _embeddings_to_cpu(self.model)
+            head = self.model.get_output_embeddings()
+            self.lexical = CpuRows(head._hf_hook.weights_map["weight"] if hasattr(head, "_hf_hook") else head.weight,
+                                   device)
+        else:
+            self.lexical = self.model.get_output_embeddings().weight
+        self.head = jsm.JointSchemaHead(**json.loads((path / "joint_head_config.json").read_text()))
+        self.head.load_state_dict(load_file(path / "joint_head.safetensors"), strict=True)
+        self.head = self.head.to(device, kwargs["dtype"]).eval()
+
+    @torch.inference_mode()
+    def forward(self, records: list) -> list[list[torch.Tensor]]:
+        batch = self.jsm.collate_records(records, self.tok.pad_token_id, torch.device("cpu"))
+        embeds = self.model.get_input_embeddings()(batch["input_ids"]).to(self.device)
+        ids, mask = batch["input_ids"].to(self.device), batch["attention_mask"].to(self.device)
+        hidden = self.model.model(inputs_embeds=embeds, attention_mask=mask, use_cache=False).last_hidden_state
+        return self.head(hidden, ids, mask, records, self.lexical)
+
+    def __call__(self, items: list[dict]) -> list[list[float]]:
+        records = [self.jsm.encode_record(self.tok, {"state": it["question"].state or it["question"].question,
+                                                     "questions": {"q": LayaRunner.question_def(it["question"])}})
+                   for it in items]
+        order = sorted(range(len(items)), key=lambda i: len(records[i].input_ids))
+        out: list = [None] * len(items)
+        start = 0
+        while start < len(order):
+            size = max(1, self.tokens_per_batch // len(records[order[start]].input_ids))
+            longest = len(records[order[min(start + size, len(order)) - 1]].input_ids)
+            size = max(1, min(size, self.tokens_per_batch // longest))
+            chunk = order[start:start + size]
+            for i, logits in zip(chunk, self.forward([records[i] for i in chunk])):
+                enc = records[i].questions[0]
+                probs = dict(zip(enc.option_ids, logits[0].float().softmax(-1).tolist()))
+                out[i] = LayaRunner.probs(items[i]["question"], self.answer(items[i]["question"], probs))
+            start += size
+        return out
+
+    @staticmethod
+    def answer(q: Question, probs: dict[str, float]) -> dict:
+        return {"noul": probs["true"]} if q.type == "yesno" else {"probabilities": probs}
+
+
+class RateLimiter:
+    """Sliding 60 s window on requests and tokens, kept below the provider quota."""
+
+    def __init__(self, rpm: int, tpm: int):
+        self.rpm, self.tpm = rpm, tpm
+        self.log: list[tuple[float, int]] = []
+
+    def wait(self, tokens: int):
+        while True:
+            now = time.monotonic()
+            self.log = [(t, n) for t, n in self.log if now - t < 60]
+            if len(self.log) < self.rpm and sum(n for _, n in self.log) + tokens <= self.tpm:
+                return
+            time.sleep(max(0.05, 60 - (now - self.log[0][0])))
+
+    def add(self, tokens: int):
+        self.log.append((time.monotonic(), tokens))
+
+
+class ApiRunner:
+    """One request per question (the state differs for every question), cached on disk with the measured
+    latency. The question mapping is the one Laya copies from Jev."""
+    remote = True
+    name = url = model_id = None
+
+    @property
+    def cache_path(self) -> Path:
+        raise NotImplementedError
+
+    def __init__(self, device: str):
+        self.cache = json.loads(self.cache_path.read_text()) if self.cache_path.exists() else {}
         self.model = None
 
-    def request(self, body: dict) -> tuple[dict, float]:
-        data = json.dumps({**body, "share_data": False}).encode()
+    def headers(self) -> dict:
+        raise NotImplementedError
+
+    def body(self, q: Question) -> dict:
+        raise NotImplementedError
+
+    def wire(self, body: dict) -> dict:
+        return body
+
+    def throttle(self, body: dict):
+        pass
+
+    def record(self, resp: dict):
+        pass
+
+    def blocked(self, code: int, payload: bytes) -> str | None:
+        """Error message for a request rejected for its content, answered as uniform probabilities."""
+        return None
+
+    def request(self, body: dict) -> tuple[dict | None, float, str | None]:
+        data = json.dumps(self.wire(body)).encode()
         for attempt in range(8):
-            req = urllib.request.Request(JEV_URL, data, {
-                "Authorization": f"Bearer {self.key}", "Content-Type": "application/json",
-                "X-Classifier-Share-Data": "false", "User-Agent": "decisionllm-bench"})
+            self.throttle(body)
+            req = urllib.request.Request(self.url, data, {**self.headers(), "Content-Type": "application/json",
+                                                          "User-Agent": "decisionllm-bench"})
             t0 = time.perf_counter()
             try:
                 with urllib.request.urlopen(req, timeout=60) as r:
-                    return json.loads(r.read()), 1000 * (time.perf_counter() - t0)
+                    resp = json.loads(r.read())
+                    ms = 1000 * (time.perf_counter() - t0)
+                    self.record(resp)
+                    return resp, ms, None
             except urllib.error.HTTPError as e:
+                payload = e.read()
                 if e.code not in (429, 500, 502, 503, 504):
-                    raise SystemExit(f"classifier.dev {e.code}: {e.read()[:300]!r}")
-                time.sleep(retry_after(e.headers.get("Retry-After"), 2 ** attempt))
+                    if err := self.blocked(e.code, payload):
+                        return None, 1000 * (time.perf_counter() - t0), err
+                    raise SystemExit(f"{self.name} {e.code}: {payload[:300]!r}")
+                wait = retry_after(e.headers.get("Retry-After"), retry_delay(payload, 2 ** attempt))
+                print(f"  {self.name}: HTTP {e.code}, riprovo tra {wait:.0f} s", flush=True)
+                time.sleep(wait)
             except (urllib.error.URLError, TimeoutError):
                 time.sleep(2 ** attempt)
-        raise SystemExit("classifier.dev: troppi tentativi falliti")
+        raise SystemExit(f"{self.name}: troppi tentativi falliti")
 
     def answer(self, q: Question) -> dict:
-        body = {"model": "jev-latest", "state": q.state or q.question, "questions": {"q": LayaRunner.question_def(q)}}
+        body = self.body(q)
         key = json.dumps(body, ensure_ascii=False, sort_keys=True)
         if key not in self.cache:
-            resp, ms = self.request(body)
-            self.cache[key] = {"answer": resp["answers"]["q"], "model": resp.get("model"), "ms": ms}
+            resp, ms, err = self.request(body)
+            self.cache[key] = ({"answer": None, "model": None, "ms": ms, "error": err} if resp is None else
+                               {"answer": resp["answers"]["q"], "model": resp.get("model") or self.model_id,
+                                "ms": ms})
             if len(self.cache) % 50 == 0:
                 self.save()
-            time.sleep(JEV_PAUSE_S)
         self.model = self.cache[key]["model"] or self.model
         return self.cache[key]
 
     def save(self):
-        JEV_CACHE.write_text(json.dumps(self.cache, ensure_ascii=False))
+        self.cache_path.write_text(json.dumps(self.cache, ensure_ascii=False))
 
     def __call__(self, items: list[dict]) -> list[list[float]]:
         out = []
         for it in items:
-            p = LayaRunner.probs(it["question"], self.answer(it["question"])["answer"])
+            q = it["question"]
+            a = self.answer(q)["answer"]
+            p = LayaRunner.probs(q, a) if a else [0.0] * (2 if q.type == "yesno" else len(q.all_options))
             total = sum(p)
             out.append([v / total for v in p] if total > 0 else [1 / len(p)] * len(p))
         self.save()
@@ -423,11 +562,87 @@ class JevRunner:
     def ms(self, items: list[dict]) -> float:
         return sum(self.answer(it["question"])["ms"] for it in items) / 1000
 
+    def blocked_count(self, items: list[dict]) -> int:
+        return sum(self.answer(it["question"])["answer"] is None for it in items)
+
+
+def retry_delay(payload: bytes, default: float) -> float:
+    """Google puts the wait in error.details[].retryDelay ("23s") instead of a Retry-After header."""
+    try:
+        details = json.loads(payload)["error"].get("details", [])
+        delay = next(d["retryDelay"] for d in details if "retryDelay" in d)
+        return float(delay.rstrip("s")) + 1
+    except (ValueError, KeyError, TypeError, AttributeError, StopIteration):
+        return default
+
+
+class JevRunner(ApiRunner):
+    name, url = "classifier.dev", JEV_URL
+
+    @property
+    def cache_path(self) -> Path:
+        return JEV_CACHE
+
+    def __init__(self, device: str):
+        self.key = env_key("CLASSIFIER_DEV_API")
+        super().__init__(device)
+
+    def headers(self) -> dict:
+        return {"Authorization": f"Bearer {self.key}", "X-Classifier-Share-Data": "false"}
+
+    def body(self, q: Question) -> dict:
+        return {"model": "jev-latest", "state": q.state or q.question, "questions": {"q": LayaRunner.question_def(q)}}
+
+    def wire(self, body: dict) -> dict:
+        return {**body, "share_data": False}
+
+    def throttle(self, body: dict):
+        time.sleep(JEV_PAUSE_S)
+
+
+class GeminiRunner(ApiRunner):
+    """Gemini Decisions API. The free tier allows 200 requests and 50k tokens a minute: the limiter stays
+    under both, estimating a request at 4 characters a token until the first answers report their usage."""
+    name, url, model_id = "gemini", GEMINI_URL, GEMINI_MODEL
+
+    @property
+    def cache_path(self) -> Path:
+        return GEMINI_CACHE
+
+    def __init__(self, device: str):
+        self.key = env_key("GOOGLE_API_KEY")
+        self.limiter = RateLimiter(*GEMINI_LIMITS)
+        super().__init__(device)
+
+    def headers(self) -> dict:
+        return {"x-goog-api-key": self.key}
+
+    def body(self, q: Question) -> dict:
+        return {"model": GEMINI_MODEL, "input": q.state or q.question, "questions": {"q": LayaRunner.question_def(q)}}
+
+    def throttle(self, body: dict):
+        self.pending_tokens = len(json.dumps(body, ensure_ascii=False)) // 3 + 20
+        self.limiter.wait(self.pending_tokens)
+
+    def record(self, resp: dict):
+        self.limiter.add(resp.get("usage", {}).get("total_tokens") or self.pending_tokens)
+
+    def blocked(self, code: int, payload: bytes) -> str | None:
+        try:
+            err = json.loads(payload)["error"]
+        except (ValueError, KeyError, TypeError):
+            return None
+        code_str = str(err.get("code", "")) + " " + str(err.get("status", ""))
+        if code == 400 and any(c in code_str or c in str(err.get("message", "")) for c in GEMINI_SAFETY):
+            return str(err.get("message", ""))[:200]
+        return None
+
 
 def run_baseline(name: str, datasets: list[str], device: str):
     reset_peak()
     t0 = time.perf_counter()
-    runner = {"laya": LayaRunner, "nli": NliRunner, "gliclass": GliclassRunner, "jev": JevRunner}[name](device)
+    runner = {"laya": LayaRunner, "nli": NliRunner, "gliclass": GliclassRunner, "jev": JevRunner,
+              "gemini": GeminiRunner, "clef": ClefRunner}[name](device)
     remote = getattr(runner, "remote", False)
     info = {**BASELINES[name], "key": name, "device": device, "load_seconds": round(time.perf_counter() - t0, 2)}
     call = (lambda items, ds: runner(items, ds)) if name == "nli" else (lambda items, ds: runner(items))
@@ -442,6 +657,8 @@ def run_baseline(name: str, datasets: list[str], device: str):
         elapsed = runner.ms(test) if remote else time.perf_counter() - t0
         entry = {"single": evaluate(dev, test, dev_probs, test_probs),
                  "timing": timing(len(test), elapsed, 0.0 if remote else peak()), "dev_questions": len(dev)}
+        if remote and (n := runner.blocked_count(dev + test)):
+            entry["blocked"] = n
         report(info["label"], ds, entry)
         store(name, {**info, "model": runner.model} if remote else info, ds, entry)
 
@@ -480,7 +697,7 @@ def report(label: str, ds: str, r: dict):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("system", choices=["llm", "baselines"])
-    ap.add_argument("--models", nargs="*", help="llm: chiavi dei modelli; baselines: laya nli gliclass jev")
+    ap.add_argument("--models", nargs="*", help="llm: chiavi dei modelli; baselines: laya nli gliclass clef jev gemini")
     ap.add_argument("--datasets", nargs="*", default=list(DATASETS), choices=list(DATASETS))
     ap.add_argument("--batch-size", type=int, default=64)
     ap.add_argument("--fresh", action="store_true", help="ricalcola anche i dataset già salvati")
