@@ -20,11 +20,12 @@ registrate dai modelli veri (vedi [Demo statica](#demo-statica)).
 | `demo.ipynb` | Notebook passo passo: logits, vincolo sulle lettere, batch, bias posizionale, scramble, conformal prediction, calibrazione, decisioni tipizzate |
 | `core.py` | Motore: modelli, prompt, batching, scramble, aggregazioni, metriche, calibrazione conforme |
 | `server.py` | API FastAPI e server della UI |
+| `systems.py` | I decision model (Clef-flash, Laya, Jev, Gemini Decision 1) con la stessa interfaccia del motore, per server e UI |
 | `static/index.html` | UI web |
 | `download_models.py` | Scarica i pesi dei modelli e il benchmark nella cache di Hugging Face |
 | `make_test_questions.py` | Genera `data/test_questions.json` (256 domande italiane con risposta nota) |
 | `bench/run_bench.py` | Benchmark dei modelli su Global-MMLU-Lite italiano e stress test |
-| `bench/compare.py` | Confronto con Laya, un classificatore NLI zero-shot, GLiClass, Clef-flash, Jev e Gemini Decision 1 (API) su dataset italiani di classificazione |
+| `bench/compare.py` | Confronto con Laya, un classificatore NLI zero-shot, GLiClass, GLiDE, vela3.1-fast, d3-lite, Clef-flash, Jev e Gemini Decision 1 (API) su dataset italiani di classificazione |
 | `bench/report.py` | Grafici (`bench/plots/`) e tabelle (`bench/RESULTS.md`) dai risultati |
 | `pages/` | Demo statica per GitHub Pages: registrazione delle risposte, API simulata nel browser, build del sito |
 | `tests/` | Test della logica pura, dell'API e di equivalenza dei percorsi di forward su modelli minuscoli generati dalle config reali |
@@ -41,7 +42,8 @@ docker compose up -d                                              # http://local
 ```
 
 I pesi e la cache dei kernel Triton finiscono nel volume `model-cache`. Un modello non ancora scaricato viene
-scaricato al primo caricamento. `HF_TOKEN` nell'ambiente viene passato al container. `data/`,
+scaricato al primo caricamento. `HF_TOKEN` nell'ambiente e le chiavi API del file `.env` (`CLASSIFIER_DEV_API`
+per Jev, `GOOGLE_API_KEY` per Gemini) vengono passati al container. L'immagine include Laya e GLiClass. `data/`,
 `bench/data/` e `bench/results/` sono montati dalla cartella del progetto, quindi calibrazioni, benchmark e
 risultati restano sull'host.
 
@@ -57,7 +59,8 @@ uv run pytest
 ```
 
 `server.py --preload qwen3.5-2b` carica un modello all'avvio. Altrimenti viene caricato alla prima esecuzione
-o con il pulsante "Carica in memoria". Un solo modello resta in VRAM alla volta.
+o con il pulsante "Carica". Un solo modello resta in VRAM alla volta. Laya richiede `uv sync --group baselines`;
+Jev e Gemini richiedono la loro chiave in `.env`.
 
 ## Modelli
 
@@ -155,7 +158,11 @@ una per combinazione di modello, prompt, scramble e aggregazione.
 
 ## UI
 
-Material 3, tema chiaro e scuro, quattro sezioni:
+Material 3, tema chiaro e scuro, quattro sezioni. Il selettore in alto raggruppa i nostri LLM, i decision model
+sulla GPU (Clef-flash, Laya) e quelli via API (Jev, Gemini Decision 1), con accuratezza media e millisecondi per
+domanda del benchmark. Un decision model a cui manca la chiave API o il pacchetto resta visibile, disattivato,
+con il motivo. I decision model rispondono con una passata nel loro formato di domande tipizzate, quindi scramble,
+stile del prompt e opzioni di velocità valgono solo per i nostri LLM.
 
 - **Decidi**: contesto, domande ed esecuzione. Ogni domanda ha un tipo (scelta, punteggio, sì / no), le opzioni o i
   livelli, "Nessuna delle altre" facoltativa e una risposta attesa facoltativa. La risposta compare sotto la
@@ -244,12 +251,12 @@ parametri sono in [`bench/RESULTS.md`](bench/RESULTS.md).
 
 ```bash
 uv sync --group baselines
-uv run python bench/compare.py baselines    # Laya, NLI zero-shot, GLiClass, Clef-flash, Jev e Gemini (chiavi in .env)
+uv run python bench/compare.py baselines    # Laya, NLI, GLiClass, GLiDE, vela, d3-lite, Clef-flash, Jev e Gemini (chiavi in .env)
 uv run python bench/compare.py llm          # i nostri modelli, 1 passata e 5 permutazioni
 uv run python bench/report.py
 ```
 
-`bench/compare.py` pone le stesse domande a quattro modelli open source che restituiscono probabilità con una sola
+`bench/compare.py` pone le stesse domande a sette modelli open source che restituiscono probabilità con una sola
 passata, a due decision model via API (Jev e Gemini Decision 1) e ai nostri LLM. Le chiavi vanno in `.env`
 (`CLASSIFIER_DEV_API` per Jev, `GOOGLE_API_KEY` per Gemini). Jev riceve `share_data: false`. Le risposte restano
 in cache in `bench/data/jev_cache.json` e `bench/data/gemini_cache.json`, così un nuovo run non ripete le
@@ -260,6 +267,9 @@ chiamate. Le richieste a Gemini restano sotto i limiti del livello gratuito (180
 | Laya multilingual | [`convaiinnovations/laya`](https://huggingface.co/convaiinnovations/laya) (`multilingual`) | 322M | decision model su mmBERT: stato e domande tipizzate (scelta, punteggio, sì / no), come Jev |
 | bge-m3 zeroshot v2.0 | [`MoritzLaurer/bge-m3-zeroshot-v2.0`](https://huggingface.co/MoritzLaurer/bge-m3-zeroshot-v2.0) | 568M | cross-encoder NLI: una passata per opzione, probabilità di implicazione normalizzate |
 | GLiClass x-base | [`knowledgator/gliclass-x-base`](https://huggingface.co/knowledgator/gliclass-x-base) | 300M | mDeBERTa: testo e tutte le opzioni in una passata, un punteggio per opzione |
+| GLiDE 0.4B | [`fastino/GLiDE-0.4B`](https://huggingface.co/fastino/GLiDE-0.4B) | 0.4B | decision model di Fastino su encoder ModernBERT (Ettin): stato e domande tipizzate, un punteggio per opzione; licenza Fastino Community (uso commerciale in produzione libero sotto 10 M$ di fatturato annuo, con la dicitura "Built with Fastino GLiDE") |
+| vela3.1-fast | [`vllm-sr/vela3.1-fast`](https://huggingface.co/vllm-sr/vela3.1-fast) | 380M | decision model di vLLM Semantic Router su encoder UltraBERT, addestrato in 15 lingue; scelta e sì / no (il punteggio passa come scelta tra i livelli) |
+| d3-lite | [`vllm-sr/d3-lite`](https://huggingface.co/vllm-sr/d3-lite) | 0.85B | decision model di vLLM Semantic Router su Qwen3.5 0.8B, stato e domande tipizzate come Jev |
 | Clef-flash (4-bit) | [`Cloudflare/clef-flash`](https://huggingface.co/Cloudflare/clef-flash) | 9.65B | decision model di Cloudflare: Qwen3.5 9B con una testa che dà un logit per opzione, stato e domande tipizzate come Jev; layer in NF4 sulla nostra GPU |
 | Jev (API) | [classifier.dev](https://classifier.dev) `/v1/systemone`, `jev-latest` | – | il decision model di TypeSafe, stato e domande tipizzate; tempi con la rete |
 | Gemini Decision 1 (API) | [Gemini Decisions API](https://aistudio.google.com/docs/decisions-api) `/v1beta/decisions`, `gemini-decision-1` | – | il decision model di Google, stato e domande tipizzate come Jev; tempi con la rete |

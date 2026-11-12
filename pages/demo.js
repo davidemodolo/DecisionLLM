@@ -145,7 +145,8 @@
     const spec = cfg.models.find(m => m.key === b.model);
     if (spec.browser) return browserScore(b, cfg, spec);
     const data = await answersFor(b.model);
-    const exact = b.prompt_style === cfg.default_prompt && !b.set_attention;
+    const decision = spec.kind === "decision";
+    const exact = decision || (b.prompt_style === cfg.default_prompt && !b.set_attention);
     const method = b.scramble > 1 ? b.aggregation : "mean";
     const cal = calibrations[calKey(b)];
     const recorded = Object.values(data.answers);
@@ -157,7 +158,8 @@
       const state = (q.state || b.state || "").trim();
       const rec = exact ? data.answers[key(q, state)] : null;
       const n = allOptions(q, cfg).length;
-      const vs = rec ? rec.v.slice(0, b.scramble) : simulated(`${b.model}|${key(q, state)}`, n, b.scramble);
+      const k = decision ? 1 : b.scramble;
+      const vs = rec ? rec.v.slice(0, k) : simulated(`${b.model}|${key(q, state)}`, n, k);
       forward += vs.length * (rec ? rec.t : avgMs) / 1000;
       prompts += vs.length;
       vs.forEach(v => v[1].forEach((p, j) => { posSum[j] = (posSum[j] || 0) + p; posCnt[j] = (posCnt[j] || 0) + 1; }));
